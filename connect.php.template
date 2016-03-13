@@ -2,5 +2,5 @@
 
 $login = '...';
 $password = '...';
-$host="mysql:host=...;dbnam...";
+$host="mysql:host=...;dbname=...";
 
