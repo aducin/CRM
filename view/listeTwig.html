@@ -1,0 +1,256 @@
+{% extends "head.html" %}
+
+{% block title %}
+	TVSatz - Liste
+{% endblock %}
+
+{% block result %};
+<div class="container">
+    <div class="row header-nav">
+        <div class="inner-block">
+            <ul class="nav nav-pills fl-left">
+                <li role="presentation" class="active"><a href="#">Liste</a></li>
+                <li role="presentation"><a href="{{ root }}/Erfassung">Erfassung</a></li>
+                <li role="presentation"><a href="{{ root }}/Ausloggen" id="logoutButton">Ausloggen</a></li>
+            </ul>
+            {% if user == 1 %}
+            <button type="button" class="btn btn-primary fl-right gear-btn"><i class="fa fa-cog"></i></button>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row main" style="padding-right:15px;padding-left:15px;">
+        <div class="col-sm-12 inner-block">
+            <div class="row">
+                <form class="form-horizontal search-form" id="searchForm" action="Liste" method="post">
+                    <div class="row">
+                        <div class="col-sm-12 search-head">
+                            <h4 class="fl-left blue-text">Suchfilter</h4>
+                            <button type="button" class="btn btn-primary fl-right" id="searchButton">Suchen</button>    
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-11 col-md-7">
+                            <div class="form-group">
+                                <label for="status" class="col-sm-4 control-label">Status / Auftragsart</label>
+                                <div class="col-sm-8">
+                                    <select name="" id="status" class="form-control selectpicker">
+                                        <option value="">Alle</option>
+                                        <option value="">Angebotsphase</option>
+                                    </select>
+                                </div>    
+                            </div>
+                            <div class="form-group">
+                                    <label for="status" class="col-sm-4 control-label">Datumsbereich</label>
+                                    <div class="col-sm-8">
+                                        <div class="row">
+                                            <div class="col-sm-6">
+                                                <div class="row">
+                                                    <label for="datumsbereich-von" class="control-label col-sm-3 col-md-2">von</label>
+                                                    <div class="col-sm-9 col-md-10">
+                                                        <div class="input-group">
+                                                            <input type="text" name="beginDate" id="datumsbereich-von" class="form-control datepicker" data-date-format="dd/mm/yyyy" {% if params.begin %} value="{{ params.begin }}" {% endif %} >
+                                                            <div class="input-group-addon datepicker-opener"><i class="fa fa-calendar-o"></i></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-6">
+                                                <div class="row">
+                                                    <label for="datumsbereich-bis" class="control-label col-sm-3 col-md-2">bis</label>
+                                                    <div class="col-sm-9 col-md-10">
+                                                        <div class="input-group">
+                                                            <input type="text" name="endDate" id="datumsbereich-bis" class="form-control datepicker data-date-format="dd/mm/yyyy" {% if params.endDate %} value="{{ params.endDate }}" {% endif %}>
+                                                            <div class="input-group-addon datepicker-opener"><i class="fa fa-calendar-o"></i></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>                                      
+                                        </div>
+                                    </div>   
+                            </div>
+                            <div class="form-group">
+                                <label for="freitextsuche" class="col-sm-4 control-label">Freitextsuche</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="projectName" id="freitextsuche" class="form-control" {% if params.projectName %} value="{{ params.projectName }}" {% endif %}>
+                                </div>    
+                            </div>
+                            <div class="form-group" id="auftraggeberDiv">
+                                <label for="auftraggeber" id="ajaxMessage" class="col-sm-4 control-label">Auftraggeber</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <div class="input-group-addon"><i class="fa fa-search"></i></div>                                            
+                                        <input type="text" name="clientName" id="auftraggeber" class="form-control" placeholder="Schreiben Sie den Name ein" {% if params.clientName %} value="{{ params.clientName }}" {% endif %}>
+                                    </div>
+                                </div>    
+                            </div>
+                            <div class="form-group">
+                                <label for="vorgangsnummer" class="col-sm-4 control-label">Vorgangsnummer</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="eventNumber" id="vorgangsnummer" class="form-control" {% if params.eventNumber %} value="{{ params.eventNumber }}" {% endif %}>
+                                </div>    
+                            </div> 
+                            <div class="form-group">
+                                <label for="kundenauftragsnummer" class="col-sm-4 control-label">Kundenauftragsnummer</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="clientOrderNumber" id="kundenauftragsnummer" class="form-control" {% if params.clientOrderNumber %} value="{{ params.clientOrderNumber }}" {% endif %}>
+                                </div>    
+                            </div> 
+                            <div class="form-group mrt">
+                                <label for="mandant" class="col-sm-4 control-label">Mandant</label>
+                                <div class="col-sm-4">
+                                    <select name="mandant" id="mandant" class="form-control selectpicker">
+                                    {% if params.mandant %}
+					<option value="{{ params.mandant }}">{{ params.mandant }}</option>
+                                        {% for singleMandant in mandant %}
+					  {% if params.mandant != singleMandant %}
+                                        <option value="{{ singleMandant }}">{{ singleMandant }}</option>
+					  {% endif %}
+                                         {% endfor %}
+                                    {% else %}    
+					{% for singleMandant in mandant %}
+					  <option value="{{ singleMandant }}">{{ singleMandant }}</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                    </select>
+                                </div>    
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+		  {% if params == null %}
+		  <h4>Ergebnisse der letzten Suche</h4>
+		  {% endif %}
+                    <table id="list-sortable" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">Liefertermin</th>
+                                <th style="text-align: center;">Projektname</th>
+                                <th style="text-align: center;">Auftragsnummer</th>
+                            </tr>
+                        </thead>
+                        {% if result != null %}
+                        <tbody>
+			  {% for singleResult in result %}
+                            <tr>
+                                <td class="tableRow"><a href="Erfassung/{{ singleResult.id }}" id="{{ singleResult.id }}">{{ singleResult.liefertermin }}</a></td>
+                                <td class="tableRow"><a href="Erfassung/{{ singleResult.id }}" id="{{ singleResult.id }}">{{ singleResult.name }}</a></td>
+                                <td class="tableRow"><a href="Erfassung/{{ singleResult.id }}" id="{{ singleResult.id }}">{{ singleResult.number }}</a></td>
+                            </tr> 
+                          {% endfor %}
+                        </tbody>
+                        {% else %}
+			    <tbody>
+                                <tr>
+                                    <th></th>
+                                    <th style="text-align: center;">Noch kein Ergebnis verfügbar</th>
+                                    <th></th>
+                                </tr>
+			    </tbody>
+                        {% endif %}
+                    </table> 
+                </div>
+            </div>
+        </div>
+    </div>
+</div><!-- /container -->
+{% endblock %}
+
+{% block script %}
+    <script>
+    $( document ).ready(function() {
+        $('#datumsbereich-von').datepicker( {
+            changeDay: true,
+            changeMonth: true,
+            changeYear: true,
+            showButtonPanel: true,
+            dateFormat: 'DD MM yy'
+        }); 
+        
+        $.datepicker.regional['de'] = {
+            closeText: "Schließen",
+            prevText: "&#x3C;Zurück",
+            nextText: "Vor&#x3E;",
+            currentText: "Heute",
+            monthNames: [ "Januar","Februar","März","April","Mai","Juni",
+            "Juli","August","September","Oktober","November","Dezember" ],
+            monthNamesShort: [ "Jan","Feb","Mär","Apr","Mai","Jun",
+            "Jul","Aug","Sep","Okt","Nov","Dez" ],
+            dayNames: [ "Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag" ],
+            dayNamesShort: [ "So","Mo","Di","Mi","Do","Fr","Sa" ],
+            dayNamesMin: [ "So","Mo","Di","Mi","Do","Fr","Sa" ],
+            weekHeader: "KW",
+            dateFormat: "dd.mm.yy",
+            firstDay: 1,
+            isRTL: false,
+            showMonthAfterYear: false,
+            yearSuffix: "" 
+        };
+
+        $.datepicker.setDefaults($.datepicker.regional['de']);
+
+        $('#datumsbereich-von').datepicker("option", "dateFormat", "dd/mm/yy");
+        $('#datumsbereich-bis').datepicker("option", "dateFormat", "dd/mm/yy");
+
+        $( "#logoutButton" ).click(function() {
+            $( '#logoutButton' ).addClass('active');
+            $( '#listeButton' ).removeClass('active');
+        });
+
+        $( "#auftraggeber" ).keyup(function() {
+            $( '#auftraggeberDiv' ).removeClass('form-group has-error').addClass('form-group');
+            $('#ajaxMessage').html('Auftraggeber');
+            var text = $(this).val();
+            $.ajax({url: "index.php", 
+                type: "post",
+                data: {
+                    "action": 'ajax',
+                    "concrete": 'clientSearch',
+                    "value": text,
+                },
+                    success: function(result)
+                    {
+                        var jsonData = JSON.parse(result);
+                        switch(jsonData){
+                            case 'error':
+                            $( '#auftraggeberDiv' ).removeClass('form-group').addClass('form-group has-error');
+                            $('#ajaxMessage').html('Nichts gefunden');
+                            break;
+
+                            default:
+                            var arr = jsonData.map(function(object){ return object.name });
+
+                            $( "#auftraggeber" ).autocomplete({
+                                source: arr
+                            });
+                        }
+                    }
+                });
+        });
+
+        $( ".tableRow" ).click(function() {
+            var projectId = $(this).attr('id');
+            $.ajax({url: "index.php", 
+                type: "post",
+                data: {
+                    "action": 'ajax',
+                    "concrete": 'getToTheProject',
+                    "value": projectId,
+                },
+            })
+        });
+
+        $( "#searchButton" ).click(function() {
+            var beginDate = $('#datumsbereich-von').val();
+            var endDate = $('#datumsbereich-bis').val();
+            var projectName = $('#freitextsuche').val();
+            var clientName = $('#auftraggeber').val();
+            var eventNumber = $('#vorgangsnummer').val();
+            var clientOrderNumber = $('#kundenauftragsnummer').val();
+            $('#searchForm').submit();
+        });
+    });
+</script>
+{% endblock %}

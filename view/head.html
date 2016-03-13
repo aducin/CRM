@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    {% block headTitle %}
+    {% endblock %}
+
+    <link href="{{ path }}assets/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{{ path }}assets/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" href="{{ path }}assets/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="{{ path }}assets/css/jquery-ui-1.11.4.css">
+    <link rel="stylesheet" href="{{ path }}assets/css/form.css">
+    <link rel="stylesheet" href="{{ path }}assets/css/style.css">
+</head>
+<body>
+  {% block result %}
+  {% endblock %}
+  <script src="{{ path }}assets/js/jquery-1.12.0.min.js"></script>
+  <script src="{{ path }}assets/js/bootstrap.min.js"></script>
+  <script src="{{ path }}assets/js/bootstrap-select.min.js"></script>
+  <script src="{{ path }}assets/js/jquery.dataTables.min.js"></script>
+  <script src="{{ path }}assets/js/dataTables.bootstrap.min.js"></script>
+  <script src="{{ path }}assets/js/jquery-ui-1.11.4.js"></script>
+  <script src="{{ path }}assets/js/scripts.js"></script>
+  {% block script %}
+  {% endblock %}
+</body>
+</html>
