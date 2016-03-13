@@ -17,7 +17,12 @@ $( document ).ready(function() {
     });
     $( "#auftraggeberId" ).keyup(function() {
 	var clientName = $( "#auftraggeberId" ).val();
-	$.ajax({url: "../Api/Project/" + clientName, 
+	if (window.location.href == "http://ad9bis.vot.pl/CRM/Erfassung") {
+	  var path = "Api/Project/";
+	} else {
+	  var path = "../Api/Project/";
+	}
+	$.ajax({url: path + clientName, 
                type: "get",
                success: function(result)
                     {
