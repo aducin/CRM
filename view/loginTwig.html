@@ -141,10 +141,14 @@
                     <button class="btn btn-lg btn-primary btn-block" type="button" id="password3Submit">Passwort verändern</button>
                     <button class="btn btn-lg btn-primary btn-block" type="button" id="toLogin" style="display: none;">Zum Einloggen</button>
                 </div>   
-                <input type="hidden" id="changeToken" name="token" value="<?php echo $token; ?>" />                      
+                <input type="hidden" id="changeToken" name="token" value="{{ token }}" />                      
             </form><!-- /form -->
         </div><!-- /card-container -->
     </div>
+{% endblock %}
+
+{% block otherScript %}
+    <script src="{{ path }}assets/js/jquery-ui-1.11.4.js"></script>
 {% endblock %}
 
 {% block script %}

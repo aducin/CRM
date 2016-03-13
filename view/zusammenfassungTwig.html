@@ -151,21 +151,23 @@
                                 <div class="form-group">
                                     <label for="auftraggeber" class="col-sm-3 control-label">Zahlungsziel</label>
                                     <div class="col-sm-3 gray-font">                                        
-                                        <span class="form-inline-text" id="zahlungsziel" >{% if customer %}{{ customer.zahlungsziel.name }}{% endif %}</span>
+                                        <span class="form-inline-text" id="zahlungsziel" >{% if customer %}{{ customer.zahlungsziel.name }}{%else%}zum Ergänzen{% endif %}</span>
                                     </div> 
                                     <div class="col-sm-3 gray-font">                                        
                                         <div class="checkbox">
-                                            <input id="invidivuell_1" name="invidivuell" type="checkbox">
+                                            <input id="invidivuell_1" name="invidivuell_1" type="checkbox">
                                             <label for="invidivuell_1">
                                                 invidivuell
                                             </label>
                                         </div> 
                                     </div> 
                                     <div class="col-sm-3"> 
-                                        <select name="paymentOpt" id="paymentOpt" class="form-control selectpicker" disabled="disabled">
-                                            <option>choose</option>
+                                        <select name="paymentOpt" id="paymentOpt" class="form-control selectpicker" {% if customer %} disabled="disabled" {% endif %}>
+                                            <option value="{% if customer %}{{ customer.zahlungsziel.id }}{% endif %}">{% if customer %}{{ customer.zahlungsziel.name }}{% else %}Bitte wählen{% endif %}</option>
 					    {% for single in paymentOpt %}
+					      {% if single.name != customer.zahlungsziel.name %}
                                             <option value="{{ single.id }}">{{ single.name }}</option>
+					      {% endif %}
                                             {% endfor %}
                                         </select>
                                     </div>                                   
@@ -173,18 +175,18 @@
                                 <div class="form-group">
                                     <label for="auftraggeber" class="col-sm-3 control-label">Skonto</label>
                                     <div class="col-sm-3 gray-font">                                        
-                                        <span class="form-inline-text">{% if customer %}{{ customer.skonto }}{% endif %}</span>
+                                        <span class="form-inline-text">{% if customer %}{{ customer.skonto }}{% else %}zum Ergänzen{% endif %}</span>
                                     </div> 
                                     <div class="col-sm-3 gray-font">                                        
                                         <div class="checkbox">
-                                            <input id="invidivuell_2" name="invidivuell" type="checkbox">
+                                            <input id="invidivuell_2" name="invidivuell_2" type="checkbox">
                                             <label for="invidivuell_2">
                                                 invidivuell
                                             </label>
                                         </div> 
                                     </div> 
                                     <div class="col-sm-3 form-inline"> 
-                                        <input type="text" name="" id="auftraggeber" class="form-control" placeholder="Prozent" value="" size="3" disabled>
+                                        <input type="text" name="skonto" id="skonto" class="form-control" placeholder="Prozent" value="{% if customer %}{{ customer.skonto }}{% endif %}" size="3" {% if customer %} disabled="disabled" {% endif %} >
                                     </div>                                   
                                 </div> 
                                 <div class="form-group">
@@ -201,23 +203,23 @@
                                 </div>     
                                 <div class="form-group">
                                     <label for="stuck" class="col-sm-3 control-label">Lieferung per</label>
-                                    <div class="col-sm-9 form-inline">                                   
-                                        <?php foreach($carrierList as $singleCarrier) { ?>
+                                    <div class="col-sm-9 form-inline">  
+					{% for singleCarrier in carrierList %}
                                         <div class="radio">
-                                            <input id="lieferung" name="lieferung" type="radio" {% if carrier %}{% if singleCarrier.id == carrier.id %} 
+                                            <input id="lieferung" name="lieferung" type="radio" value="{{ singleCarrier.id}}" {% if carrier %}{% if singleCarrier.id == carrier.id %} 
                                            checked="checked" {% endif %}{% endif %} >
                                             <label for="lieferung_tv">
                                                 {% if singleCarrier %}{{ singleCarrier.name }}{% endif %}
                                             </label>
                                         </div> 
-                                        <? } ?>                                     
+                                        {% endfor %}                               
                                     </div>                                      
                                 </div>  
                                 <div class="form-group mrt">
                                     <div class="col-sm-6">
                                         <div class="row">
                                             <div class="col-sm-12 form-inline">
-                                                <label class="control-label">Bemerkung auf</label>
+                                                <label class="control-label">Bemerk. auf</label>
                                                 <div class="checkbox">
                                                     <input id="bemerkung_an" name="bemerkung_an" type="checkbox">
                                                     <label for="bemerkung_an">
@@ -297,6 +299,10 @@
         </div>
     </div>
 </div><!-- /container -->
+{% endblock %}
+
+{% block otherScript %}
+    <script src="{{ path }}assets/js/jquery-ui-1.11.4.js"></script>
 {% endblock %}
 
 {% block script %}

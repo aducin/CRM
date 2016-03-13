@@ -5,6 +5,9 @@ RewriteRule ^Ausloggen$ /CRM/index.php?action=logout [L]
 RewriteRule ^Liste$ /CRM/index.php?action=projectSearch [L]
 RewriteRule ^Erfassung$ /CRM/index.php?action=erfassung [L]
 RewriteRule ^Erfassung/(.*)$ /CRM/index.php?action=erfassung&single=$1 [L]
+
+RewriteRule ^Api/Project/(.*)$ /CRM/index.php?action=ajax&concrete=clientSearch&value=$1 [L]
+
 AddType text/css css
 
 <IfModule mod_php5.c>

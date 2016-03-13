@@ -20,13 +20,17 @@
 <body>
   {% block result %}
   {% endblock %}
+  
   <script src="{{ path }}assets/js/jquery-1.12.0.min.js"></script>
   <script src="{{ path }}assets/js/bootstrap.min.js"></script>
   <script src="{{ path }}assets/js/bootstrap-select.min.js"></script>
   <script src="{{ path }}assets/js/jquery.dataTables.min.js"></script>
   <script src="{{ path }}assets/js/dataTables.bootstrap.min.js"></script>
-  <script src="{{ path }}assets/js/jquery-ui-1.11.4.js"></script>
   <script src="{{ path }}assets/js/scripts.js"></script>
+  
+  {% block otherScript %}
+  {% endblock %}
+  
   {% block script %}
   {% endblock %}
 </body>

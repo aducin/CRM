@@ -122,7 +122,25 @@ class Benutzer
 		unset ($this->name);
 		unset ($this->rolle);
 	}
-
+	
+	public function getBenutzerByMail($value) {
+		$sql = 'SELECT name from Benutzer WHERE mail = :mail';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':mail', $value[0]);
+		$result->execute();
+		$ifFound = $result->fetch();
+		if ($ifFound == false ) {
+			$data = array('success' => 'false', 'message' => 'Inkorrekte E-mail Adresse');
+		} else {
+			$name = $ifFound['name'];
+			$date = date('Y-m-d H:i:s');
+			$token = md5($date);
+			$this->updateSinglePassword($value, $token);
+			$result = array('success' => 'true', 'token' => $token, 'name' => $ifFound['name']);
+			return $result;
+		}
+	}
+	
 	public function getLastSql() {
 		$sql = $this->lastSql;
 		if ($sql !='') {
@@ -237,5 +255,14 @@ class Benutzer
 	
 	public function getRolle() {
 		return $this->rolle;
+	}
+	
+	public function updateSinglePassword($value, $token) {
+		$sql = 'UPDATE Benutzer SET singlePassword = :password, singleToken = :token WHERE mail = :mail';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':password', $value[1]);
+		$result->bindValue(':token', $token);
+		$result->bindValue(':mail', $value[0]);
+		$result->execute();
 	}
 }
