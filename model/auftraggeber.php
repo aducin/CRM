@@ -108,9 +108,10 @@ class Auftraggeber implements TvsatzInterface
 	}
 
 	public function searchByName($name) {
-		$sql="SELECT id, name FROM Auftraggeber WHERE name LIKE '"."%".$name."%'";
+		$name = '%'.$name.'%';
+		$sql="SELECT id, name FROM Auftraggeber WHERE name LIKE ?";
 		$result=$this->dbHandler->prepare($sql);
-		$result->execute();
+		$result->execute(array($name));
 		foreach ($result as $singleResult) {
 			$names[] = array('name' => $singleResult['name'], 'id' => $singleResult['id']);
 		}

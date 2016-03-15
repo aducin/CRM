@@ -1,0 +1,69 @@
+<div class="row">
+    <div class="col-sm-12">
+        <div class="form-group">
+            <label for="status" class="col-sm-2 control-label">Mandant</label>
+            <div class="col-sm-6 form-inline">
+                {% for singleMandant in mandant %}
+                <div class="radio">
+                    <input id="tvs" value="{{ singleMandant }}" name="mandant" type="radio" {% if dates %} 
+                    {% if singleMandant == dates.mandantSelect %} checked="checked" {% endif %} {% endif %} >
+                    <label for="tvs">
+                        {{ singleMandant }}
+                    </label>
+                </div> 
+                {% endfor %}                                        
+            </div>    
+            <div class="col-sm-4">
+                <button type="button" class="btn btn-primary fl-right">Kopieren</button>                                             
+                <button type="button" class="btn btn-primary fl-right mrr-8">Neu</button>         
+            </div>
+        </div> 
+        <div class="form-group">
+            <label for="status" class="col-sm-2 control-label">Status:</label>
+            <div class="col-sm-6 form-inline">
+                <select name="" id="status" class="form-control selectpicker">
+                    <option value="Angebotsphase">Angebotsphase</option>
+                    <option value="Absage">Absage</option>
+                    <option value="Produktion">Produktion</option>
+                    <option value="Fertiggestellt">Fertiggestellt</option>
+                    <option value="abgerechnet">abgerechnet</option>
+                </select>                                         
+            </div> 
+        </div>
+        <div class="form-group">
+            <label for="status" class="col-sm-2"></label>
+            <div class="col-sm-6">
+                <div class="row gray-font">
+                    <div class="col-sm-6">Vorgangsnummer</div>
+                    <div class="col-sm-6">{% if dates %}{{ dates.vorgangsnummer }}{% else %}Keine Daten{% endif %}</div>
+                </div>
+                <div class="row gray-font">
+                    <div class="col-sm-12 mrt-10">Rechnungsnummer</div>
+                </div>
+            </div> 
+            <div class="col-sm-4">
+                <div class="row gray-font">
+                    <div class="col-sm-6 v-left">Erstellt:</div>
+                    <div class="col-sm-6 v-right">{% if dates %}{{ dates.regDate }}{% else %}Keine Daten{% endif %}</div>
+                </div>
+                <div class="row mrt-10 gray-font">
+                    <div class="col-sm-6 v-left">Änderung:</div>
+                    <div class="col-sm-6 v-right">{% if dates %}{{ dates.changeDate }}{% else %}Keine Daten{% endif %}</div>
+                </div>
+                <div class="row mrt-10">
+                    <div class="col-sm-6 v-left">Liefertermin:</div>
+                    <div class="col-sm-6 v-right">--Keine Ahnung--</div>
+                </div>                                            
+            </div>                                        
+        </div>  
+        <div class="form-group">
+            <label for="status" class="col-sm-2 control-label">Projektname</label>
+            <div class="col-sm-6 mrb-20">
+                <input type="text" name="projektname" id="projektname" class="form-control" placeholder="Geben Sie die Projektname ein" value="{% if dates %}{{ dates.name }}{% endif %}">                                        
+            </div>    
+            <div class="col-sm-4">
+                <button type="button" class="btn btn-success fl-right btn-print"><i class="fa fa-print"></i></button>
+            </div>
+        </div>                                     
+    </div>
+</div>

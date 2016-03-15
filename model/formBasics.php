@@ -13,6 +13,7 @@ abstract class formBasics
 	protected $projectId;
 	protected $selfName;
 	protected $reg_date;
+	protected $creator;
 
 	abstract public function delete();
 

@@ -10,25 +10,30 @@ class Ajax
 
 	public function __construct($dbHandler, $post) {
         
-	$this->dbHandler = $dbHandler;
-	$this->creator = new TvsatzCreator($dbHandler);
-	$this->path = $_SERVER['DOCUMENT_ROOT']."/CRM";
-	if( isset($_POST['concrete'] )) {
-	    $action = $_POST['concrete'];
-	    $value = $_POST['value'];
-	} elseif ( isset($_GET['concrete'] )) {
-	    $action = $_GET['concrete'];
-	    $value = $_GET['value'];
+		$this->dbHandler = $dbHandler;
+		$this->creator = new TvsatzCreator($dbHandler);
+		$this->path = $_SERVER['DOCUMENT_ROOT']."/CRM";
+		if( isset($_POST['concrete'] )) {
+			$action = $_POST['concrete'];
+			$value = $_POST['value'];
+		} elseif ( isset($_GET['concrete'] )) {
+			$action = $_GET['concrete'];
+			$value = $_GET['value'];
+		}
+		$this->$action($value);
 	}
-	
-	$this->$action($value);
 
-    }
+	private function addressSearch($value) {
+		$this->searchResult('rechnungsadresse', $value);
+	}
 
     private function changePassword($value) {
     	if ($value[1] != $value[2]) {
     		$error = 'Beide Passwörter sind nicht wesensgleich!';
-    		$data = array('success' => 'false', 'name' => $error);
+    		$data = array(
+    			'success' => 'false',
+    			'name' => $error
+    		);
 			echo json_encode($data);
     	} else {
     		$password = md5($value[1]);
@@ -36,17 +41,19 @@ class Ajax
     		$user = $this->user->checkByToken( $value[3], $value[0] );
     		$this->user->saveNewPassword($user['id'], $password);
             $data = array(
-	      'success' => 'true',
-	      'name' => $user['name']
-	    );
+	      		'success' => 'true',
+	      		'name' => $user['name']
+	   		);
     		echo json_encode($data);
     	}
     }
 
     private function clientSearch($value) {
-    	$auftraggeber = $this->creator->createProduct('auftraggeber');
-    	$data = $auftraggeber->searchByName($value);
-    	echo json_encode($data);
+    	$this->searchResult('auftraggeber', $value);
+    }
+
+    private function employeeSearch($value) {
+    	$this->searchResult('ansprechpartner', $value);
     }
 
     private function forgottenPassword($value) {
@@ -125,5 +132,20 @@ class Ajax
     	unset ($this->project->benutzer);
     	echo 'stopped in ajaxController -- ';
     	var_dump($this->project); exit();
+    }
+
+    private function searchResult($name, $value) {
+    	$object = $this->creator->createProduct($name);
+    	$result = $object->searchByName($value);
+    	if ($result == null) {
+    		$error = 'Nichts gedunden!';
+    		$data = array(
+    			'success' => 'false', 
+    			'name' => $error
+    		);
+			echo json_encode($data);
+    	} else {
+    		echo json_encode($result);
+    	}
     }
 }

@@ -11,7 +11,6 @@ class Controller
 	private $params;
 
 	public function __construct($dbHandler, $action = null, $variable = null) {
-
 		$this->dbHandler = $dbHandler;
 		$this->creator = new TvsatzCreator($dbHandler);
 		$this->output = new OutputController($dbHandler);
@@ -29,15 +28,6 @@ class Controller
 
     private function ajax() {
         $this->creator->createProduct('Ajax', $_POST);
-    }
-
-    private function erfassung($id = null) {
-
-        if (!isset ($id)) {
-            $this->setBenutzer('erfassung', $_SESSION['user']);
-        } else {
-            $this->setBenutzer('erfassung', $_SESSION['user'], $id);
-        }
     }
 
     private function getBenutzer() {
@@ -63,7 +53,11 @@ class Controller
     }
 
     private function postLogin() { 
-        $array = array('action' => $_POST['action'], 'mail' => $_POST['mail'], 'password' => $_POST['passwort']);
+        $array = array(
+            'action' => $_POST['action'], 
+            'mail' => $_POST['mail'], 
+            'password' => $_POST['passwort']
+        );
         $userId = $this->creator->createProduct('loginController', $array);
         $number = $userId->getUserId();
         if ($number == $_POST['benutzer']) {
@@ -102,18 +96,45 @@ class Controller
             OutputController::displayError($error);
             exit();
         }
-        if ($name == 'liste') {
-            $result = $benutzer->getLastSql();
-	    $this->output->renderListe($this->benutzer, $result, $this->params);
-        } elseif ($name == 'erfassung') {
-            if ( isset($id) ) {
-                $this->project = $this->creator->createProduct('projekt', $id);
-                $this->project->setDates();
-                $this->output->renderErfassungPage($this->benutzer, $this->project);
+        switch ($name) {
+            case 'liste':
+                $result = $benutzer->getLastSql();
+                $this->output->renderListe($this->benutzer, $result, $this->params);
+                break;
+            case 'erfassung':
+                if ( $id !='' ) {
+                    $this->project = $this->creator->createProduct('projekt', $id);
+                    $this->project->setDates();
+                    $this->output->renderZusammenfassung($this->benutzer, $this->project);
+                }
+                $this->output->renderZusammenfassung($this->benutzer, null);
+                break;
+            case 'vorstufe':
+                if ( $id != '' ) {
+                    $this->project = $this->creator->createProduct('projekt', $id);
+                    $this->project->setDates();
+                    $this->output->renderVorstufe($this->benutzer, $this->project);
+                }
+                $this->output->renderVorstufe($this->benutzer, null);
+                break;
             }
-            $this->output->renderErfassungPage($this->benutzer, null);
+    }
+
+    private function vorstufe($id = null) {
+       if (!isset ($id)) {
+            $this->setBenutzer('vorstufe', $_SESSION['user']);
+        } else {
+            $this->setBenutzer('vorstufe', $_SESSION['user'], $id);
         }
-        
+    }
+
+    private function zusammenfassung($id = null) {
+
+        if (!isset ($id)) {
+            $this->setBenutzer('erfassung', $_SESSION['user']);
+        } else {
+            $this->setBenutzer('erfassung', $_SESSION['user'], $id);
+        }
     }
 
 }

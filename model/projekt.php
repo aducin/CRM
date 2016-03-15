@@ -22,6 +22,9 @@ class Projekt
 	private $changeDate;
 	private $pattern;
 	private $patternTo;
+	private $amendmentTime;
+	private $dateTime;
+	private $proofTime;
 	private $creator;
 
 	function __construct($dbHandler, $id = null) {
@@ -107,6 +110,9 @@ class Projekt
 		unset($this->changeDate);
 		unset($this->pattern);
 		unset($this->patternTo);
+		unset($this->amendmentTime);
+		unset($this->dateTime);
+		unset($this->proofTime);
 	}
 
 	public function getAnsprechpartner() {
@@ -123,6 +129,10 @@ class Projekt
 
 	public function getChangeDate() {
 		return $this->changeDate;
+	}
+
+	public function getId() {
+		return $this->id;
 	}
 
 	public function getKundenautragsnummer() {
@@ -167,12 +177,17 @@ class Projekt
 		return $this->vorgangsnummer;
 	}
 
+	public function getVorstufe() {
+		$result = array($this->vorstufe, $this->amendmentTime, $this->dateTime, $this->proofTime);
+		return $result;
+	}
+
 	private function saveCustomDates($auftraggeberId, $rechnungsadresseId, $ansprechpartnerId, $benutzerId, $mandant_select, $vorgangsnummer, $auftragsnummer, $liefertermin) {
 		$now = new DateTime();
 		$changeDate = $now->format('Y-m-d');
 
-		$sql = 'INSERT INTO Projekt (name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant, reg_date, mandant_select, vorgangsnummer, auftragsnummer, liefertermin, changeDate, pattern, pattern_to) 
-			VALUES ( :name, :kundenauftragsnummer, :auftraggeber, :rechnungsadresse, :ansprechpartner, :benutzer, NOW(), :mandant_select, :vorgangsnummer, :auftragsnummer, :liefertermin, :changeDate, :pattern, :patternTo )';
+		$sql = 'INSERT INTO Projekt (name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant, reg_date, mandant_select, vorgangsnummer, auftragsnummer, liefertermin, changeDate, pattern, pattern_to, amendmentTime, dateTime, proofTime) 
+			VALUES ( :name, :kundenauftragsnummer, :auftraggeber, :rechnungsadresse, :ansprechpartner, :benutzer, NOW(), :mandant_select, :vorgangsnummer, :auftragsnummer, :liefertermin, :changeDate, :pattern, :patternTo, :amendmentTime, :dateTime, :proofTime )';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':name', $this->name);
 		$result->bindValue(':kundenauftragsnummer', $this->kundenauftragsnummer);
@@ -187,6 +202,9 @@ class Projekt
 		$result->bindValue(':changeDate', $changeDate);
 		$result->bindValue(':pattern', $pattern);
 		$result->bindValue(':patternTo', $patternTo);
+		$result->bindValue(':amendmentTime', $amendmentTime);
+		$result->bindValue(':dateTime', $dateTime);
+		$result->bindValue(':proofTime', $proofTime);
 		$result->execute();
 	}
 
@@ -315,36 +333,47 @@ class Projekt
 		$this->vorgangsnummer = $array[9];
 		$this->auftragsnummer = $array[10];
 		$this->liefertermin = $array[11];
+		$this->pattern = $array[12];
+		$this->patternTo = $array[13];
+		$this->amendmentTime = $array[14];
+		$this->dateTime = $array[15];
+		$this->proofTime = $array[16];
 		$this->saveCustomDates($auftraggeberId, $rechnungsadresseId, $ansprechpartnerId, $benutzerId, $this->mandant_select, $this->vorgangsnummer, $this->auftragsnummer, $this->liefertermin);
 		$this->id = $this->getLastIdValue();
 		$this->setLieferant($array[6], $array[7]);
 	}
 
 	public function setDates() {
-		$sql='SELECT name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant, reg_date, mandant_select, vorgangsnummer, auftragsnummer, liefertermin, lieferant_id, lieferant_bemerkung, change_date, pattern, pattern_to FROM Projekt 
-		WHERE id= :id';
+		$sql='SELECT name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant, reg_date, mandant_select, vorgangsnummer, auftragsnummer, liefertermin, lieferant_id, lieferant_bemerkung, change_date, pattern, pattern_to, amendmentTime, dateTime, proofTime 
+			FROM Projekt WHERE id= :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
 		$result->execute();
-		$id=$result->fetch();
-		$this->name = $id['name'];
-		$this->kundenauftragsnummer = $id['kundenauftragsnummer'];
-		$this->setAuftraggeber($id['auftraggeber']);
-		$this->setRechnungsadresse($id['rechnungsadresse']);
-		$this->setAnsprechpartner($id['ansprechpartner']);
-		$this->setBenutzer($id['mandant']);
-		$this->reg_date = $id['reg_date'];
-		$this->mandant_select = $id['mandant_select'];
-		$this->vorgangsnummer = $id['vorgangsnummer'];
-		$this->auftragsnummer = $id['auftragsnummer'];
-		$this->liefertermin = $id['liefertermin'];
-		$carrier = $id['lieferant_id'];
+		$dates=$result->fetch();
+		$this->name = $dates['name'];
+		$this->kundenauftragsnummer = $dates['kundenauftragsnummer'];
+		$this->setAuftraggeber($dates['auftraggeber']);
+		$this->setRechnungsadresse($dates['rechnungsadresse']);
+		$this->setAnsprechpartner($dates['ansprechpartner']);
+		$this->setBenutzer($dates['mandant']);
+		$this->reg_date = $dates['reg_date'];
+		$this->mandant_select = $dates['mandant_select'];
+		$this->vorgangsnummer = $dates['vorgangsnummer'];
+		$this->auftragsnummer = $dates['auftragsnummer'];
+		$this->liefertermin = $dates['liefertermin'];
+		$carrier = $dates['lieferant_id'];
 		$helper = $this->creator->createProduct('helpers');
 		$this->lieferant = $helper->setLieferant($carrier);
-		$this->lieferant_bemerkung = $id['lieferant_bemerkung'];
-		$this->changeDate = $id['change_date'];
-		$this->pattern = $id['pattern'];
-		$this->patternTo = $id['pattern_to'];
+		$this->lieferant_bemerkung = $dates['lieferant_bemerkung'];
+		$this->changeDate = $dates['change_date'];
+		$this->pattern = $dates['pattern'];
+		$this->patternTo = $dates['pattern_to'];
+		$amendmentTime = explode("-", $dates['amendmentTime']);
+		$this->amendmentTime = $amendmentTime[2].'/'.$amendmentTime[1].'/'.$amendmentTime[0];
+		$dateTime = explode("-", $dates['dateTime']);
+		$this->dateTime = $dateTime[2].'/'.$dateTime[1].'/'.$dateTime[0];
+		$proofTime = explode("-", $dates['proofTime']);
+		$this->proofTime = $proofTime[2].'/'.$proofTime[1].'/'.$proofTime[0];
 		$vorstufe = $this->creator->createProduct('Vorstufe');
 		$this->vorstufe = $vorstufe->getByProjectId($this->id);
 		$drucksache = $this->creator->createProduct('Drucksache');

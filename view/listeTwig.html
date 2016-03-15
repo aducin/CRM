@@ -10,7 +10,7 @@
         <div class="inner-block">
             <ul class="nav nav-pills fl-left">
                 <li role="presentation" class="active"><a href="#">Liste</a></li>
-                <li role="presentation"><a href="{{ root }}/Erfassung">Erfassung</a></li>
+                <li role="presentation"><a href="{{ root }}/Zusammenfassung">Erfassung</a></li>
                 <li role="presentation"><a href="{{ root }}/Ausloggen" id="logoutButton">Ausloggen</a></li>
             </ul>
             {% if user == 1 %}
@@ -59,7 +59,7 @@
                                                     <label for="datumsbereich-bis" class="control-label col-sm-3 col-md-2">bis</label>
                                                     <div class="col-sm-9 col-md-10">
                                                         <div class="input-group">
-                                                            <input type="text" name="endDate" id="datumsbereich-bis" class="form-control datepicker data-date-format="dd/mm/yyyy" {% if params.endDate %} value="{{ params.endDate }}" {% endif %}>
+                                                            <input type="text" name="endDate" id="datumsbereich-bis" class="form-control datepicker" data-date-format="dd/mm/yyyy" {% if params.endDate %} value="{{ params.endDate }}" {% endif %}>
                                                             <div class="input-group-addon datepicker-opener"><i class="fa fa-calendar-o"></i></div>
                                                         </div>
                                                     </div>
@@ -100,15 +100,15 @@
                                 <div class="col-sm-4">
                                     <select name="mandant" id="mandant" class="form-control selectpicker">
                                     {% if params.mandant %}
-					<option value="{{ params.mandant }}">{{ params.mandant }}</option>
+					                   <option value="{{ params.mandant }}">{{ params.mandant }}</option>
                                         {% for singleMandant in mandant %}
-					  {% if params.mandant != singleMandant %}
-                                        <option value="{{ singleMandant }}">{{ singleMandant }}</option>
-					  {% endif %}
-                                         {% endfor %}
+					                       {% if params.mandant != singleMandant %}
+                                            <option value="{{ singleMandant }}">{{ singleMandant }}</option>
+					                        {% endif %}
+                                        {% endfor %}
                                     {% else %}    
-					{% for singleMandant in mandant %}
-					  <option value="{{ singleMandant }}">{{ singleMandant }}</option>
+					                    {% for singleMandant in mandant %}
+					                       <option value="{{ singleMandant }}">{{ singleMandant }}</option>
                                         {% endfor %}
                                     {% endif %}
                                     </select>
@@ -135,9 +135,9 @@
                         <tbody>
 			  {% for singleResult in result %}
                             <tr>
-                                <td class="tableRow"><a href="Erfassung/{{ singleResult.id }}" id="{{ singleResult.id }}">{{ singleResult.liefertermin }}</a></td>
-                                <td class="tableRow"><a href="Erfassung/{{ singleResult.id }}" id="{{ singleResult.id }}">{{ singleResult.name }}</a></td>
-                                <td class="tableRow"><a href="Erfassung/{{ singleResult.id }}" id="{{ singleResult.id }}">{{ singleResult.number }}</a></td>
+                                <td class="tableRow"><a href="Zusammenfassung/{{ singleResult.id }}" id="{{ singleResult.id }}">{{ singleResult.liefertermin }}</a></td>
+                                <td class="tableRow"><a href="Zusammenfassung/{{ singleResult.id }}" id="{{ singleResult.id }}">{{ singleResult.name }}</a></td>
+                                <td class="tableRow"><a href="Zusammenfassung/{{ singleResult.id }}" id="{{ singleResult.id }}">{{ singleResult.number }}</a></td>
                             </tr> 
                           {% endfor %}
                         </tbody>
@@ -163,98 +163,5 @@
 {% endblock %}
 
 {% block script %}
-    <script>
-    $( document ).ready(function() {
-        $('#datumsbereich-von').datepicker( {
-            changeDay: true,
-            changeMonth: true,
-            changeYear: true,
-            showButtonPanel: true,
-            dateFormat: 'DD MM yy'
-        }); 
-        
-        $.datepicker.regional['de'] = {
-            closeText: "Schließen",
-            prevText: "&#x3C;Zurück",
-            nextText: "Vor&#x3E;",
-            currentText: "Heute",
-            monthNames: [ "Januar","Februar","März","April","Mai","Juni",
-            "Juli","August","September","Oktober","November","Dezember" ],
-            monthNamesShort: [ "Jan","Feb","Mär","Apr","Mai","Jun",
-            "Jul","Aug","Sep","Okt","Nov","Dez" ],
-            dayNames: [ "Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag" ],
-            dayNamesShort: [ "So","Mo","Di","Mi","Do","Fr","Sa" ],
-            dayNamesMin: [ "So","Mo","Di","Mi","Do","Fr","Sa" ],
-            weekHeader: "KW",
-            dateFormat: "dd.mm.yy",
-            firstDay: 1,
-            isRTL: false,
-            showMonthAfterYear: false,
-            yearSuffix: "" 
-        };
-
-        $.datepicker.setDefaults($.datepicker.regional['de']);
-
-        $('#datumsbereich-von').datepicker("option", "dateFormat", "dd/mm/yy");
-        $('#datumsbereich-bis').datepicker("option", "dateFormat", "dd/mm/yy");
-
-        $( "#logoutButton" ).click(function() {
-            $( '#logoutButton' ).addClass('active');
-            $( '#listeButton' ).removeClass('active');
-        });
-
-        $( "#auftraggeber" ).keyup(function() {
-            $( '#auftraggeberDiv' ).removeClass('form-group has-error').addClass('form-group');
-            $('#ajaxMessage').html('Auftraggeber');
-            var text = $(this).val();
-            $.ajax({url: "index.php", 
-                type: "post",
-                data: {
-                    "action": 'ajax',
-                    "concrete": 'clientSearch',
-                    "value": text,
-                },
-                    success: function(result)
-                    {
-                        var jsonData = JSON.parse(result);
-                        switch(jsonData){
-                            case 'error':
-                            $( '#auftraggeberDiv' ).removeClass('form-group').addClass('form-group has-error');
-                            $('#ajaxMessage').html('Nichts gefunden');
-                            break;
-
-                            default:
-                            var arr = jsonData.map(function(object){ return object.name });
-
-                            $( "#auftraggeber" ).autocomplete({
-                                source: arr
-                            });
-                        }
-                    }
-                });
-        });
-
-        $( ".tableRow" ).click(function() {
-            var projectId = $(this).attr('id');
-            $.ajax({url: "index.php", 
-                type: "post",
-                data: {
-                    "action": 'ajax',
-                    "concrete": 'getToTheProject',
-                    "value": projectId,
-                },
-            })
-        });
-
-        $( "#searchButton" ).click(function() {
-            var beginDate = $('#datumsbereich-von').val();
-            var endDate = $('#datumsbereich-bis').val();
-            var projectName = $('#freitextsuche').val();
-            var clientName = $('#auftraggeber').val();
-            var eventNumber = $('#vorgangsnummer').val();
-            var clientOrderNumber = $('#kundenauftragsnummer').val();
-            $('#searchForm').submit();
-        });
-    });
-</script>
+  <script src="{{ path }}assets/js/liste.js"></script>
 {% endblock %}

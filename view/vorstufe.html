@@ -1,0 +1,208 @@
+{% extends "head.html" %}
+
+{% block title %}
+    TVSatz - Vorstufe
+{% endblock %}
+
+{% block result %};
+<div class="container">
+    <div class="row header-nav">
+        <div class="inner-block">
+            <ul class="nav nav-pills fl-left">
+                <li role="presentation"><a href="{{ root }}/Liste">Liste</a></li>
+                <li role="presentation" class="active"><a href="#">Erfassung</a></li>
+                <li role="presentation"><a href="{{ root }}/Ausloggen" id="logoutButton">Ausloggen</a></li>
+            </ul>
+            {% if user == 1 %}
+            <button type="button" class="btn btn-primary fl-right gear-btn"><i class="fa fa-cog"></i></button>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row main">
+        <div class="col-sm-12 inner-block">
+            <div class="row">
+                <div class="col-sm-12 col-md-9">
+                    <div class="row">
+                        <form class="col-sm-12 form-horizontal search-form">
+                            {% block innerList %}
+                                {% include 'innerList.html' %}
+                            {% endblock %}
+                        </form>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <ul class="nav nav-tabs">
+                              <li role="presentation"><a href="{% if dates.projectId %}../{% endif %}Zusammenfassung{% if dates.projectId %}/{{ dates.projectId }}{% endif %}">Zusammenfassung</a></li>
+                              <li role="presentation" class="active"><a href="#">Vorstufe</a></li>
+                              <li role="presentation"><a href="#">Drucksachen</a></li>
+                              <li role="presentation"><a href="#">Fremdarbeiten</a></li>
+                              <li role="presentation"><a href="#">Kalkulation</a></li>
+                              <li role="presentation"><a href="#">Lieferschein</a></li>
+                              <li role="presentation"><a href="#">Akte</a></li>
+                            </ul> 
+                        </div>                       
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 form-horizontal gray-form mrb-20">
+                            <form action="">
+                                <div class="form-group mrt">
+                                    <div class="col-sm-4 ">
+                                        <label for="termin_korrektur" class="control-label">Termin Korrektur</label>
+                                        <input type="text" name="termin_korrektur" id="termin_korrektur" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if vorstufe.1 %} value="{{ vorstufe.1 }}" {% else %} placeholder="Bitte wählen" {% endif %} >   
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label for="termin_daten" class="control-label">Termin Daten</label>
+                                        <input type="text" name="termin_daten" id="termin_daten" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if vorstufe.2 %} value="{{ vorstufe.2 }}" {% else %} placeholder="Bitte wählen" {% endif %} >
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label for="termin_proof_andruck" class="control-label">Termin Proof / Andruck</label>
+                                        <input type="text" name="termin_proof_andruck" id="termin_proof_andruck" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if vorstufe.3 %} value="{{ vorstufe.3 }}" {% else %} placeholder="Bitte wählen" {% endif %} > 
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="set-height">
+                                        <table class="table table-striped sm-font-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="text-align: center">Art</th>
+                                                    <th>erledigt</th>
+                                                    <th>Mitarbeiter</th>
+                                                    <th>Tätigkeit<br>(Beschreibung)</th>
+                                                    <th>Zeit Angebot<br>(in Zeiteinheiten)</th>
+                                                    <th>Zeit tatsächlich<br>(in Zeiteinheiten)</th>
+                                                    <th>Zeit verrechenbar<br>(in Zeiteinheiten)</th>
+                                                    <th>Betrag</th>
+                                                    <th>verrechenbar</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tableRow">
+                                                {% for singleVorstufe in vorstufe.0 %}
+                                                    <tr class="rows" id="{{ singleVorstufe.id }}">
+                                                        <td class="trToDelete">
+                                                            <select id="typeSelect" name="art">
+                                                                <option id="{{ singleVorstufe.typeId }}">{{ singleVorstufe.typeName }}</option>
+                                                                {% for singleArt in dates.art %}
+                                                                    {% if singleVorstufe.typeName == singleArt.name %}
+                                                                    {% else %}
+                                                                        <option id="{{ singleArt.id }}">{{ singleArt.name }}</option>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            </select>
+                                                        </td>
+                                                        <td class="trToDelete">{{ singleVorstufe.performanceTime }}</td>
+                                                        <td class="trToDelete" id="{{ singleVorstufe.employeeId }}" >{{ singleVorstufe.employeeName }}</td>
+                                                        <td class="trToDelete">{{ singleVorstufe.description }}</td>
+                                                        <td class="trToDelete">{{ singleVorstufe.timeProposal }}</td>
+                                                        <td class="trToDelete">{{ singleVorstufe.timeReal }}</td>
+                                                        <td class="trToDelete">{{ singleVorstufe.timeSettlement }}</td>
+                                                        <td class="trToDelete">{{ singleVorstufe.amount }} EUR</td>
+                                                        <td class="v-center">
+                                                            <div class="checkbox">
+                                                                <input name="settlement" type="checkbox">
+                                                                <label></label>
+                                                            </div>  
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}   
+                                            </tbody>
+                                        </table>                       
+                                    </div>
+                                </div>
+                                <div style="display: none;">
+				  <select id="employeesSelect">
+				    {% for employee in employees %}
+				      <option>
+				      {{ employee.name }}
+				      </option>
+				    {% endfor %}
+				   </select>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-6">
+                                        <button type="button" class="btn btn-primary mrr-8" id="newRow" >Neu</button>    
+                                        <button type="button" class="btn btn-primary mrr-8" id="verstecken" style="display: none;" >Verstecken</button>    
+                                        <button type="button" class="btn btn-primary loschenButton" id="" disabled="disabled">Löschen</button> 
+                                        <button type="button" class="btn btn-primary" id="speichernButton" style="display: none;">Speichern</button>
+                                    </div>
+                                    <div class="col-sm-6 v-right">
+                                        <h4>Kosten Vorstufe: <b class="total-price">{{ dates.amount }} EURO</b></h4>
+                                    </div>                                    
+                                </div>
+
+                                <div class="form-group mrt">
+                                    <div class="col-sm-6">
+                                        <div class="row">
+                                            <div class="col-sm-12 form-inline">
+                                                <label class="control-label">Bemerk. auf</label>
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_an" name="bemerkung_an" type="checkbox">
+                                                    <label for="bemerkung_an">
+                                                        AN
+                                                    </label>
+                                                </div> 
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_au" name="bemerkung_au" type="checkbox">
+                                                    <label for="bemerkung_au">
+                                                        AU
+                                                    </label>
+                                                </div>  
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_pm" name="bemerkung_pm" type="checkbox">
+                                                    <label for="bemerkung_pm">
+                                                        PM
+                                                    </label>
+                                                </div> 
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_li" name="bemerkung_li" type="checkbox">
+                                                    <label for="bemerkung_li">
+                                                        LI
+                                                    </label>
+                                                </div>  
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_re" name="bemerkung_re" type="checkbox">
+                                                    <label for="bemerkung_re">
+                                                        RE
+                                                    </label>
+                                                </div>                                                     
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <textarea class="form-control mrt-10" rows="6" placeholder="Vorstufe - Bemerkungen welche der Kunde auf Angebot und Rechnung sieht"></textarea>
+                                            </div>
+                                        </div>                                            
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="control-label" for="bemerkungen">Bemerkungen (Intern)</label>
+                                        <textarea class="form-control mrt-10" id="bemerkungen" rows="6" placeholder="Freitext für interne Bemerkungen"></textarea>
+                                    </div>                           
+                                </div>                                 
+                            </form>
+                        </div>                       
+                    </div>                    
+                </div>
+                <div class="col-sm-12 col-md-3">
+                    <form action="">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <button type="button" class="btn btn-primary fl-right">Speichern</button>        
+                            </div>
+                        </div>                
+                        {% block employeeList %}
+                            {% include 'employeeList.html' %}
+                        {% endblock %} 
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><!-- /container -->
+{% endblock %}
+
+{% block otherScript %}
+    <script src="{{ path }}assets/js/jquery-ui-1.11.4.js"></script>
+{% endblock %}
+
+{% block script %}
+  <script src="{{ path }}assets/js/vorstufe.js"></script>
+{% endblock %}

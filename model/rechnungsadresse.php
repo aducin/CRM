@@ -38,6 +38,40 @@ class Rechnungsadresse implements TvsatzInterface
 		unset($this->firma_id);
 	}
 
+	public function getDates() {
+		$result = array(  'id' => $this->id, 'name' => $this->name, 'abteilung' => $this->abteilung, 'anschrift' => $this->anschrift, 'anschrift2' => $this->anschrift2, 'plz' => $this->plz,
+			'ort' => $this->ort, 'firma_id' => $this->firma_id, 'reg_date' => $this->reg_date, 'firma_id' => $this->firma_id );
+		return $result;
+	}
+
+	public function getId() {
+		$sql = 'SELECT id, reg_date FROM Rechnungsadressen WHERE name = :name AND abteilung = :abteilung AND anschrift = :anschrift AND firma_id = :firma_id';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':name', $this->name);
+		$result->bindValue(':abteilung', $this->abteilung);
+		$result->bindValue(':anschrift', $this->anschrift);
+		$result->bindValue(':firma_id', $this->firma_id);
+		$result->execute();
+		$array = $result->fetch();
+		$this->id = $array['id'];
+		$this->reg_date = $array['reg_date'];
+	}
+
+	public function searchByName($value) {
+		$name = '%'.$value.'%';
+		$sql = "SELECT id, CONCAT_WS(' ', name, abteilung) AS name FROM Rechnungsadressen
+ 			WHERE CONCAT_WS(' ', name, abteilung) like ?";
+		$result=$this->dbHandler->prepare($sql);
+		$result->execute(array($name));
+		foreach ($result as $singleResult) {
+			$finalResult[] = array('name' => $singleResult['name'], 'id' => $singleResult['id']);
+		}
+		if (!isset($finalResult)) {
+			$finalResult = null;
+		}
+		return $finalResult;
+	}
+
 	public function selectDates() {
 		$sql = 'SELECT name, abteilung, anschrift, anschrift2, plz, ort, firma_id, reg_date, firma_id FROM Rechnungsadressen
 		WHERE id = :id';
@@ -84,24 +118,5 @@ class Rechnungsadresse implements TvsatzInterface
 		$result->bindValue(':ort', $this->ort);
 		$result->bindValue(':firma_id', $this->firma_id);
 		$result->execute();
-	}
-
-	public function getDates() {
-		$result = array(  'id' => $this->id, 'name' => $this->name, 'abteilung' => $this->abteilung, 'anschrift' => $this->anschrift, 'anschrift2' => $this->anschrift2, 'plz' => $this->plz,
-			'ort' => $this->ort, 'firma_id' => $this->firma_id, 'reg_date' => $this->reg_date, 'firma_id' => $this->firma_id );
-		return $result;
-	}
-
-	public function getId() {
-		$sql = 'SELECT id, reg_date FROM Rechnungsadressen WHERE name = :name AND abteilung = :abteilung AND anschrift = :anschrift AND firma_id = :firma_id';
-		$result=$this->dbHandler->prepare($sql);
-		$result->bindValue(':name', $this->name);
-		$result->bindValue(':abteilung', $this->abteilung);
-		$result->bindValue(':anschrift', $this->anschrift);
-		$result->bindValue(':firma_id', $this->firma_id);
-		$result->execute();
-		$array = $result->fetch();
-		$this->id = $array['id'];
-		$this->reg_date = $array['reg_date'];
 	}
 }

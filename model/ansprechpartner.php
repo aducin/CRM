@@ -38,6 +38,47 @@ class Ansprechpartner implements TvsatzInterface
 		unset($this->firma_id);
 	}
 
+	public function getDates() {
+		$result = array(  'id' => $this->id, 'name' => $this->name, 'vorname' => $this->vorname, 'telefon' => $this->telefon, 'telefon2' => $this->telefon2, 'fax' => $this->fax,
+			'mail' => $this->mail, 'reg_date' => $this->reg_date, 'firma_id' => $this->firma_id );
+		return $result;
+	}
+
+	public function getId() {
+		$sql = 'SELECT id, reg_date FROM Ansprechpartner WHERE name = :name AND vorname = :vorname AND mail = :mail';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':name', $this->name);
+		$result->bindValue(':vorname', $this->vorname);
+		$result->bindValue(':mail', $this->mail);
+		$result->execute();
+		$array = $result->fetch();
+		$this->id = $array['id'];
+		$this->reg_date = $array['reg_date'];
+	}
+
+	public function searchById($id) {
+		$sql = 'SELECT CONCAT_WS(" ", name, vorname) as name FROM Ansprechpartner WHERE id = :id';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		$result->execute();
+		$data = $result->fetch();
+		return $data['name'];
+	}
+
+	public function searchByName($value) {
+		$name = '%'.$value.'%';
+		$sql = "SELECT id, CONCAT_WS(' ', name, vorname) AS name FROM Ansprechpartner WHERE CONCAT_WS(' ', name, vorname) like ?";
+		$result=$this->dbHandler->prepare($sql);
+		$result->execute(array($name));
+		foreach ($result as $singleResult) {
+				$finalResult[] = array('name' => $singleResult['name'], 'id' => $singleResult['id']);
+		}
+		if (!isset($finalResult)) {
+			$finalResult = null;
+		}
+		return $finalResult;
+	}
+
 	private function selectDates() {
 		$sql='SELECT name, vorname, telefon, telefon2, fax, mail, reg_date, firma_id FROM Ansprechpartner 
 		WHERE id= :id';
@@ -83,23 +124,5 @@ class Ansprechpartner implements TvsatzInterface
 		$result->bindValue(':mail', $this->mail);
 		$result->bindValue(':firma_id', $this->firma_id);
 		$result->execute();
-	}
-
-	public function getDates() {
-		$result = array(  'id' => $this->id, 'name' => $this->name, 'vorname' => $this->vorname, 'telefon' => $this->telefon, 'telefon2' => $this->telefon2, 'fax' => $this->fax,
-			'mail' => $this->mail, 'reg_date' => $this->reg_date, 'firma_id' => $this->firma_id );
-		return $result;
-	}
-
-	public function getId() {
-		$sql = 'SELECT id, reg_date FROM Ansprechpartner WHERE name = :name AND vorname = :vorname AND mail = :mail';
-		$result=$this->dbHandler->prepare($sql);
-		$result->bindValue(':name', $this->name);
-		$result->bindValue(':vorname', $this->vorname);
-		$result->bindValue(':mail', $this->mail);
-		$result->execute();
-		$array = $result->fetch();
-		$this->id = $array['id'];
-		$this->reg_date = $array['reg_date'];
 	}
 }

@@ -149,6 +149,7 @@ body, html {
 }
 .gray-form form{
     display: block;
+    position: relative;
 }
 .gray-form .form-group{
     padding: 0 15px;
@@ -168,8 +169,67 @@ body, html {
 .nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover{
     background-color: #f6f6f6;
 }
+
 .nav.nav-tabs > li > a {
     padding: 10px 10px;
+}
+
+.sm-font-table{
+    font-size: 11px;
+
+}
+
+.table.sm-font-table > tbody > tr > td, 
+.table.sm-font-table > tbody > tr > th, 
+.table.sm-font-table > tfoot > tr > td, 
+.table.sm-font-table > tfoot > tr > th, 
+.table.sm-font-table > thead > tr > td, 
+.table.sm-font-table > thead > tr > th{
+    padding: 5px;
+    vertical-align: middle;
+}
+
+.table.sm-font-table > tbody > tr > td > .checkbox{
+    font-size: 13px;
+}
+
+.table.sm-font-table > tbody > tr > td > .checkbox input{
+    width: 18px;
+    margin-top: 1px;
+    height: 15px;
+}
+.table.sm-font-table > tbody > tr > td > .checkbox label{
+    cursor: auto;
+}
+.table.sm-font-table > tbody > tr > td > .checkbox label::before{
+    margin-left: -19px;
+}
+
+.form-horizontal .form-inline .control-label{
+    padding-top: 0;
+    padding-right: 5px;
+}
+
+.checkbox.buttons-line{
+    padding-top: 4px;
+}
+
+.set-height{
+    max-height: 461px;
+    padding: 0 15px;
+    overflow: auto;
+}
+
+.total-price{
+    margin-left: 5px;
+    font-weight: normal;
+}
+
+@media only screen and (max-width : 1200px) {
+    .checkbox.buttons-line{
+        font-size: 12px;
+        padding-top: 6px;
+    }
 }
 
 @media only screen and (max-width : 767px) {

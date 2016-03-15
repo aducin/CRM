@@ -4,7 +4,7 @@ class Vorstufe extends formBasics
 {
 	private $type; //Art
 	private $performanceTime; //erledigt
-	private $employee; //Mitarbeiter
+	private $employee = array(); //Mitarbeiter
 	private $description; //Beschreibung
 	private $timeProposal; //Zeit Angebot
 	private $timeReal; //Zeit tatsachlich
@@ -33,12 +33,20 @@ class Vorstufe extends formBasics
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
 		$result->execute();
+		$this->creator = new TvsatzCreator($this->dbHandler);
+		$employee = $this->creator->createProduct('ansprechpartner');
+		$helper = $this->creator->createProduct('helpers');
 		foreach ($result as $singleResult) {
+			$performanceTime = explode("-", $singleResult['performanceTime']);
+			$name = $employee->searchById($singleResult['employee']);
+			$typeName = $helper->getSingleArt($singleResult['type']);
 			$pritningData[] = array( 
 				'id' => $singleResult['id'], 
-				'type' => $singleResult['type'], 
-				'performanceTime' => $singleResult['performanceTime'], 
-				'employee' => $singleResult['employee'], 
+				'typeId' => $singleResult['type'],
+				'typeName' => $typeName,
+				'performanceTime' => $performanceTime[2].'.'.$performanceTime[1].'.'.$performanceTime[0], 
+				'employeeId' => $singleResult['employee'], 
+				'employeeName' => $name,
 				'description' => $singleResult['description'], 
 				'timeProposal' => $singleResult['timeProposal'],
 				'timeReal' => $singleResult['timeReal'],
