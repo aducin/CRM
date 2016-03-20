@@ -37,6 +37,19 @@ abstract class formBasics
 
 	abstract function getByProjectId($id);
 
+	public function row($origin, $id, $column, $value) {
+	    $sql = 'UPDATE '.$origin.' SET '.$column.' = :value WHERE id = :id';
+	    $result = $this->dbHandler->prepare($sql);
+	    $result->bindValue(':id', $id);
+	    $result->bindValue(':value', $value);
+	    if ($result->execute()) {
+		$success = 'done';
+	    } else {
+		$success = 'false';
+	    }
+	    return $success;
+	}
+	
 	public function setById($id) {
 		$this->id = $id;
 		$data = $this->getById();

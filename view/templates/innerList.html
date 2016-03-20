@@ -1,0 +1,73 @@
+<div class="row">
+    <div class="col-sm-12">
+        <div class="form-group">
+            <label for="status" class="col-sm-2 control-label" id="mandantLabel">Mandant</label>
+            <div class="col-sm-6 form-inline">
+                {% for singleMandant in mandant %}
+                <div class="radio">
+                    <input class="mandant" id="mandant_select-{{ dates.projectId }}" value="{{ singleMandant }}" name="mandant" type="radio" {% if dates %} 
+                    {% if singleMandant == dates.mandantSelect %} checked="checked" {% endif %} {% endif %} >
+                    <label for="tvs">
+                        {{ singleMandant }}
+                    </label>
+                </div> 
+                {% endfor %}                                        
+            </div>    
+            <div class="col-sm-4">
+                <button type="button" class="btn btn-primary fl-right">Kopieren</button>                                             
+                <button type="button" class="btn btn-primary fl-right mrr-8">Neu</button>         
+            </div>
+        </div> 
+        <div class="form-group">
+            <label for="status" class="col-sm-2 control-label">Status:</label>
+            <div class="col-sm-6 form-inline" id="statusParent">
+                <select name="projectStatus" id="status-{{ dates.projectId }}" class="form-control projectStatus">
+                    {% if dates.projectStatus.id %}<option class="statusOption" value="{{ dates.projectStatus.id }}">{{ dates.projectStatus.name }}</option>{% else %}<option value="none">Bitte wählen</option>{% endif %}
+                    {% for singleStatus in status %}
+                        {% if dates.projectStatus.id == singleStatus.id %}
+                        {% else %}
+                            <option class="statusOption" value="{{ singleStatus.id }}">{{ singleStatus.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>                                         
+            </div> 
+        </div>
+        <div class="form-group">
+            <label for="status" class="col-sm-2"></label>
+            <div class="col-sm-6">
+                <div class="row gray-font">
+                    <div class="col-sm-6">Vorgangsnummer</div>
+                    <div class="col-sm-6">{% if dates %}{{ dates.vorgangsnummer }}{% else %}Keine Daten{% endif %}</div>
+                </div>
+                <div class="row gray-font">
+                    <div class="col-sm-12 mrt-10">Rechnungsnummer</div>
+                </div>
+            </div> 
+            <div class="col-sm-4">
+                <div class="row gray-font">
+                    <div class="col-sm-6 v-left">Erstellt:</div>
+                    <div class="col-sm-6 v-right">{% if dates %}{{ dates.regDate }}{% else %}Keine Daten{% endif %}</div>
+                </div>
+                <div class="row mrt-10 gray-font">
+                    <div class="col-sm-6 v-left">Änderung:</div>
+                    <div class="col-sm-6 v-right">{% if dates %}{{ dates.changeDate }}{% else %}Keine Daten{% endif %}</div>
+                </div>
+                <div class="col-sm-6 ">
+                    <div class="col-sm-6 form-inline">
+                        <label for="termin_korrektur" class="control-label" style="margin-left: -31.5px; margin-top: 25px;">Liefertermin:</label>
+                        <input type="text" name="lieferterminInput" id="deliveryTime-{{ dates.projectId }}" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if dates.deliveryTime %} value="{{ dates.deliveryTime }}" {% else %}    placeholder="Bitte wählen" {% endif %} style="margin-left: 120px; margin-top: -32px;" >   
+                    </div>
+                </div>                                            
+            </div>                                        
+        </div>  
+        <div class="form-group">
+            <label for="status" class="col-sm-2 control-label">Projektname</label>
+            <div class="col-sm-6 mrb-20">
+                <input type="text" name="projektname" id="name-{{ dates.projectId }}" class="form-control" placeholder="Geben Sie die Projektname ein" value="{% if dates %}{{ dates.name }}{% endif %}">                                        
+            </div>    
+            <div class="col-sm-4">
+                <button type="button" class="btn btn-success fl-right btn-print"><i class="fa fa-print"></i></button>
+            </div>
+        </div>                                     
+    </div>
+</div>

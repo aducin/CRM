@@ -1,0 +1,15 @@
+<div class="row header-nav">
+    <div class="inner-block">
+        <ul class="nav nav-pills fl-left">
+            <li role="presentation"><a href="{{ root }}/Liste">Liste</a></li>
+            <li role="presentation" class="active"><a href="">Erfassung</a></li>
+            <li role="presentation"><a href="{{ root }}/Ausloggen" id="logoutButton">Ausloggen</a></li>
+        </ul>
+        {% if user == 1 %}
+        <form action="{{ root }}/Config" method="post" id="config">
+            <input type="hidden" id="idValue" value="{{ user }}" >
+            <button type="button" class="btn btn-primary fl-right gear-btn" id="configButton"><i class="fa fa-cog"></i></button>
+        </form>
+        {% endif %}
+    </div>
+</div>

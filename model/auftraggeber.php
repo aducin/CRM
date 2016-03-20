@@ -112,8 +112,14 @@ class Auftraggeber implements TvsatzInterface
 		$sql="SELECT id, name FROM Auftraggeber WHERE name LIKE ?";
 		$result=$this->dbHandler->prepare($sql);
 		$result->execute(array($name));
+		$sql2 = "SELECT skonto, Zahlungsziel.name as paymentName FROM Auftraggeber INNER JOIN Zahlungsziel ON Auftraggeber.zahlungsziel_id = Zahlungsziel.id 		WHERE Auftraggeber.id = :id";
 		foreach ($result as $singleResult) {
-			$names[] = array('name' => $singleResult['name'], 'id' => $singleResult['id']);
+			$id = $singleResult['id'];
+			$result = $this->dbHandler->prepare($sql2);
+			$result->bindValue(':id', $id);
+			$result->execute();
+			$paymentName = $result->fetch();
+			$names[] = array('name' => $singleResult['name'], 'id' => $singleResult['id'], 'payment' => $paymentName['paymentName'], 'skonto' => $paymentName['skonto']);
 		}
 		if (!isset($names)) {
 			$names = 'error';

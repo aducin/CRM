@@ -1,0 +1,178 @@
+{% extends "head.html" %}
+
+{% block title %}
+    TVSatz - Zusammenfassung
+{% endblock %}
+
+{% block result %};
+<div class="container">
+    {% block topList %}
+        {% include 'topList.html' %}
+    {% endblock %}
+    <div class="row main">
+        <div class="col-sm-12 inner-block">
+            <div class="row">
+                <div class="col-sm-12 col-md-9">
+                    <div class="row">
+                        <form class="col-sm-12 form-horizontal search-form">
+                            {% block innerList %}
+                                {% include 'innerList.html' %}
+                            {% endblock %}
+                        </form>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <ul class="nav nav-tabs">
+                                <li role="presentation" class="active liTable" id="zusammenfassungId"><a href="#" id="zusammenfassungHref">Zusammenfassung</a></li>
+                                <li role="presentation" class="liTable" id="vorstufeId"><a href="#" id="vorstufeHref">Vorstufe</a></li>
+                                <li role="presentation" class="liTable" id="drucksachenId"><a href="#" id="drucksachenHref">Drucksachen</a></li>
+                                <li role="presentation" class="liTable" id="fremdarbeitenId"><a href="#" id="fremdarbeitenHref">Fremdarbeiten</a></li>
+                                <li role="presentation" class="liTable" id="kalkulationId"><a href="#" id="kalkulationHref">Kalkulation</a></li>
+                                <li role="presentation" class="liTable" id="lieferscheinId"><a href="#" id="lieferscheinHref">Lieferschein</a></li>
+                                <li role="presentation" class="liTable" id="akteId"><a href="#" id="akteHref">Akte</a></li>
+                            </ul>  
+                        </div>                       
+                    </div>
+                    {% include 'erfassung-zusammenfassung.html' %}
+                    {% include 'erfassung-vorstufe.html' %}
+                    {% include 'erfassung-drucksachen.html' %}
+                    {% include 'erfassung-fremdsachen.html' %}
+                    {% include 'erfassung-kalkulation.html' %}
+                    {% include 'erfassung-lieferschein.html' %}
+                    {% include 'erfassung-akte.html' %}
+                </div>
+                <div class="col-sm-12 col-md-3">
+                    <form action="">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <button type="button" class="btn btn-primary fl-right">Speichern</button>        
+                            </div>
+                        </div>                
+                        <div class="row">
+                            <div class="col-sm-12 processed-list">
+                                <ul class="list-group">
+                                    <li class="list-group-item active">
+                                        Bearbeitet von:
+                                    </li>   
+                                    {% for employee in employees %}                  
+                                        <li class="list-group-item">
+                                            <div class="checkbox">
+                                                <input id="<?php echo $employee['id']; ?>" class="employee" name="mitarbeiter" type="checkbox">
+                                                <label for="mitarbeiter_1">
+                                                    {{ employee.name }}
+                                                </label>
+                                            </div> 
+                                        </li>
+                                    {% endfor %}                       
+                                </ul>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div><!-- /container -->
+{% endblock %}
+
+{% block otherScript %}
+<script src="{{ path }}assets/js/jquery-ui-1.11.4.js"></script>
+<script>
+
+$( document ).ready(function() {
+
+    $( "#zusammenfassungHref" ).click(function() {
+        $( '.liTable' ).removeClass( 'active' );
+        $( '#vorstufeTable' ).hide();
+        $( '#drucksachenTable' ).hide();
+        $( '#fremdarbeitenTable' ).hide();
+        $( '#kalkulationTable' ).hide();
+        $( '#lieferscheinTable' ).hide();
+        $( '#akteTable' ).hide();
+        $( '#zusammenfassungTable' ).show();
+        $( '#zusammenfassungId' ).addClass( 'active' );
+    });
+
+    $( "#vorstufeHref" ).click(function() {
+        $( '.liTable' ).removeClass( 'active' );
+        $( '#zusammenfassungTable' ).hide();
+        $( '#drucksachenTable' ).hide();
+        $( '#fremdarbeitenTable' ).hide();
+        $( '#kalkulationTable' ).hide();
+        $( '#lieferscheinTable' ).hide();
+        $( '#akteTable' ).hide();
+        $( '#vorstufeTable' ).show();
+        $( '#vorstufeId' ).addClass( 'active' );
+    });
+
+    $( "#drucksachenHref" ).click(function() {
+        $( '.liTable' ).removeClass( 'active' );
+        $( '#zusammenfassungTable' ).hide();
+        $( '#vorstufeTable' ).hide();
+        $( '#fremdarbeitenTable' ).hide();
+        $( '#kalkulationTable' ).hide();
+        $( '#lieferscheinTable' ).hide();
+        $( '#akteTable' ).hide();
+        $( '#drucksachenTable' ).show();
+        $( '#drucksachenId' ).addClass( 'active' );
+    });
+
+    $( "#fremdarbeitenHref" ).click(function() {
+        $( '.liTable' ).removeClass( 'active' );
+        $( '#zusammenfassungTable' ).hide();
+        $( '#vorstufeTable' ).hide();
+        $( '#drucksachenTable' ).hide();
+        $( '#kalkulationTable' ).hide();
+        $( '#lieferscheinTable' ).hide();
+        $( '#akteTable' ).hide();
+        $( '#fremdarbeitenTable' ).show();
+        $( '#fremdarbeitenId' ).addClass( 'active' );
+    });
+    
+    $( "#kalkulationHref" ).click(function() {
+        $( '.liTable' ).removeClass( 'active' );
+        $( '#zusammenfassungTable' ).hide();
+        $( '#vorstufeTable' ).hide();
+        $( '#drucksachenTable' ).hide();
+        $( '#fremdarbeitenTable' ).hide();
+        $( '#lieferscheinTable' ).hide();
+        $( '#akteTable' ).hide();
+        $( '#kalkulationTable' ).show();
+        $( '#kalkulationId' ).addClass( 'active' );
+    });
+    
+    $( "#lieferscheinHref" ).click(function() {
+        $( '.liTable' ).removeClass( 'active' );
+        $( '#zusammenfassungTable' ).hide();
+        $( '#vorstufeTable' ).hide();
+        $( '#drucksachenTable' ).hide();
+        $( '#fremdarbeitenTable' ).hide();
+        $( '#kalkulationTable' ).hide();
+        $( '#akteTable' ).hide();
+        $( '#lieferscheinTable' ).show();
+        $( '#lieferscheinId' ).addClass( 'active' );
+    });
+    
+    $( "#akteHref" ).click(function() {
+        $( '.liTable' ).removeClass( 'active' );
+        $( '#zusammenfassungTable' ).hide();
+        $( '#vorstufeTable' ).hide();
+        $( '#drucksachenTable' ).hide();
+        $( '#fremdarbeitenTable' ).hide();
+        $( '#kalkulationTable' ).hide();
+        $( '#lieferscheinTable' ).hide();
+        $( '#akteTable' ).show();
+        $( '#akteId' ).addClass( 'active' );
+    });
+});
+
+</script>
+{% endblock %}
+
+
+{% block script %}
+  <script src="{{ path }}assets/js/zusammenfassung.js"></script>
+  <script src="{{ path }}assets/js/vorstufe.js"></script>
+  <script src="{{ path }}assets/js/drucksachen.js"></script>
+  <script src="{{ path }}assets/js/fremdarbeiten.js"></script>
+{% endblock %}

@@ -56,15 +56,40 @@ class Rechnungsadresse implements TvsatzInterface
 		$this->id = $array['id'];
 		$this->reg_date = $array['reg_date'];
 	}
+	
+	public function searchByChosenName($value) {
+	    $values = explode(': ', $value);
+	    $name = $values[0];
+	    $department = $values[1];
+	    $sql = "SELECT id FROM Rechnungsadressen WHERE name = :name AND abteilung = :department";
+	    $result=$this->dbHandler->prepare($sql);
+	    $result->bindValue(':name', $name);
+	    $result->bindValue(':department', $department);
+	    $result->execute();
+	    $id = $result->fetch();
+	    return $id['id'];
+	}
 
 	public function searchByName($value) {
-		$name = '%'.$value.'%';
-		$sql = "SELECT id, CONCAT_WS(' ', name, abteilung) AS name FROM Rechnungsadressen
- 			WHERE CONCAT_WS(' ', name, abteilung) like ?";
-		$result=$this->dbHandler->prepare($sql);
-		$result->execute(array($name));
+		$isArray = explode(',', $value);
+		if (isset($isArray[1])){
+			$value1 = $isArray[0];
+			$value1 = str_replace(': ', ' ', $value1);
+			$value2 = $isArray[1];
+			$name = '%'.$value2.'%';
+			$searchedName = '%'.$value1.'%';
+			$sql = "SELECT Rechnungsadressen.id, Rechnungsadressen.name as name, Rechnungsadressen.abteilung as abteilung FROM Rechnungsadressen INNER JOIN Auftraggeber ON Rechnungsadressen.firma_id = Auftraggeber.id
+			WHERE Auftraggeber.name like ? AND CONCAT_WS(' ', Rechnungsadressen.name, Rechnungsadressen.abteilung) like ?";
+			$result=$this->dbHandler->prepare($sql);
+			$result->execute(array($name, $searchedName));
+		} else {
+			$name = '%'.$value.'%';
+			$sql = "SELECT id, name, abteilung FROM Rechnungsadressen WHERE CONCAT_WS(' ', name, abteilung) like ?";
+			$result=$this->dbHandler->prepare($sql);
+			$result->execute(array($name));
+		}
 		foreach ($result as $singleResult) {
-			$finalResult[] = array('name' => $singleResult['name'], 'id' => $singleResult['id']);
+			$finalResult[] = array('name' => $singleResult["name"].': '.$singleResult["abteilung"], 'id' => $singleResult["id"]);
 		}
 		if (!isset($finalResult)) {
 			$finalResult = null;

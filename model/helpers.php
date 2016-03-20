@@ -13,6 +13,7 @@ class Helpers
 	private $lieferant = array();
 	private $machine;
 	private $ansprechpartner = array();
+	private $status = array();
 	
 	function __construct($dbHandler) {
 
@@ -77,6 +78,15 @@ class Helpers
 	public function getMandant() {
 		return $this->mandant;
 	}
+	
+	public function getSingleZahlungsziel($id) {
+		$sql = "SELECT name FROM Zahlungsziel WHERE id = :id";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		$result->execute();
+		$date = $result->fetch();
+		return $date['name'];
+	}
 
 	public function getZahlungsziel() {
 		
@@ -106,6 +116,16 @@ class Helpers
 		return $this->benutzerList;
 	}
 
+	public function getCompleteBenutzerList() {
+		$sql = 'SELECT Benutzer.id as id, Benutzer.name as name, Rolle.name as rolle FROM Benutzer INNER JOIN Rolle ON Benutzer.rolle_id = Rolle.id';
+		$result=$this->dbHandler->prepare($sql);
+		$result->execute();
+		foreach ($result as $singleResult) {
+			$list[] = array('id' => $singleResult['id'], 'name' => $singleResult["name"], 'rolle' => $singleResult["rolle"]);
+		}
+		return $list;
+	}
+
 	public function getSingleBenutzer($id) {
 		$sql='SELECT Benutzer.name as name, Rolle.id as rolleId, Rolle.name as rolleName FROM Benutzer INNER JOIN Rolle ON Benutzer.rolle_id = Rolle.id WHERE Benutzer.id = :id';
 		$result=$this->dbHandler->prepare($sql);
@@ -116,15 +136,18 @@ class Helpers
 		return $dateArray;
 	}
 
-	public function setRolle() {
+	public function setRolle($return = null) {
 		$sql='SELECT id, name FROM Rolle';
 		$result=$this->dbHandler->prepare($sql);
 		$result->execute();
 		$list = array();
 		foreach ($result as $singleResult) {
-			$list[] = array('id'=>$singleResult['id'], 'name'=>$singleResult["name"]);
+			$list[] = array('id' => $singleResult['id'], 'name' => $singleResult["name"]);
 		}
 		$this->rolle = $list;
+		if (isset($return) && $return = 'true') {
+			return $list;
+		}
 	}
 
 	public function getRolle() {
@@ -174,5 +197,27 @@ class Helpers
 		}
 		$this->ansprechpartner = $list;
 		return $list;
+	}
+
+	public function getStatusList() {
+		$sql = "SELECT id, name FROM Status";
+		$result=$this->dbHandler->prepare($sql);
+		$result->execute();
+		$list = array();
+		foreach ($result as $singleResult) {
+			$list[] = array('id'=>$singleResult['id'], 'name'=>$singleResult["name"]);
+		}
+		$this->status = $list;
+		return $list;
+	}
+
+	public function getSingleStatus($id) {
+		$sql = "SELECT id, name FROM Status WHERE id = :id";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		$result->execute();
+		$date = $result->fetch();
+		$result = array('id' => $date['id'], 'name' => $date['name']);
+		return $result;
 	}
 }

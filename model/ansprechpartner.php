@@ -66,10 +66,22 @@ class Ansprechpartner implements TvsatzInterface
 	}
 
 	public function searchByName($value) {
-		$name = '%'.$value.'%';
-		$sql = "SELECT id, CONCAT_WS(' ', name, vorname) AS name FROM Ansprechpartner WHERE CONCAT_WS(' ', name, vorname) like ?";
-		$result=$this->dbHandler->prepare($sql);
-		$result->execute(array($name));
+		$isArray = explode(',', $value);
+		if (isset($isArray[1])){
+			$value1 = $isArray[0];
+			$value2 = $isArray[1];
+			$name = '%'.$value2.'%';
+			$searchedName = '%'.$value1.'%';
+			$sql = "SELECT Ansprechpartner.id, CONCAT_WS(' ', Ansprechpartner.name, Ansprechpartner.vorname) AS name FROM Ansprechpartner INNER JOIN Auftraggeber ON Ansprechpartner.firma_id = Auftraggeber.id 
+				WHERE Auftraggeber.name like ? AND CONCAT_WS(' ', Ansprechpartner.name, Ansprechpartner.vorname) like ?";
+			$result=$this->dbHandler->prepare($sql);
+			$result->execute(array($name, $searchedName));
+		} else {
+			$name = '%'.$value.'%';
+			$sql = "SELECT id, CONCAT_WS(' ', name, vorname) AS name FROM Ansprechpartner WHERE CONCAT_WS(' ', name, vorname) like ?";
+			$result=$this->dbHandler->prepare($sql);
+			$result->execute(array($name));
+		}
 		foreach ($result as $singleResult) {
 				$finalResult[] = array('name' => $singleResult['name'], 'id' => $singleResult['id']);
 		}

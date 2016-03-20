@@ -1,0 +1,380 @@
+{% extends "head.html" %}
+
+{% block title %}
+	TVSatz - Login
+{% endblock %}
+
+{% block result %};
+	<div class="container" id="currentLoginForm" {% if token != null %} style="display: none;" {% endif %} >
+        <div class="card login-card">        
+            <form class="form-signin" action="Liste" method="post" id="loginForm">
+                <div class="form-group v-center">
+                    <h2>Admin Panel</h2>
+                </div>  
+                
+                <div class="form-group">
+                    <div role="alert" class="alert alert-danger" id="errorMessage" style="display: none;">
+                        <strong>Fehler:</strong>
+                    </div>                  
+                </div>                  
+                <div class="form-group" id="emailDiv">
+                  <div class="input-group">
+                    <div class="input-group-addon"><i class="fa fa-user"></i></div>
+                    <input type="text" name="mail" class="form-control" id="loginEmail" placeholder="E-mail Adresse" required>
+                    <span id="emailSpan" aria-hidden="true"></span>
+                  </div>
+                </div>
+                <div class="form-group" id="passwordDiv">
+                  <div class="input-group">
+                    <div class="input-group-addon" id="sth"><i class="fa fa-lock"></i></div>
+                    <input type="password" name="passwort" class="form-control" id="loginPasswort" placeholder="Passwort" required>
+                     <span id="emailPassword" aria-hidden="true"></span>
+                  </div>
+                </div>         
+                <div class="form-group">
+                    <div class="checkbox">
+                        <input id="checkbox2" class="styled" type="checkbox">
+                        <label for="checkbox2">
+                            Passwort speichern
+                        </label>
+                    </div>               
+                </div>
+                <div class="form-group">
+                    <input type="hidden" id="hiddenInput" name="action" value="login">
+                    <input type="hidden" id="hiddenInput2" name="benutzer" value="">
+                    <button class="btn btn-lg btn-primary btn-block" type="button" id="loginSubmit">Einloggen</button>
+                </div>
+                <div class="form-group v-center">
+                    <a href="" class="forgot-password" id="passwordChange" disabled>Haben Sie das Passwort vergessen?</a> 
+                </div>                               
+            </form><!-- /form -->
+        </div><!-- /card-container -->
+    </div><!-- /container -->
+    <div class="container" id="forgottenPasswordMainDiv" style="display: none;">
+        <div class="card login-card">        
+            <form class="form-signin" action="index.php" method="post" id="loginForm">
+                <div class="form-group v-center">
+                    <h2>Vergessenes Passwort</h2>
+                </div>  
+                
+                <div class="form-group">
+                    <div role="alert" class="alert alert-danger" id="forgottenErrorMessage" style="display: none;">
+                        <strong>Fehler:</strong>
+                    </div>                  
+                </div>                  
+                <div class="form-group" id="forgottenEmailDiv">
+                  <div class="input-group">
+                    <div class="input-group-addon"><i class="fa fa-user"></i></div>
+                    <input type="text" name="mail" class="form-control" id="forgottenEmail" placeholder="E-mail eingeben" required>
+                    <span id="forgottenEmailSpan" aria-hidden="true"></span>
+                  </div>
+                </div>
+                <div class="form-group" id="divToHide">
+                    <label style="text-align: center;">
+                        Bitte unten ein einmaliges Passwort eingeben
+                    </label>             
+                </div>
+                <div class="form-group" id="forgottenPasswordDiv">
+                  <div class="input-group">
+                    <div class="input-group-addon" id="sth"><i class="fa fa-lock"></i></div>
+                    <input type="password" name="passwort" class="form-control" id="forgottenPassword" placeholder="Einmaliges Passwort" required>
+                     <span id="forgottenPasswordSpan" aria-hidden="true"></span>
+                  </div>
+                </div>         
+                <div class="form-group">
+                    <input type="hidden" id="hiddenInput" name="action" value="ajax">
+                    <input type="hidden" id="hiddenInput2" name="password" value="change">
+                    <button class="btn btn-lg btn-primary btn-block" type="button" id="passwordChangeSubmit">Passwort verändern</button>
+                </div>
+                <div class="form-group v-center">
+                    <a href="" class="forgot-password" id="zurück" disabled>Zurück zum Einloggen</a> 
+                </div>                            
+            </form><!-- /form -->
+        </div><!-- /card-container -->
+    </div>
+    <div class="container" id="changePasswordMainDiv" {% if token == null %} style="display: none;" {% endif %} >
+        <div class="card login-card">        
+            <form class="form-signin" action="index.php" method="post" id="loginForm">
+                <div class="form-group v-center">
+                    <h2>Passwort ändern</h2>
+                </div>  
+                
+                <div class="form-group">
+                    <div role="alert" class="alert alert-danger" id="errorChangeMessage" style="display: none;">
+                        <strong>Fehler:</strong>
+                    </div>                  
+                </div> 
+                <div class="form-group" id="divToHide">
+                    <label style="text-align: center;">
+                        Bitte unten ein einmaliges Passwort eintippen
+                    </label>             
+                </div>                 
+                <div class="form-group" id="singlePasswordDiv">
+                  <div class="input-group">
+                    <div class="input-group-addon" id="sth"><i class="fa fa-lock"></i></div>
+                    <input type="password" name="passwort" class="form-control" id="singlePassword" placeholder="Einmaliges Passwort" required>
+                     <span id="singlePasswordSpan" aria-hidden="true"></span>
+                  </div>
+                </div>  
+                <div class="form-group" id="divToHide">
+                    <label style="text-align: center;">
+                        Bitte unten neues Passwort zweimal eintippen
+                    </label>             
+                </div>
+                <div class="form-group" id="newPassword1Div">
+                  <div class="input-group">
+                    <div class="input-group-addon" id="sth"><i class="fa fa-lock"></i></div>
+                    <input type="password" name="passwort" class="form-control" id="newPassword1" placeholder="Neues Passwort" required>
+                     <span id="newPasswordSpan1" aria-hidden="true"></span>
+                  </div>
+                </div>  
+                <div class="form-group" id="newPassword2Div">
+                  <div class="input-group">
+                    <div class="input-group-addon" id="sth"><i class="fa fa-lock"></i></div>
+                    <input type="password" name="passwort" class="form-control" id="newPassword2" placeholder="Neues Passwort wiederholen" required>
+                     <span id="newPasswordSpan2" aria-hidden="true"></span>
+                  </div>
+                </div>         
+                <div class="form-group">
+                    <input type="hidden" id="hiddenInput" name="action" value="ajax">
+                    <input type="hidden" id="hiddenInput2" name="password" value="change">
+                    <button class="btn btn-lg btn-primary btn-block" type="button" id="password3Submit">Passwort verändern</button>
+                    <button class="btn btn-lg btn-primary btn-block" type="button" id="toLogin" style="display: none;">Zum Einloggen</button>
+                </div>   
+                <input type="hidden" id="changeToken" name="token" value="{{ token }}" />                      
+            </form><!-- /form -->
+        </div><!-- /card-container -->
+    </div>
+{% endblock %}
+
+{% block otherScript %}
+    <script src="{{ path }}assets/js/jquery-ui-1.11.4.js"></script>
+{% endblock %}
+
+{% block script %}
+  <script>
+	$( document ).ready(function() {
+
+            function isValidEmailAddress(emailAddress) {
+                var pattern = /^([a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+(\.[a-z\d!#$%&'*+\-\/=?^_`{|}~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]+)*|"((([ \t]*\r\n)?[ \t]+)?([\x01-\x08\x0b\x0c\x0e-\x1f\x7f\x21\x23-\x5b\x5d-\x7e\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|\\[\x01-\x09\x0b\x0c\x0d-\x7f\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))*(([ \t]*\r\n)?[ \t]+)?")@(([a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\d\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.)+([a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]|[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF][a-z\d\-._~\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]*[a-z\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])\.?$/i;
+                return pattern.test(emailAddress);
+            };
+
+            function displayError(message) {
+                $( '#errorMessage' ).html(message);
+                $( '#errorMessage' ).css("text-align", "center");
+                $( '#errorMessage' ).show();
+            }
+
+            function displayChangeError(message) {
+                $( '#errorChangeMessage' ).html(message);
+                $( '#errorChangeMessage' ).css("text-align", "center");
+                $( '#errorChangeMessage' ).show();
+            }
+
+            function displayForgottenError(message) {
+                $( '#forgottenErrorMessage' ).html(message);
+                $( '#forgottenErrorMessage' ).css("text-align", "center");
+                $( '#forgottenErrorMessage' ).show();
+            }
+            
+            $( "#passwordChange" ).click(function() {
+                var options = {};
+                $( '#currentLoginForm' ).hide( "clip", options, 1000 );
+                $( '#forgottenPasswordMainDiv' ).delay( 750 ).show( "clip", options, 1000 );
+                return false;
+            });
+
+            $( "#toLogin" ).click(function() {
+                var options = {};
+                $( '#changePasswordMainDiv' ).hide( "clip", options, 1000 );
+                $( '#currentLoginForm' ).delay( 750 ).show( "clip", options, 1000 );
+            });
+            
+            $( "#zurück" ).click(function() {
+                var options = {};
+                $( '#forgottenPasswordMainDiv' ).hide();
+                $( '#currentLoginForm' ).show();
+            });
+
+            $( "#passwordChangeSubmit" ).click(function() {
+                $( '#forgottenEmailDiv' ).removeClass('form-group has-error').addClass('form-group');
+                $( '#forgottenEmailSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
+                $( '#forgottenPasswordDiv' ).removeClass('form-group has-error').addClass('form-group');
+                $( '#forgottenPasswordSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
+                $( '#forgottenErrorMessage' ).addClass('alert-danger');
+                $( '#forgottenErrorMessage' ).removeAttr("style");
+                $( '#forgottenErrorMessage' ).hide();
+                var forgottenMail = $( '#forgottenEmail' ).val();
+                var forgottenPassword = $( '#forgottenPassword' ).val();
+                if ( !forgottenMail && !forgottenPassword ) {
+                    displayForgottenError('Füllen Sie E-mail und Passwort auf!');
+                    $( '#forgottenEmailSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
+                    $( '#forgottenEmailDiv' ).removeClass('form-group').addClass('form-group has-error');
+                    $( '#forgottenPasswordSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
+                    $( '#forgottenPasswordDiv' ).removeClass('form-group').addClass('form-group has-error');
+                } else if (!forgottenMail) {
+                    displayForgottenError('Füllen Sie E-mail auf!');
+                    $( '#forgottenEmailSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
+                    $( '#forgottenEmailDiv' ).removeClass('form-group').addClass('form-group has-error');
+                } else if ( !isValidEmailAddress( forgottenMail )) {
+                    displayForgottenError('Unrichtige E-Mail Format');
+                    $( '#forgottenEmailSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
+                    $( '#forgottenEmailDiv' ).removeClass('form-group').addClass('form-group has-error');
+                } else if (!forgottenPassword) {
+                    displayForgottenError('Füllen Sie ein einmaliges Passwort auf!');
+                    $( '#forgottenPasswordSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
+                    $( '#forgottenPasswordDiv' ).removeClass('form-group').addClass('form-group has-error');
+                } else {
+                    var dates = [ forgottenMail, forgottenPassword ];
+                    $.ajax({url: "index.php", 
+                        type: "post",
+                        data: {
+                            "action": 'ajax',
+                            "concrete": 'forgottenPassword',
+                            "value": dates,
+                            },
+                            success: function(result){
+                                var jsonData = JSON.parse(result);
+                                if (jsonData.success == 'true') {
+                                    $( '#forgottenErrorMessage' ).removeClass('alert-danger').addClass('alert-success');
+                                    $( '#forgottenErrorMessage' ).css("text-align", "center");
+                                    $( '#forgottenErrorMessage' ).html('Hallo <b>' + jsonData.name + '</b>!<br>Eine eMail wird an die angegebene Adresse gesendet.');
+                                    $( '#divToHide' ).hide();
+                                    $( '#forgottenErrorMessage' ).fadeIn('slow');
+                                } else {
+                                    $( '#forgottenErrorMessage').html(jsonData.message);
+                                    $( '#forgottenErrorMessage').css("text-align", "center");
+                                    $( '#forgottenErrorMessage').show();
+                                }
+                            }
+                    });       
+                }
+            });
+
+            $( "#password3Submit" ).click(function() {
+                $( '#singlePasswordDiv' ).removeClass('form-group has-error').addClass('form-group');
+                $( '#newPassword1Div' ).removeClass('form-group has-error').addClass('form-group');
+                $( '#newPassword2Div' ).removeClass('form-group has-error').addClass('form-group');
+                $( '#singlePasswordSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
+                $( '#newPasswordSpan1' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
+                $( '#newPasswordSpan2' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
+                $( '#errorChangeMessage' ).addClass('alert-danger');
+                $( '#errorChangeMessage' ).removeAttr("style");
+                $( '#errorChangeMessage' ).hide();
+                
+                var singlePassword = $( '#singlePassword' ).val();
+                var newPassword1 = $( '#newPassword1' ).val();
+                var newPassword2 = $( '#newPassword2' ).val();
+                var token = $( '#changeToken' ).val();
+                if (!singlePassword || !newPassword1 || !newPassword2) {
+                    displayChangeError('Füllen Sie alle Felder!');
+                    if (!singlePassword) {
+                        $( '#singlePasswordSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
+                        $( '#singlePasswordDiv' ).removeClass('form-group').addClass('form-group has-error');
+                    }
+                    if (!newPassword1) {
+                        $( '#newPasswordSpan1' ).addClass('glyphicon glyphicon-remove form-control-feedback');
+                        $( '#newPassword1Div' ).removeClass('form-group').addClass('form-group has-error');
+                    }
+                    if (!newPassword2) {
+                        $( '#newPasswordSpan2' ).addClass('glyphicon glyphicon-remove form-control-feedback');
+                        $( '#newPassword2Div' ).removeClass('form-group').addClass('form-group has-error');
+                    }
+                } else {
+                    if (newPassword1 != newPassword2) {
+                        displayChangeError('Bitte ein identisches Password zweimal eintippen!');
+                    $( '#newPasswordSpan1' ).addClass('glyphicon glyphicon-remove form-control-feedback');
+                    $( '#newPassword1Div' ).removeClass('form-group').addClass('form-group has-error');
+                    $( '#newPasswordSpan2' ).addClass('glyphicon glyphicon-remove form-control-feedback');
+                    $( '#newPassword2Div' ).removeClass('form-group').addClass('form-group has-error');
+                    } else {
+                        var dates = [ singlePassword, newPassword1, newPassword2, token ];
+                        $.ajax({url: "index.php", 
+                            type: "post",
+                            data: {
+                                "action": 'ajax',
+                                "concrete": 'changePassword',
+                                "value": dates,
+                                },
+                            success: function(result){
+                            var jsonData = JSON.parse(result);
+                                if (jsonData.success == 'true') {
+                                    $( '#errorChangeMessage' ).removeClass('alert-danger').addClass('alert-success');
+                                    $( '#errorChangeMessage' ).css("text-align", "center");
+                                    $( '#errorChangeMessage' ).html('Hallo <b>' + jsonData.name + '</b>!<br>Das Passwort wurde geändert. Sie können schon einloggen.');
+                                    $( '#errorChangeMessage' ).fadeIn('slow');
+                                    $( '#password3Submit').fadeOut('slow');
+                                    $( '#toLogin').fadeIn('slow');
+                                } else {
+                                    displayChangeError(jsonData.name);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+            $( "#loginSubmit" ).click(function() {
+                $( '#errorMessage' ).addClass('alert-danger');
+                $( '#emailDiv' ).removeClass('form-group has-error').addClass('form-group');
+                $( '#emailSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
+                $( '#passwordDiv' ).removeClass('form-group has-error').addClass('form-group');
+                $( '#loginEmail' ).removeAttr("style");
+                $( '#loginPasswort' ).removeAttr("style");
+                $( '#errorMessage' ).removeAttr("style");
+                $( '#errorMessage' ).hide();
+                var mail = $( '#loginEmail' ).val();
+                var passwort = $( '#loginPasswort' ).val();
+
+                if (!mail && !passwort) {
+                   displayError('Füllen Sie E-mail und Passwort auf!');
+                    $( '#emailSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
+                    $( '#emailDiv' ).removeClass('form-group').addClass('form-group has-error');
+                    $( '#emailPassword' ).addClass('glyphicon glyphicon-remove form-control-feedback');
+                    $( '#passwordDiv' ).removeClass('form-group').addClass('form-group has-error');
+                } else if (!mail) {
+                    displayError('Füllen Sie E-mail auf!');
+                    $( '#emailSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
+                    $( '#emailDiv' ).removeClass('form-group').addClass('form-group has-error');
+                } else if (!passwort) {
+                    displayError('Füllen Sie das Passwort auf!');
+                    $( '#emailPassword' ).addClass('glyphicon glyphicon-remove form-control-feedback');
+                    $( '#passwordDiv' ).removeClass('form-group').addClass('form-group has-error');
+                } else if( !isValidEmailAddress( mail ) ) { 
+                    displayError('Unrichtige E-Mail Format');
+                    $( '#emailSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
+                    $( '#emailDiv' ).removeClass('form-group').addClass('form-group has-error');
+                } else {
+                    $.ajax({url: "/CRM/index.php",
+                        type: "post",
+                        data: {
+                            "action": 'login',
+                            "mail": mail,
+                            "passwort": passwort,
+                            },
+                        success: function(result){
+                        var jsonData = JSON.parse(result);
+                        if (jsonData.success == 'true') {
+                            $( '#errorMessage' ).removeClass('alert-danger').addClass('alert-success');
+                            $( '#errorMessage' ).css("text-align", "center");
+                            $( '#errorMessage' ).html('Hallo <b>' + jsonData.name + '</b>!<br> Sie werden jetzt weitergeleitet...');
+                            $( '#errorMessage' ).fadeIn('slow');
+                            $( '#hiddenInput' ).val('postLogin');
+                            $( '#hiddenInput2' ).val(jsonData.benutzer_id);
+                            $(function() {
+                                setTimeout(function() {
+                                $('#loginForm').submit();
+                                }, 1500);
+                            });
+                        } else {
+                            $( '#errorMessage').html(jsonData.name);
+                            $( '#errorMessage').css("text-align", "center");
+                            $( '#errorMessage').show();
+                        }
+                    }});
+                }
+            });
+        });
+    </script>
+{% endblock %}

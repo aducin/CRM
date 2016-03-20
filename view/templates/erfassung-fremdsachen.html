@@ -1,0 +1,128 @@
+<div id="fremdarbeitenTable" style="display: none">
+    <div class="row">
+        <div class="col-sm-12 form-horizontal gray-form mrb-20">
+            <form action="">
+                <div class="form-group mrt">
+                    <div class="col-sm-6 form-inline">
+                        <label for="termin_korrektur" class="control-label">Termin Korrektur</label>
+                        <input type="text" name="termin_fremdarbeiten" id="termin_fremdarbeiten-{{ dates.projectId }}" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if fremdarbeiten.1 %} value="{{ fremdarbeiten.1 }}" {% else %}    placeholder="Bitte wählen" {% endif %} >   
+                    </div>
+                    <div class="col-sm-6 form-inline">
+                        <label for="termin_korrektur" class="control-label">Termin Daten</label>
+                        <input type="text" name="termin_fremdarbeitenDaten" id="termin_fremdarbeitenDaten-{{ dates.projectId }}" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if fremdarbeiten.2 %} value="{{ fremdarbeiten.2 }}" {% else %}    placeholder="Bitte wählen" {% endif %} >    
+                    </div>
+                </div>                                
+                <div class="form-group">
+                    <div class="set-height">
+                        <table class="table table-striped sm-font-table">
+                            <thead>
+                                <tr>
+                                    <th>Datum</th>
+                                    <th>Lieferant<br>(Freitext)</th>
+                                    <th>Beschreibung<br>(Beschreibung)</th>
+                                    <th>EK<br>(Einkaufspreis)</th>
+                                    <th>VK<br>(Verkaufspreis)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for singleFremdarbeiten in fremdarbeiten.0 %}
+                                <tr class="rowsFremdarbeiten" id="{{ singleFremdarbeiten.id }}">
+                                    <td>{{ singleFremdarbeiten.textDate }}</td>
+                                    <td>{{ singleFremdarbeiten.deliverer }}</td>
+                                    <td>{{ singleFremdarbeiten.description }}</td>
+                                    <td>{{ singleFremdarbeiten.purchasePrice }} EURO</td>
+                                    <td>{{ singleFremdarbeiten.sellPrice }} EURO</td>
+                                </tr>  
+                                {% endfor %}
+                                <tr id="hiddenTrFremdarbeiten" style="display: none;">
+                                    <td><input type="text" name="hiddenDateFremdarbeiten" id="hiddenDateFremdarbeiten" class="form-control datepicker" size="9" placeholder="Bitte wählen" value=""></td>
+                                    <td><input type="text" class="form-control" id="hiddenCarrier" name="hiddenCarrier" /></td>
+                                    <td><input type="text" class="form-control" id="hiddenDescription" name="hiddenDescription" /></td>
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-xs-2">
+                                                <input type="text" class="form-control" id="hiddenAmount" name="hiddenFirstAmount" placeholder="EURO" style="width: 60px; font-size: 11px;" />
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-xs-2">
+                                                <input type="text" class="form-control" id="hiddenAmount" name="hiddenSecondAmount" placeholder="EURO" style="width: 60px; font-size: 11px;" />
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>                                              
+                            </tbody>
+                        </table>                       
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="col-sm-8 form-inline">
+                        <button type="button" class="btn btn-primary mrr-8" id="newButtonFremdarbeiten" >Neu</button>
+                        <button type="button" class="btn btn-primary mrr-8" id="hideButtonFremdarbeiten" style="display: none;" >Verstecken</button>                                          
+                        <button type="button" class="btn btn-primary deleteButtonFremdarbeiten" id="" style="margin-left:-8px;" disabled >Löschen</button>       
+                        <div class="checkbox buttons-line">
+                            <input id="showIndPrice-{{ dates.projectId }}" name="intPriceShow2" type="checkbox" {% if drucksachen.2 == 1 %} checked="checked" {% endif %}>
+                            <label for="bemerkung_an">
+                                Einzelpreise nicht auf RE
+                            </label>
+                        </div>  
+                    </div>
+                    <div class="col-sm-4 v-right">
+                        <h4>Fremdkosten <b class="total-price">{{ dates.amountFremdarbeiten }} EURO</b></h4>
+                    </div>                                    
+                </div>
+                <div class="form-group mrt">
+                    <div class="col-sm-6">
+                        <div class="row">
+                            <div class="col-sm-12 form-inline">
+                                <label class="control-label">Bemerk. auf</label>
+                                <div class="checkbox">
+                                    <input id="bemerkung_an" name="bemerkung_an" type="checkbox">
+                                    <label for="bemerkung_an">
+                                        AN
+                                    </label>
+                                </div> 
+                                <div class="checkbox">
+                                    <input id="bemerkung_au" name="bemerkung_au" type="checkbox">
+                                    <label for="bemerkung_au">
+                                        AU
+                                    </label>
+                                </div>  
+                                <div class="checkbox">
+                                    <input id="bemerkung_pm" name="bemerkung_pm" type="checkbox">
+                                    <label for="bemerkung_pm">
+                                        PM
+                                    </label>
+                                </div> 
+                                <div class="checkbox">
+                                    <input id="bemerkung_li" name="bemerkung_li" type="checkbox">
+                                    <label for="bemerkung_li">
+                                        LI
+                                    </label>
+                                </div>  
+                                <div class="checkbox">
+                                    <input id="bemerkung_re" name="bemerkung_re" type="checkbox">
+                                    <label for="bemerkung_re">
+                                        RE
+                                    </label>
+                                </div>                                                     
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <textarea class="form-control mrt-10" rows="6" placeholder="Vorstufe - Bemerkungen welche der Kunde auf Angebot und Rechnung sieht"></textarea>
+                            </div>
+                        </div>                                            
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="control-label" for="bemerkungen">Bemerkungen (Intern)</label>
+                        <textarea class="form-control mrt-10" id="bemerkungen" rows="6" placeholder="Freitext für interne Bemerkungen"></textarea>
+                    </div>                           
+                </div>                                 
+            </form>
+        </div>                       
+    </div>
+</div> 

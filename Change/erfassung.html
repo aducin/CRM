@@ -1,0 +1,723 @@
+{% extends "head.html" %}
+
+{% block title %}
+	TVSatz - Zusammenfassung
+{% endblock %}
+
+{% block result %};
+<div class="container">
+    <div class="row header-nav">
+        <div class="inner-block">
+            <ul class="nav nav-pills fl-left">
+                <li role="presentation"><a href="{{ root }}/Liste">Liste</a></li>
+                <li role="presentation" class="active"><a href="">Erfassung</a></li>
+                <li role="presentation"><a href="{{ root }}/Ausloggen" id="logoutButton">Ausloggen</a></li>
+            </ul>
+            {% if user == 1 %}
+            <button type="button" class="btn btn-primary fl-right gear-btn"><i class="fa fa-cog"></i></button>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row main">
+        <div class="col-sm-12 inner-block">
+            <div class="row">
+                <div class="col-sm-12 col-md-9">
+                    <div class="row">
+                        <form class="col-sm-12 form-horizontal search-form">
+                            {% block innerList %}
+                                {% include 'innerList.html' %}
+                            {% endblock %}
+                        </form>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <ul class="nav nav-tabs">
+                              <li role="presentation" class="active classToHide" id="zusammenfassungLi"><a href="#" id="zusammenfassungHref">Zusammenfassung</a></li>
+                              <li role="presentation" class="classToHide" id="vorstufeLi"><a href="#" id="vorstufeHref">Vorstufe</a></li>
+                              <li role="presentation" class="classToHide" id="drucksachenLi"><a href="#" id="drucksachenHref">Drucksachen</a></li>
+                              <li role="presentation" class="classToHide" id="fremdarbeitenLi"><a href="#" id="fremdarbeitenHref">Fremdarbeiten</a></li>
+                              <li role="presentation" class="classToHide"><a href="#">Kalkulation</a></li>
+                              <li role="presentation" class="classToHide"><a href="#">Lieferschein</a></li>
+                              <li role="presentation" class="classToHide"><a href="#">Akte</a></li>
+                            </ul> 
+                        </div>                       
+                    </div>
+                    <div class="row tableToHide" id="zusammenfassungTable">
+                        <div class="col-sm-12 form-horizontal gray-form mrb-20">
+                            <form action="">
+                                <div class="form-group mrt" id="auftraggeberDiv">
+                                    <label for="auftraggeber" id="auftraggeberLabel" class="col-sm-3 control-label">Auftraggeber</label>
+                                    <div class="col-sm-6">
+                                        <div class="input-group">
+                                            <div class="input-group-addon"><i class="fa fa-search"></i></div>                                            
+                                            <input type="text" name="auftraggeber" id="auftraggeberId" class="form-control" placeholder="Suchen Sie einen Auftraggeber aus" value="{% if customer %}{{ customer.name }}{% endif %}" />
+                                        </div>
+                                    </div>    
+                                    <div class="col-sm-3">
+                                        <button type="button" class="btn btn-primary fl-right">Kopieren</button>                                             
+                                        <button type="button" class="btn btn-primary fl-right mrr-8">Neu</button>
+                                    </div>                                        
+                                </div>
+                                <div class="form-group" id="ansprechpartnerDiv">
+                                    <label for="ansprechpartner" id="ansprechpartnerLabel" class="col-sm-3 control-label">Ansprechpartner</label>
+                                    <div class="col-sm-6">
+                                        <div class="input-group">
+                                            <div class="input-group-addon"><i class="fa fa-search"></i></div>                                            
+                                            <input type="text" name="ansprechpartner" id="ansprechpartnerId" class="form-control" placeholder="Suchen Sie einen Ansprechpartner aus" value="{% if seller %}{{ seller.name }} {{ seller.vorname }}{% endif %}" {% if seller %}{% else %} disabled="disabled" {% endif %} />
+                                        </div>
+                                    </div>                                      
+                                </div>  
+                                <div class="form-group" id="rechnungsadresseDiv">
+                                    <label for="rechnungsadresse" id="rechnungsadresseLabel" class="col-sm-3 control-label">Rechnungsadresse</label>
+                                    <div class="col-sm-6">
+                                        <div class="input-group">
+                                            <div class="input-group-addon"><i class="fa fa-search"></i></div>                                            
+                                            <input type="text" name="rechnungsadresse" id="rechnungsadresseId" class="form-control" placeholder="Suchen Sie eine Rechnungsadresse aus" value="{% if address %}{{ address.name }} - {{ address.abteilung }}{% endif %}" {% if address %}{% else %} disabled="disabled" {% endif %} >
+                                        </div>
+                                    </div>                                      
+                                </div>   
+                                <div class="form-group">
+                                    <label for="kundenauftragsnummer" class="col-sm-3 control-label">Kundenauftragsnummer</label>
+                                    <div class="col-sm-6">                                        
+                                        <input type="text" name="kundenauftragsnummer" id="kundenauftragsnummer" class="form-control" placeholder="" value="{% if dates %}{{ dates.kundenNummer }}{% endif %}">
+                                    </div>                                      
+                                </div>        
+                                <div class="form-group">
+                                    <label for="auftraggeber" class="col-sm-3 control-label">Zahlungsziel</label>
+                                    <div class="col-sm-3 gray-font" id="paymentTargetDiv">                                        
+                                        <span class="form-inline-text" id="zahlungszielDisplay" >{% if customer %}{{ customer.zahlungsziel.name }}{%else%}zum Ergänzen{% endif %}</span>
+                                    </div> 
+                                    <div class="col-sm-3 gray-font">                                        
+                                        <div class="checkbox">
+                                            <input id="invidivuell_1" name="invidivuell_1" type="checkbox">
+                                            <label for="invidivuell_1">
+                                                invidivuell
+                                            </label>
+                                        </div> 
+                                    </div> 
+                                    <div class="col-sm-3"> 
+                                        <select name="paymentOpt" id="paymentOpt" class="form-control selectpicker" {% if customer %} disabled="disabled" {% endif %}>
+                                            <option class="singleTarget" value="{% if customer %}{{ customer.zahlungsziel.id }}{% endif %}">{% if customer %}{{ customer.zahlungsziel.name }}{% else %}Bitte wählen{% endif %}</option>
+					                        {% for single in paymentOpt %}
+					                            {% if single.name != customer.zahlungsziel.name %}
+                                                    <option class="singleTarget" value="{{ single.id }}">{{ single.name }}</option>
+					                            {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </div>                                   
+                                </div>     
+                                <div class="form-group">
+                                    <label for="auftraggeber" class="col-sm-3 control-label" id="skontoLabel">Skonto</label>
+                                    <div class="col-sm-3 gray-font">                                        
+                                        <span class="form-inline-text" id="skontoDisplay">{% if customer %}{{ customer.skonto }}{% else %}zum Ergänzen{% endif %}</span>
+                                    </div> 
+                                    <div class="col-sm-3 gray-font">                                        
+                                        <div class="checkbox">
+                                            <input id="invidivuell_2" name="invidivuell_2" type="checkbox">
+                                            <label for="invidivuell_2">
+                                                invidivuell
+                                            </label>
+                                        </div> 
+                                    </div> 
+                                    <div class="col-sm-3 form-inline" id="skontoDiv"> 
+                                        <input type="text" name="skonto" id="skontoId" class="form-control" placeholder="Prozent" value="{% if customer %}{{ customer.skonto }}{% endif %}" size="3" {% if customer %} disabled="disabled" {% endif %} >
+                                    </div>                                   
+                                </div> 
+                                <div class="form-group">
+                                    <label for="muster" class="col-sm-3 control-label">Muster in Tasche</label>
+                                    <div class="col-sm-6 form-inline">                                   
+                                        <input type="text" name="" id="muster" class="form-control" placeholder="" value="{% if patterns %}{{ patterns.pattern }}{% endif %}" size="3" style="text-align: center;">
+                                    </div>                                      
+                                </div>
+                                <div class="form-group">
+                                    <label for="stuck" class="col-sm-3 control-label">Stück Muster an</label>
+                                    <div class="col-sm-9">                                   
+                                        <input type="text" name="" id="stuck" class="form-control" placeholder="" value="{% if patterns %}{{ patterns.patternTo }}{% endif %}">
+                                    </div>                                      
+                                </div>     
+                                <div class="form-group">
+                                    <label for="stuck" class="col-sm-3 control-label">Lieferung per</label>
+                                    <div class="col-sm-9 form-inline">  
+					                   {% for singleCarrier in carrierList %}
+                                            <div class="radio">
+                                                <input id="lieferung" name="lieferung" type="radio" value="{{ singleCarrier.id}}" {% if carrier %}{% if singleCarrier.id == carrier.id %} 
+                                                    checked="checked" {% endif %}{% endif %} >
+                                                <label for="lieferung_tv">
+                                                    {% if singleCarrier %}{{ singleCarrier.name }}{% endif %}
+                                                </label>
+                                            </div> 
+                                        {% endfor %}                               
+                                    </div>                                      
+                                </div>  
+                                <div class="form-group mrt">
+                                    <div class="col-sm-6">
+                                        <div class="row">
+                                            <div class="col-sm-12 form-inline">
+                                                <label class="control-label">Bemerk. auf</label>
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_an" name="bemerkung_an" type="checkbox">
+                                                    <label for="bemerkung_an">
+                                                        AN
+                                                    </label>
+                                                </div> 
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_au" name="bemerkung_au" type="checkbox">
+                                                    <label for="bemerkung_au">
+                                                        AU
+                                                    </label>
+                                                </div>  
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_pm" name="bemerkung_pm" type="checkbox">
+                                                    <label for="bemerkung_pm">
+                                                        PM
+                                                    </label>
+                                                </div> 
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_li" name="bemerkung_li" type="checkbox">
+                                                    <label for="bemerkung_li">
+                                                        LI
+                                                    </label>
+                                                </div>  
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_re" name="bemerkung_re" type="checkbox">
+                                                    <label for="bemerkung_re">
+                                                        RE
+                                                    </label>
+                                                </div>                                                     
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <textarea class="form-control mrt-10" rows="6" placeholder="Vorstufe - Bemerkungen welche der Kunde auf Angebot und Rechnung sieht"></textarea>
+                                            </div>
+                                        </div>                                            
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="control-label" for="bemerkungen">Bemerkungen (Intern)</label>
+                                        <textarea class="form-control mrt-10" id="bemerkungen" rows="6" placeholder="Freitext für interne Bemerkungen"></textarea>
+                                    </div>                           
+                                </div>                                 
+                            </form>
+                        </div>                       
+                    </div>                    
+                </div>
+                <div class="col-sm-12 col-md-3" id="employeeTable">
+                    <form action="">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <button type="button" class="btn btn-primary fl-right">Speichern</button>        
+                            </div>
+                        </div>                
+                        <div class="row">
+                            <div class="col-sm-12 processed-list">
+                                <ul class="list-group">
+                                    <li class="list-group-item active">
+                                        Bearbeitet von:
+                                    </li>   
+                                    {% for employee in employees %}                  
+                                    <li class="list-group-item">
+                                        <div class="radio">
+                                            <input id="<?php echo $employee['id']; ?>" class="employee" name="mitarbeiter" type="radio">
+                                            <label for="mitarbeiter_1">
+                                                {{ employee.name }}
+                                            </label>
+                                        </div> 
+                                    </li>
+                                   {% endfor %}                       
+                                </ul>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="row" id="vorstufeTable" style="display: none;">
+                        <div class="col-sm-12 form-horizontal gray-form mrb-20">
+                            <form action="">
+                                <div class="form-group mrt" style="margin-top: 30px;">
+                                    <div class="col-sm-4 ">
+                                        <label for="termin_korrektur" class="control-label">Termin Korrektur</label>
+                                        <input type="text" name="termin_korrektur" id="termin_korrektur" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if vorstufe.1 %} value="{{ vorstufe.1 }}" {% else %} placeholder="Bitte wählen" {% endif %} >   
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label for="termin_daten" class="control-label">Termin Daten</label>
+                                        <input type="text" name="termin_daten" id="termin_daten" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if vorstufe.2 %} value="{{ vorstufe.2 }}" {% else %} placeholder="Bitte wählen" {% endif %} >
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <label for="termin_proof_andruck" class="control-label">Termin Proof / Andruck</label>
+                                        <input type="text" name="termin_proof_andruck" id="termin_proof_andruck" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if vorstufe.3 %} value="{{ vorstufe.3 }}" {% else %} placeholder="Bitte wählen" {% endif %} > 
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="set-height">
+                                        <table class="table table-striped sm-font-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Art</th>
+                                                    <th>erledigt</th>
+                                                    <th>Mitarbeiter</th>
+                                                    <th>Tätigkeit<br>(Beschreibung)</th>
+                                                    <th>Zeit Angebot<br>(in Zeiteinheiten)</th>
+                                                    <th>Zeit tatsächlich<br>(in Zeiteinheiten)</th>
+                                                    <th>Zeit verrechenbar<br>(in Zeiteinheiten)</th>
+                                                    <th>Betrag</th>
+                                                    <th>verrechenbar</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tableRow">
+                                                {% for singleVorstufe in vorstufe.0 %}
+                                                    <tr class="rows" id="{{ singleVorstufe.id }}">
+                                                        <td class="trToDelete">{{ singleVorstufe.typeName }}</td>
+                                                        <td class="trToDelete">{{ singleVorstufe.performanceTime }}</td>
+                                                        <td class="trToDelete" id="{{ singleVorstufe.employeeId }}" >{{ singleVorstufe.employeeName }}</td>
+                                                        <td class="trToDelete">{{ singleVorstufe.description }}</td>
+                                                        <td class="trToDelete">{{ singleVorstufe.timeProposal }}</td>
+                                                        <td class="trToDelete">{{ singleVorstufe.timeReal }}</td>
+                                                        <td class="trToDelete">{{ singleVorstufe.timeSettlement }}</td>
+                                                        <td class="trToDelete">{{ singleVorstufe.amount }} EUR</td>
+                                                        <td class="v-center">
+                                                            <div class="checkbox">
+                                                                <input name="settlement" type="checkbox">
+                                                                <label></label>
+                                                            </div>  
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                <tr id="hiddenTr" style="display: none;">
+                                                    <td>
+                                                        <select name="typeSelect" id="typeSelect">
+                                                            <option id="none" >Bitte wählen</option>
+                                                            {% for singleArt in art %}
+                                                                <option id="{{ singleArt.id }}">{{ singleArt.name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="text" name="hiddenDate" id="hiddenDate" class="form-control datepicker" size="9" placeholder="Datum" value=""></td>
+                                                    <td>
+                                                        <select name="employeesSelect" id="employeesSelect">
+                                                            <option id="none" >Bitte wählen</option>
+                                                            {% for employee in employees %}
+                                                                <option>{{ employee.name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="text" class="form-control" id="hiddenDescription" name="hiddenDescription" /></td>
+                                                    <td><input type="text" class="form-control" id="hiddenTimeProposal" name="hiddenTimeProposal" /></td>
+                                                    <td><input type="text" class="form-control" id="hiddenTimeReal" name="hiddenTimeReal" /></td>
+                                                    <td><input type="text" class="form-control" id="hiddenTimeSettlement" name="hiddenTimeSettlement" /></td>
+                                                    <td><input type="text" class="form-control" id="hiddenAmount" name="hiddenAmount" placeholder="EURO"/></td>
+                                                    <td>
+                                                        <div class="checkbox" style="margin-left: 22px;">
+                                                            <input name="settlement" type="checkbox">
+                                                            <label></label>
+                                                        </div>
+                                                    </td>
+                                                </tr>   
+                                            </tbody>
+                                        </table>                       
+                                    </div>
+                                </div>
+                                <div style="display: none;">
+				  
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-6">
+                                        <button type="button" class="btn btn-primary mrr-8" id="newButton" >Neu</button>
+                                        <button type="button" class="btn btn-primary mrr-8" id="hideButton" style="display: none;" >Verstecken</button>                                          
+                                        <button type="button" class="btn btn-primary deleteButton" id="" style="margin-left:-8px;" disabled >Löschen</button>
+                                        <button type="button" class="btn btn-primary" id="saveButton" style="display: none;">Speichern</button>
+                                    </div>
+                                    <div class="col-sm-6 v-right">
+                                        <h4>Kosten Vorstufe: <b class="total-price">{{ dates.amount }} EURO</b></h4>
+                                    </div>                                    
+                                </div>
+
+                                <div class="form-group mrt">
+                                    <div class="col-sm-6">
+                                        <div class="row">
+                                            <div class="col-sm-12 form-inline">
+                                                <label class="control-label">Bemerk. auf</label>
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_an" name="bemerkung_an" type="checkbox">
+                                                    <label for="bemerkung_an">
+                                                        AN
+                                                    </label>
+                                                </div> 
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_au" name="bemerkung_au" type="checkbox">
+                                                    <label for="bemerkung_au">
+                                                        AU
+                                                    </label>
+                                                </div>  
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_pm" name="bemerkung_pm" type="checkbox">
+                                                    <label for="bemerkung_pm">
+                                                        PM
+                                                    </label>
+                                                </div> 
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_li" name="bemerkung_li" type="checkbox">
+                                                    <label for="bemerkung_li">
+                                                        LI
+                                                    </label>
+                                                </div>  
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_re" name="bemerkung_re" type="checkbox">
+                                                    <label for="bemerkung_re">
+                                                        RE
+                                                    </label>
+                                                </div>                                                     
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <textarea class="form-control mrt-10" rows="6" placeholder="Vorstufe - Bemerkungen welche der Kunde auf Angebot und Rechnung sieht"></textarea>
+                                            </div>
+                                        </div>                                            
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="control-label" for="bemerkungen">Bemerkungen (Intern)</label>
+                                        <textarea class="form-control mrt-10" id="bemerkungen" rows="6" placeholder="Freitext für interne Bemerkungen"></textarea>
+                                    </div>                           
+                                </div>                                 
+                            </form>
+                        </div>                        
+                    </div>                    
+                </div>
+                <div class="row" id="druckSachenTable" style="display: none;">
+                        <div class="col-sm-12 form-horizontal gray-form mrb-20">
+                            <form action="">
+                                <div class="form-group mrt">
+                                    <div class="col-sm-12 form-inline">
+                                        <label for="termin_korrektur" class="control-label">Termin Andruck</label>
+                                        <input type="text" name="termin_korrektur" id="termin_korrektur" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if drucksachen.1 %} value="{{ drucksachen.1 }}" {% endif %}>   
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="set-height">
+                                        <table class="table table-striped sm-font-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Drucksache<br>(freie Position)</th>
+                                                    <th>Maschine</th>
+                                                    <th>Art</th>
+                                                    <th>Auflage</th>
+                                                    <th>Format</th>
+                                                    <th>Umfang</th>
+                                                    <th>Farbe</th>
+                                                    <th>Papier</th>
+                                                    <th>Verarbeitung</th>
+                                                    <th>erledigt</th>
+                                                    <th>Betrag</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for singleDrucksachen in drucksachen.0 %}
+                                                <tr class="rows" id="{{ singleDrucksachen.id }}">
+                                                    <td id="print">{{ singleDrucksachen.print }}</td>
+                                                    <td id="machine" value="{{ singleDrucksachen.machine }}">{{ singleDrucksachen.machineName }}</td>
+                                                    <td id="type">{{ singleDrucksachen.type }}</td>
+                                                    <td id="edition">{{ singleDrucksachen.edition }}</td>
+                                                    <td id="format">{{ singleDrucksachen.format }}</td>
+                                                    <td id="size">{{ singleDrucksachen.size }}</td>
+                                                    <td id="color">{{ singleDrucksachen.color }}</td>
+                                                    <td id="paper">{{ singleDrucksachen.paper }}</td>
+                                                    <td id="remodelling">{{ singleDrucksachen.remodelling }}</td>
+                                                    <td class="v-center">
+                                                        <div class="checkbox">
+                                                            <input name="finished" type="checkbox" {% if singleDrucksachen.finished == 1 %} checked="checked" {% endif %} >
+                                                            <label></label>
+                                                        </div>  
+                                                    </td>
+                                                    <td id="amount">{{ singleDrucksachen.amount }} EURO</td>
+                                                </tr>
+                                                {% endfor %} 
+                                                <tr id="hiddenTr" style="display: none">
+                                                    <td><input type="text" class="form-control" id="hiddenPrint" name="hiddenPrint" /></td>
+                                                    <td>
+                                                        <select id="hiddenMachine" name="hiddenMachine">
+                                                            <option id="none">Bitte wählen</option>
+                                                            {% for singleMachine in machine %}
+                                                                <option id="{{ singleMachine.id }}">{{ singleMachine.name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </td>
+                                                    <td><input type="text" class="form-control" id="hiddenType" name="hiddenType" /></td>
+                                                    <td><input type="text" class="form-control" id="hiddenEdition" name="hiddenEdition" /></td>
+                                                    <td><input type="text" class="form-control" id="hiddenFormat" name="hiddenFormat" /></td>
+                                                    <td><input type="text" class="form-control" id="hiddenSize" name="hiddenSize" /></td>
+                                                    <td><input type="text" class="form-control" id="hiddenColor" name="hiddenColor" /></td>
+                                                    <td><input type="text" class="form-control" id="hiddenPaper" name="hiddenPaper" /></td>
+                                                    <td><input type="text" class="form-control" id="hiddenRemodelling" name="hiddenRemodelling" /></td>
+                                                    <td>
+                                                        <div class="checkbox" style="margin-left: 7px;">
+                                                            <input name="hiddenFinished" type="checkbox" id="hiddenFinished" >
+                                                            <label></label>
+                                                        </div> 
+                                                    </td>
+                                                    <td>
+                                                        <div class="row">
+                                                            <div class="col-xs-2">
+                                                                <input type="text" class="form-control" id="hiddenAmount" name="hiddenAmount" placeholder="EURO" style="width: 60px; font-size: 11px;" />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr> 
+                                            </tbody>
+                                        </table>                       
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-sm-8 form-inline">
+                                        <button type="button" class="btn btn-primary mrr-8" id="newDrucksache" >Neu</button>
+                                        <button type="button" class="btn btn-primary mrr-8" id="hideButton" style="display: none;" >Speichern</button>                                          
+                                        <button type="button" class="btn btn-primary deleteButton" id="" style="margin-left:-8px;" disabled >Löschen</button>         
+                                        <button type="button" class="btn btn-primary mrr-8" >Duplizieren</button> 
+                                        <div class="checkbox buttons-line">
+                                            <input id="intPriceShow" name="intPriceShow" type="checkbox" {% if dates.showIndPrice == 1 %} checked="checked" {% endif %}>
+                                            <label for="bemerkung_an">
+                                                Einzelpreise nicht auf RE
+                                            </label>
+                                        </div> 
+                                    </div>
+                                    <div class="col-sm-4 v-right">
+                                        <h4>Druckkosten <b class="total-price">{% if dates.amount %}{{ dates.amount }}{% endif %} EURO</b></4>
+                                    </div>                                    
+                                </div>
+
+                                <div class="form-group mrt">
+                                    <div class="col-sm-6">
+                                        <div class="row">
+                                            <div class="col-sm-12 form-inline">
+                                                <label class="control-label">Bemerk. auf</label>
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_an" name="bemerkung_an" type="checkbox">
+                                                    <label for="bemerkung_an">
+                                                        AN
+                                                    </label>
+                                                </div> 
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_au" name="bemerkung_au" type="checkbox">
+                                                    <label for="bemerkung_au">
+                                                        AU
+                                                    </label>
+                                                </div>  
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_pm" name="bemerkung_pm" type="checkbox">
+                                                    <label for="bemerkung_pm">
+                                                        PM
+                                                    </label>
+                                                </div> 
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_li" name="bemerkung_li" type="checkbox">
+                                                    <label for="bemerkung_li">
+                                                        LI
+                                                    </label>
+                                                </div>  
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_re" name="bemerkung_re" type="checkbox">
+                                                    <label for="bemerkung_re">
+                                                        RE
+                                                    </label>
+                                                </div>                                                     
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <textarea class="form-control mrt-10" rows="6" placeholder="Vorstufe - Bemerkungen welche der Kunde auf Angebot und Rechnung sieht"></textarea>
+                                            </div>
+                                        </div>                                            
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="control-label" for="bemerkungen">Bemerkungen (Intern)</label>
+                                        <textarea class="form-control mrt-10" id="bemerkungen" rows="6" placeholder="Freitext für interne Bemerkungen"></textarea>
+                                    </div>                           
+                                </div>                                 
+                            </form>
+                        </div> 
+                  </div>
+                  <div class="row" id="fremdsachenTable" style="display: none;">
+                        <div class="col-sm-12 form-horizontal gray-form mrb-20">
+                            <form action="">
+                                <div class="form-group mrt">
+                                    <div class="col-sm-6 form-inline">
+                                        <label for="termin_korrektur" class="control-label">Termin Korrektur</label>
+                                        <input type="text" name="termin_korrektur" id="termin_korrektur" class="form-control datepicker" size="9" value="{% if fremdarbeiten.1 %}{{ fremdarbeiten.1 }}{% endif %}">   
+                                    </div>
+                                    <div class="col-sm-6 form-inline">
+                                        <label for="termin_daten" class="control-label">Termin Daten</label>
+                                        <input type="text" name="termin_daten" id="termin_daten" class="form-control datepicker" size="9" value="{% if fremdarbeiten.2 %}{{ fremdarbeiten.2 }}{% endif %}">   
+                                    </div>
+                                </div>                                
+                                <div class="form-group">
+                                    <div class="set-height">
+                                        <table class="table table-striped sm-font-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Datum</th>
+                                                    <th>Lieferant<br>(Freitext)</th>
+                                                    <th>Beschreibung<br>(Beschreibung)</th>
+                                                    <th>EK<br>(Einkaufspreis)</th>
+                                                    <th>VK<br>(Verkaufspreis)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for singleFremdarbeiten in fremdarbeiten.0 %}
+                                                    <tr class="rows" id="{{ singleFremdarbeiten.id }}">
+                                                        <td>{{ singleFremdarbeiten.textDate }}</td>
+                                                        <td>{{ singleFremdarbeiten.deliverer }}</td>
+                                                        <td>{{ singleFremdarbeiten.description }}</td>
+                                                        <td>{{ singleFremdarbeiten.purchasePrice }} EURO</td>
+                                                        <td>{{ singleFremdarbeiten.sellPrice }} EURO</td>
+                                                    </tr>  
+                                                {% endfor %}
+                                                <tr id="hiddenTr" style="display: none;">
+                                                    <td><input type="text" name="hiddenDate" id="hiddenDate" class="form-control datepicker" size="9" placeholder="Bitte wählen" value=""></td>
+                                                    <td><input type="text" class="form-control" id="hiddenCarrier" name="hiddenCarrier" /></td>
+                                                    <td><input type="text" class="form-control" id="hiddenDescription" name="hiddenDescription" /></td>
+                                                    <td>
+                                                        <div class="row">
+                                                            <div class="col-xs-2">
+                                                                <input type="text" class="form-control" id="hiddenAmount" name="hiddenFirstAmount" placeholder="EURO" style="width: 60px; font-size: 11px;" />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="row">
+                                                            <div class="col-xs-2">
+                                                                <input type="text" class="form-control" id="hiddenAmount" name="hiddenSecondAmount" placeholder="EURO" style="width: 60px; font-size: 11px;" />
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>                                              
+                                            </tbody>
+                                        </table>                       
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="col-sm-8 form-inline">
+                                        <button type="button" class="btn btn-primary mrr-8" id="newButton" >Neu</button>
+                                        <button type="button" class="btn btn-primary mrr-8" id="hideButton" style="display: none;" >Speichern</button>                                          
+                                        <button type="button" class="btn btn-primary deleteButton" id="" style="margin-left:-8px;" disabled >Löschen</button>       
+                                        <div class="checkbox buttons-line">
+                                            <input id="intPriceShow" name="intPriceShow" type="checkbox" {% if dates.showIndPrice == 1 %} checked="checked" {% endif %}>
+                                            <label for="bemerkung_an">
+                                                Einzelpreise nicht auf RE
+                                            </label>
+                                        </div>  
+                                    </div>
+                                    <div class="col-sm-4 v-right">
+                                        <h4>Fremdkosten <b class="total-price">{{ dates.amount }} EURO</b></h4>
+                                    </div>                                    
+                                </div>
+
+                                <div class="form-group mrt">
+                                    <div class="col-sm-6">
+                                        <div class="row">
+                                            <div class="col-sm-12 form-inline">
+                                                <label class="control-label">Bemerk. auf</label>
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_an" name="bemerkung_an" type="checkbox">
+                                                    <label for="bemerkung_an">
+                                                        AN
+                                                    </label>
+                                                </div> 
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_au" name="bemerkung_au" type="checkbox">
+                                                    <label for="bemerkung_au">
+                                                        AU
+                                                    </label>
+                                                </div>  
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_pm" name="bemerkung_pm" type="checkbox">
+                                                    <label for="bemerkung_pm">
+                                                        PM
+                                                    </label>
+                                                </div> 
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_li" name="bemerkung_li" type="checkbox">
+                                                    <label for="bemerkung_li">
+                                                        LI
+                                                    </label>
+                                                </div>  
+                                                <div class="checkbox">
+                                                    <input id="bemerkung_re" name="bemerkung_re" type="checkbox">
+                                                    <label for="bemerkung_re">
+                                                        RE
+                                                    </label>
+                                                </div>                                                     
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <textarea class="form-control mrt-10" rows="6" placeholder="Vorstufe - Bemerkungen welche der Kunde auf Angebot und Rechnung sieht"></textarea>
+                                            </div>
+                                        </div>                                            
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <label class="control-label" for="bemerkungen">Bemerkungen (Intern)</label>
+                                        <textarea class="form-control mrt-10" id="bemerkungen" rows="6" placeholder="Freitext für interne Bemerkungen"></textarea>
+                                    </div>                           
+                                </div>                                 
+                            </form>
+                        </div>                       
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div><!-- /container -->
+{% endblock %}
+
+{% block otherScript %}
+    <script src="{{ path }}assets/js/jquery-ui-1.11.4.js"></script>
+{% endblock %}
+
+{% block script %}
+  <script>
+      $( document ).ready(function() {
+	  $( "#zusammenfassungHref" ).click(function() {
+	      $( "#vorstufeTable" ).hide();
+	      $( "#druckSachenTable" ).hide();
+	      $( "#fremdsachenTable" ).hide();
+	      $( '.classToHide' ).removeClass( "active" );
+	      //$( '.tableToHide' ).hide();
+	      $( '#zusammenfassungLi' ).addClass( "active" );
+	      $( '#zusammenfassungTable' ).show();
+	  });
+	  
+	  $( "#vorstufeHref" ).click(function() {
+	      $( "#zusammenfassungTable" ).hide();
+	      $( "#druckSachenTable" ).hide();
+	      $( "#fremdsachenTable" ).hide();
+	      $( '.classToHide' ).removeClass( "active" );
+	      //$( '.tableToHide' ).hide();
+	      $( '#vorstufeLi' ).addClass( "active" );
+	      $( '#vorstufeTable' ).css("width", "878px");
+	      $( '#vorstufeTable' ).css("margin-left", "0.5px");
+	      $( '#vorstufeTable' ).show();
+	  });
+	  
+	  $( "#drucksachenHref" ).click(function() {
+	      $( "#zusammenfassungTable" ).hide();
+	      $( "#vorstufeTable" ).hide();
+	      $( "#fremdsachenTable" ).hide();
+	      $( '.classToHide' ).removeClass( "active" );
+	      //$( '.tableToHide' ).hide();
+	      $( '#drucksachenLi' ).addClass( "active" );
+	      $( '#druckSachenTable' ).css("width", "878px");
+	      $( '#druckSachenTable' ).show();
+	  });
+	  
+	  $( "#fremdarbeitenHref" ).click(function() {
+	      $( "#zusammenfassungTable" ).hide();
+	      $( "#vorstufeTable" ).hide();
+	      $( "#druckSachenTable" ).hide();
+	      $( '.classToHide' ).removeClass( "active" );
+	      //$( '.tableToHide' ).hide();
+	      $( '#fremdarbeitenLi' ).addClass( "active" );
+	      $( '#fremdsachenTable' ).css("width", "878px")
+	      $( '#fremdsachenTable' ).show();
+	  });
+      });
+  </script>
+{% endblock %}

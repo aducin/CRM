@@ -9,7 +9,7 @@ class Ajax
 	private $path;
 
 	public function __construct($dbHandler, $post) {
-        
+
 		$this->dbHandler = $dbHandler;
 		$this->creator = new TvsatzCreator($dbHandler);
 		$this->path = $_SERVER['DOCUMENT_ROOT']."/CRM";
@@ -23,9 +23,15 @@ class Ajax
 		$this->$action($value);
 	}
 
-	private function addressSearch($value) {
-		$this->searchResult('rechnungsadresse', $value);
-	}
+    private function addressSearch($value) {
+	$this->searchResult('rechnungsadresse', $value);
+    }
+    
+    private function addressSearchByName($value) {
+	$object = $this->creator->createProduct('rechnungsadresse');
+    	$result = $object->searchByChosenName($value);
+    	echo $result;
+    }
 
     private function changePassword($value) {
     	if ($value[1] != $value[2]) {
@@ -50,6 +56,36 @@ class Ajax
 
     private function clientSearch($value) {
     	$this->searchResult('auftraggeber', $value);
+    }
+    
+    private function clientSearchByName($value) {
+    	$this->searchResult('auftraggeber', $value, 'single');
+    }
+    
+    private function dates($value) {
+	$values = explode('-', $value);
+	$column = $values[0];
+	$projectId = $values[1];
+	$insert = explode('/', $values[2]);
+	if(isset($insert[1])) {
+	    $date = $insert[2].'-'.$insert[1].'-'.$insert[0];
+	} else {
+	    $date = $insert[0];
+	}
+	$project = $this->creator->createProduct('projekt');
+	$success = $project->updateDate($projectId, $column, $date);
+	echo $success;
+    }
+    
+    public function drucksache($value) {
+	$values = explode('-', $value);
+	$origin = $values[0];
+	$rowId = $values[1];
+	$column = $values[2];
+	$value = $values[3];
+	$table = $this->creator->createProduct($origin);
+	$result = $table->row($origin, $rowId, $column, $value);
+	echo $result;
     }
 
     private function employeeSearch($value) {
@@ -123,18 +159,15 @@ class Ajax
     private function getDbHandler() {
         return $this->dbHandler;
     }
-
-    private function getToTheProject($value) {
-    	$this->project = $this->creator->createProduct('projekt', $value);
-    	$this->project->setDates();
-    	$this->user = $this->creator->createProduct('benutzer', $_SESSION['user']);
-    	$this->user->setData();
-    	unset ($this->project->benutzer);
-    	echo 'stopped in ajaxController -- ';
-    	var_dump($this->project); exit();
+    /*
+    private function mandant($value) {
+	$values = explode('-', $value);
+	$projekt = $this->creator->createProduct('projekt');
+	$success = $projekt->setMandantSelect($values[0], $values[1]);
+	echo $success;
     }
-
-    private function searchResult($name, $value) {
+  */
+    private function searchResult($name, $value, $single = null) {
     	$object = $this->creator->createProduct($name);
     	$result = $object->searchByName($value);
     	if ($result == null) {
@@ -144,8 +177,18 @@ class Ajax
     			'name' => $error
     		);
 			echo json_encode($data);
+    	} elseif ($single == 'single') {
+    		echo $result[0]['id'];
     	} else {
-    		echo json_encode($result);
+	        echo json_encode($result);
     	}
     }
+    /*
+    private function status($value) {
+	$values = explode('-', $value);
+	$projekt = $this->creator->createProduct('projekt');
+	$success = $projekt->setStatus($values[0], $values[1]);
+	echo $success;
+    }
+    */
 }

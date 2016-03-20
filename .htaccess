@@ -6,7 +6,17 @@ RewriteRule ^Liste$ /CRM/index.php?action=projectSearch [L]
 RewriteRule ^Erfassung$ /CRM/index.php?action=erfassung [L]
 RewriteRule ^Erfassung/(.*)$ /CRM/index.php?action=erfassung&single=$1 [L]
 
+RewriteRule ^Api/Address/Name/(.*)$ /CRM/index.php?action=ajax&concrete=addressSearchByName&value=$1 [L]
+RewriteRule ^Api/Address/(.*)$ /CRM/index.php?action=ajax&concrete=addressSearch&value=$1 [L]
+RewriteRule ^Api/Dates/(.*)$ /CRM/index.php [L]
+RewriteRule ^Api/Employee/(.*)$ /CRM/index.php?action=ajax&concrete=employeeSearch&value=$1 [L]
+RewriteRule ^Api/Project/Name/(.*)$ /CRM/index.php?action=ajax&concrete=clientSearchByName&value=$1 [L]
 RewriteRule ^Api/Project/(.*)$ /CRM/index.php?action=ajax&concrete=clientSearch&value=$1 [L]
+RewriteRule ^Api/Row/(.*)$ /CRM/index.php [L]
+RewriteRule ^Api/Status/(.*)$ /CRM/index.php [L]
+
+
+RewriteRule ^Api/Mandant/(.*)$ /CRM/index.php [L]
 
 AddType text/css css
 

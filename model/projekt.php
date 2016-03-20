@@ -15,7 +15,6 @@ class Projekt
 	private $mandant_select;
 	private $vorgangsnummer;
 	private $auftragsnummer;
-	private $liefertermin;
 	private $drucksache = array();
 	private $fremdsache;
 	private $vorstufe;
@@ -25,6 +24,13 @@ class Projekt
 	private $amendmentTime;
 	private $dateTime;
 	private $proofTime;
+	private $printTime; //Termin Andruck - Drucksachen
+	private $showIndPrice; // Einzelpreise nicht auf RE
+	private $deliveryTime;
+	private $status;
+	private $individual_payment;
+	private $individual_skonto;
+
 	private $creator;
 
 	function __construct($dbHandler, $id = null) {
@@ -106,13 +112,18 @@ class Projekt
 		unset($this->mandant_select);
 		unset($this->vorgangsnummer);
 		unset($this->auftragsnummer);
-		unset($this->liefertermin);
 		unset($this->changeDate);
 		unset($this->pattern);
 		unset($this->patternTo);
 		unset($this->amendmentTime);
 		unset($this->dateTime);
 		unset($this->proofTime);
+		unset($this->printTime);
+		unset($this->showIndPrice);
+		unset($this->status);
+		unset($this->deliveryTime);
+		unset($this->individual_payment);
+		unset($this->individual_skonto);
 	}
 
 	public function getAnsprechpartner() {
@@ -131,8 +142,27 @@ class Projekt
 		return $this->changeDate;
 	}
 
+	public function getDeliveryTime() {
+		return $this->deliveryTime;
+	}
+
+	public function getDrucksachen() {
+		$result = array($this->drucksache, $this->printTime, $this->showIndPrice);
+		return $result;
+	}
+
+	public function getFremdsache() {
+		$result = array($this->fremdsache, $this->amendmentTime, $this->dateTime);
+		return $result;
+	}
+
 	public function getId() {
 		return $this->id;
+	}
+	
+	public function getIndividuals() {
+		$array = array('payment' => $this->individual_payment, 'skonto' => $this->individual_skonto);
+		return $array;
 	}
 
 	public function getKundenautragsnummer() {
@@ -173,6 +203,14 @@ class Projekt
 		return $this->reg_date;
 	}
 
+	public function getShowIndPrice() {
+		return $this->showIndPrice;
+	}
+
+	public function getStatus() {
+		return $this->status;
+	}
+
 	public function getVorgangsnummer() {
 		return $this->vorgangsnummer;
 	}
@@ -182,12 +220,13 @@ class Projekt
 		return $result;
 	}
 
-	private function saveCustomDates($auftraggeberId, $rechnungsadresseId, $ansprechpartnerId, $benutzerId, $mandant_select, $vorgangsnummer, $auftragsnummer, $liefertermin) {
+	private function saveCustomDates($auftraggeberId, $rechnungsadresseId, $ansprechpartnerId, $benutzerId, $mandant_select, $vorgangsnummer, $auftragsnummer, $changeDate, 
+		$pattern, $patternTo, $amendmentTime, $dateTime, $proofTime, $printTime, $showIndPrice, $status, $deliveryTime) {
 		$now = new DateTime();
 		$changeDate = $now->format('Y-m-d');
 
-		$sql = 'INSERT INTO Projekt (name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant, reg_date, mandant_select, vorgangsnummer, auftragsnummer, liefertermin, changeDate, pattern, pattern_to, amendmentTime, dateTime, proofTime) 
-			VALUES ( :name, :kundenauftragsnummer, :auftraggeber, :rechnungsadresse, :ansprechpartner, :benutzer, NOW(), :mandant_select, :vorgangsnummer, :auftragsnummer, :liefertermin, :changeDate, :pattern, :patternTo, :amendmentTime, :dateTime, :proofTime )';
+		$sql = 'INSERT INTO Projekt (name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant, reg_date, mandant_select, vorgangsnummer, auftragsnummer, changeDate, pattern, pattern_to, amendmentTime, dateTime, proofTime, printTime, showIndPrice, status, deliveryTime, individual_payment, individual_skonto) 
+			VALUES ( :name, :kundenauftragsnummer, :auftraggeber, :rechnungsadresse, :ansprechpartner, :benutzer, NOW(), :mandant_select, :vorgangsnummer, :auftragsnummer, :changeDate, :pattern, :patternTo, :amendmentTime, :dateTime, :proofTime, :printTime, :showIndPrice, :status, :deliveryTime, :individual_payment, individual_skonto )';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':name', $this->name);
 		$result->bindValue(':kundenauftragsnummer', $this->kundenauftragsnummer);
@@ -198,13 +237,18 @@ class Projekt
 		$result->bindValue(':mandant_select', $mandant_select);
 		$result->bindValue(':vorgangsnummer', $vorgangsnummer);
 		$result->bindValue(':auftragsnummer', $auftragsnummer);
-		$result->bindValue(':liefertermin', $liefertermin);
 		$result->bindValue(':changeDate', $changeDate);
 		$result->bindValue(':pattern', $pattern);
 		$result->bindValue(':patternTo', $patternTo);
 		$result->bindValue(':amendmentTime', $amendmentTime);
 		$result->bindValue(':dateTime', $dateTime);
 		$result->bindValue(':proofTime', $proofTime);
+		$result->bindValue(':printTime', $printTime);
+		$result->bindValue(':showIndPrice', $showIndPrice);
+		$result->bindValue(':status', $status);
+		$result->bindValue(':deliveryTime', $deliveryTime);
+		$result->bindValue(':individual_payment', $individual_payment);
+		$result->bindValue(':individual_skonto', $individual_skonto);
 		$result->execute();
 	}
 
@@ -269,6 +313,12 @@ class Projekt
 			} else {
 				$prequery[] = " Projekt.mandant_select ='".$result['mandant']."'";
 			}
+			if ($result['status'] == "none") {
+				unset($result['status']);
+			} else {
+				$status = $result['status'];
+				$prequery[] = " status = $status";
+			}
 			$implodeSelect = ' WHERE'.implode(" AND",$prequery).' ORDER BY Projekt.reg_date';
 			$result = $this->searchByDateSql($implodeSelect);
 			return $result;
@@ -276,7 +326,7 @@ class Projekt
 	}
 
 	private function searchByDateSql ($implodeSelect) {
-		$sql = 'SELECT Projekt.id as id, Projekt.liefertermin as liefdate, Projekt.name as proname, Projekt.auftragsnummer as aufnumb FROM Projekt INNER JOIN Auftraggeber ON Projekt.auftraggeber = Auftraggeber.id'.$implodeSelect;
+		$sql = 'SELECT Projekt.id as id, Projekt.deliveryTime as liefdate, Projekt.name as proname, Projekt.auftragsnummer as aufnumb FROM Projekt INNER JOIN Auftraggeber ON Projekt.auftraggeber = Auftraggeber.id'.$implodeSelect;
 		$result=$this->dbHandler->prepare($sql);
 		$result->execute();
 		$this->setBenutzer($_SESSION['user']);
@@ -332,20 +382,24 @@ class Projekt
 		$this->mandant_select = $array[8];
 		$this->vorgangsnummer = $array[9];
 		$this->auftragsnummer = $array[10];
-		$this->liefertermin = $array[11];
-		$this->pattern = $array[12];
-		$this->patternTo = $array[13];
-		$this->amendmentTime = $array[14];
-		$this->dateTime = $array[15];
-		$this->proofTime = $array[16];
-		$this->saveCustomDates($auftraggeberId, $rechnungsadresseId, $ansprechpartnerId, $benutzerId, $this->mandant_select, $this->vorgangsnummer, $this->auftragsnummer, $this->liefertermin);
+		$this->pattern = $array[11];
+		$this->patternTo = $array[12];
+		$this->amendmentTime = $array[13];
+		$this->dateTime = $array[14];
+		$this->proofTime = $array[15];
+		$this->printTIme = $array[16];
+		$this->showIndPrice = $array[17];
+		$this->status = $array[18];
+		$this->deliveryTime = $array[19];
+		$this->individual_payment = $array[20];
+		$this->individual_skonto = $array[21];
+		$this->saveCustomDates($auftraggeberId, $rechnungsadresseId, $ansprechpartnerId, $benutzerId, $this->mandant_select, $this->vorgangsnummer, $this->auftragsnummer);
 		$this->id = $this->getLastIdValue();
 		$this->setLieferant($array[6], $array[7]);
 	}
 
 	public function setDates() {
-		$sql='SELECT name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant, reg_date, mandant_select, vorgangsnummer, auftragsnummer, liefertermin, lieferant_id, lieferant_bemerkung, change_date, pattern, pattern_to, amendmentTime, dateTime, proofTime 
-			FROM Projekt WHERE id= :id';
+		$sql='SELECT name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant, reg_date, mandant_select, vorgangsnummer, auftragsnummer, lieferant_id, lieferant_bemerkung, change_date, pattern, pattern_to, amendmentTime, dateTime, proofTime, printTime, showIndPrice, status, deliveryTime, individual_payment, individual_skonto FROM Projekt WHERE id= :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
 		$result->execute();
@@ -360,7 +414,6 @@ class Projekt
 		$this->mandant_select = $dates['mandant_select'];
 		$this->vorgangsnummer = $dates['vorgangsnummer'];
 		$this->auftragsnummer = $dates['auftragsnummer'];
-		$this->liefertermin = $dates['liefertermin'];
 		$carrier = $dates['lieferant_id'];
 		$helper = $this->creator->createProduct('helpers');
 		$this->lieferant = $helper->setLieferant($carrier);
@@ -374,12 +427,19 @@ class Projekt
 		$this->dateTime = $dateTime[2].'/'.$dateTime[1].'/'.$dateTime[0];
 		$proofTime = explode("-", $dates['proofTime']);
 		$this->proofTime = $proofTime[2].'/'.$proofTime[1].'/'.$proofTime[0];
+		$printTime = explode("-", $dates['printTime']);
+		$this->printTime = $printTime[2].'/'.$printTime[1].'/'.$printTime[0];
+		$this->showIndPrice = $dates['showIndPrice'];
 		$vorstufe = $this->creator->createProduct('Vorstufe');
 		$this->vorstufe = $vorstufe->getByProjectId($this->id);
 		$drucksache = $this->creator->createProduct('Drucksache');
 		$this->drucksache = $drucksache->getByProjectId($this->id);
 		$fremdsache = $this->creator->createProduct('Fremdsache');
 		$this->fremdsache = $fremdsache->getByProjectId($this->id);
+		$this->status = $helper->getSingleStatus($dates['status']);
+		$this->deliveryTime = $dates['deliveryTime'];
+		$this->individual_payment = $dates['individual_payment'];
+		$this->individual_skonto = $dates['individual_skonto'];
 	}
 
 	public function setLieferant($id, $bemerkung = null) {
@@ -391,14 +451,55 @@ class Projekt
 			$this->lieferant_bemerkung = $bemerkung;
 		}
 	}
-
-
+	/*
+	public function setMandantSelect($id, $value) {
+	      $sql = "UPDATE Projekt SET mandant_select = :value WHERE id = :id";
+	      $result=$this->dbHandler->prepare($sql);
+	      $result->bindValue(':id', $id);
+	      $result->bindValue(':value', $value);
+	      if ( $result->execute() ) {
+		return 'done';
+	    } else {
+		return 'failure';
+	    }
+	}
+	*/
 	private function setRechnungsadresse($id) {
 		if (isset($this->rechnungsadresse)) {
 			$this->rechnungsadresse = null;
-		}
+		}	
 		$rechnungsadresse = $this->creator->createProduct('rechnungsadresse', $id);
 		$rechnungsadresse->setDates();
 		$this->rechnungsadresse = $rechnungsadresse;
+	}
+	/*
+	public function setStatus($id, $value) {
+	    $sql = "UPDATE Projekt SET status = :value WHERE id = :id";
+	    $result=$this->dbHandler->prepare($sql);
+	    $result->bindValue(':id', $id);
+	    $result->bindValue(':value', $value);
+	    if ( $result->execute() ) {
+		return 'done';
+	    } else {
+		return 'failure';
+	    }
+	}
+	*/
+	public function updateDate($id, $column, $value) {
+	    if ($value == "null") {
+		 $sql = "UPDATE Projekt SET ".$column." = $value WHERE id = :id";
+	    } else {
+		 $sql = "UPDATE Projekt SET ".$column." = :value WHERE id = :id";
+	    }
+	    $result=$this->dbHandler->prepare($sql);
+	    $result->bindValue(':id', $id);
+	    if ($value != "null") {
+		$result->bindValue(':value', $value);
+	    }
+	    if ( $result->execute() ) {
+		return 'done';
+	    } else {
+		return 'failure';
+	    }
 	}
 }

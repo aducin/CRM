@@ -7,7 +7,6 @@ class Fremdsache extends formBasics
 	private $description; //Beschreibung
 	private $purchasePrice; //Einkaufspreis
 	private $sellPrice; //Verkaufspreis
-	private $singlePriceRemoved; //Einkaufspreis nicht auf der Rechnung
 
 	public function delete() {
 		$this->deleteSql();
@@ -18,7 +17,6 @@ class Fremdsache extends formBasics
 		unset($this->description);
 		unset($this->purchasePrice);
 		unset($this->sellPrice);
-		unset($this->singlePriceRemoved);
 		unset($this->reg_date);
 		unset($this->selfName);
 	}
@@ -36,7 +34,6 @@ class Fremdsache extends formBasics
 				'description' => $singleResult['description'], 
 				'purchasePrice' => $singleResult['purchasePrice'], 
 				'sellPrice' => $singleResult['sellPrice'],
-				'singlePriceRemoved' => $singleResult['singlePriceRemoved'],
 				'reg_date' => $singleResult['reg_date']
 				);
 		}
@@ -44,8 +41,8 @@ class Fremdsache extends formBasics
 	}
 
 	protected function save($data) {
-		$sql = 'INSERT INTO Fremdsache (projectId, textDate, deliverer, description, purchasePrice, sellPrice, singlePriceRemoved,reg_date) 
-		VALUES (:projectId, :textDate, :deliverer, :description, :purchasePrice, :sellPrice, :singlePriceRemoved, NOW())';
+		$sql = 'INSERT INTO Fremdsache (projectId, textDate, deliverer, description, purchasePrice, sellPrice,reg_date) 
+		VALUES (:projectId, :textDate, :deliverer, :description, :purchasePrice, :sellPrice, NOW())';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':projectId', $data['projectId']);
 		$result->bindValue(':textDate', $data['textDate']);
@@ -53,7 +50,6 @@ class Fremdsache extends formBasics
 		$result->bindValue(':description', $data['description']);
 		$result->bindValue(':purchasePrice', $data['purchasePrice']);
 		$result->bindValue(':sellPrice', $data['sellPrice']);
-		$result->bindValue(':singlePriceRemoved', $data['singlePriceRemoved']);
 		$result->execute();
 	}
 
@@ -64,7 +60,6 @@ class Fremdsache extends formBasics
 		$this->description = $data['description'];
 		$this->purchasePrice = $data['purchasePrice'];
 		$this->sellPrice = $data['sellPrice'];
-		$this->singlePriceRemoved = $data['singlePriceRemoved'];
 		if (isset($data['reg_date'])) {
 			$this->reg_date = $data['reg_date'];
 		}

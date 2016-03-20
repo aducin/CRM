@@ -1,0 +1,188 @@
+<div id="drucksachenTable" style="display: none">
+    <div class="row">
+        <div class="col-sm-12 form-horizontal gray-form mrb-20">
+            <form action="">
+                <div class="form-group mrt">
+                    <div class="col-sm-6 form-inline">
+                        <label for="termin_korrektur" class="control-label">Termin Andruck</label>
+                        <input type="text" name="printTime" id="printTime-{{ dates.projectId }}" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if drucksachen.1 %} value="{{ drucksachen.1 }}" {% else %}    placeholder="Bitte wählen" {% endif %} >   
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="set-height">
+                        <table class="table table-striped sm-font-table">
+                            <thead>
+                                <tr>
+                                    <th>Drucksache<br>(freie Position)</th>
+                                    <th>Maschine</th>
+                                    <th>Art</th>
+                                    <th>Auflage</th>
+                                    <th>Format</th>
+                                    <th>Umfang</th>
+                                    <th>Farbe</th>
+                                    <th>Papier</th>
+                                    <th>Verarbeitung</th>
+                                    <th>erledigt</th>
+                                    <th>Betrag</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for singleDrucksachen in drucksachen.0 %}
+                                <tr class="rowsDrucksachen" >
+                                    <td id="{{ singleDrucksachen.id }}">
+					<div class="drucksacheToChange" id="print">{{ singleDrucksachen.print }}</div>
+					<div class="drucksacheToUpdate" id="print" style="display: none;"><input type="text" class="form-control" name="hiddenPrint" value="{{ singleDrucksachen.print }}" /></div>
+                                    </td>
+                                    <td id="{{ singleDrucksachen.id }}">
+					<div class="drucksacheToChange" id="machine">{{ singleDrucksachen.machineName }}</div>
+					<select  class="drucksacheToUpdate" id="machine" name="hiddenMachine" style="display: none;">
+                                            <option id="none">Bitte wählen</option>
+                                            {% for singleMachine in machine %}
+                                            <option id="{{ singleMachine.id }}">{{ singleMachine.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td id="{{ singleDrucksachen.id }}">
+					  <div class="drucksacheToChange" id="type">{{ singleDrucksachen.type }}</div>
+					  <div class="drucksacheToUpdate" id="type" style="display: none;"><input type="text" class="form-control" name="hiddenType" value="{{ singleDrucksachen.type }}" /></div>
+                                    </td>
+                                    <td id="{{ singleDrucksachen.id }}">
+					  <div class="drucksacheToChange" id="edition">{{ singleDrucksachen.edition }}</div>
+					  <div class="drucksacheToUpdate" id="edition" style="display: none;"><input type="text" class="form-control" name="hiddenEdition" value="{{ singleDrucksachen.edition }}" /></div>
+                                    </td>
+                                    <td id="{{ singleDrucksachen.id }}">
+					  <div class="drucksacheToChange" id="format">{{ singleDrucksachen.format }}</div>
+					  <div class="drucksacheToUpdate" id="format" style="display: none;"><input type="text" class="form-control" name="hiddenFormat" value="{{ singleDrucksachen.format }}" /></div>
+                                    </td>
+                                    <td id="{{ singleDrucksachen.id }}">
+					  <div class="drucksacheToChange" id="size">{{ singleDrucksachen.size }}</div>
+					  <div class="drucksacheToUpdate" id="size" style="display: none;"><input type="text" class="form-control" name="hiddenSize" value="{{ singleDrucksachen.size }}" /></div>
+                                    </td>
+                                    <td id="{{ singleDrucksachen.id }}">
+					  <div class="drucksacheToChange" id="color">{{ singleDrucksachen.color }}</div>
+					  <div class="drucksacheToUpdate" id="color" style="display: none;"><input type="text" class="form-control" name="hiddenColor" value="{{ singleDrucksachen.color }}" /></div>
+                                    </td>
+                                    <td id="{{ singleDrucksachen.id }}">
+					  <div class="drucksacheToChange" id="paper">{{ singleDrucksachen.paper }}</div>
+					  <div class="drucksacheToUpdate" id="paper" style="display: none;"><input type="text" class="form-control" name="hiddenPaper" value="{{ singleDrucksachen.paper }}" /></div>
+                                    </td>
+                                    <td id="{{ singleDrucksachen.id }}">
+					  <div class="drucksacheToChange" id="remodelling">{{ singleDrucksachen.remodelling }}</div>
+					  <div class="drucksacheToUpdate" id="remodelling" style="display: none;"><input type="text" class="form-control" name="hiddenRemodelling" value="{{ singleDrucksachen.remodelling }}" /></div>
+                                    </td>
+                                    <td class="v-center">
+                                        <div class="checkbox" id="{{ singleDrucksachen.id }}">
+                                            <input name="drucksachenFinished" id="finished" type="checkbox" {% if singleDrucksachen.finished == 1 %} checked="checked" {% endif %} >
+                                            <label></label>
+                                        </div>  
+                                    </td>
+                                    <td id="{{ singleDrucksachen.id }}">
+					  <div class="drucksacheToChange" id="amount">{{ singleDrucksachen.amount }} EURO</div>
+					  <div class="drucksacheToUpdate" id="amount" style="display: none;"><input type="text" class="form-control" name="hiddenAmount" value="{{ singleDrucksachen.amount }}" /></div>
+                                    </td>
+                                </tr>
+                                {% endfor %} 
+                                <tr id="hiddenTrDrucksachen" style="display: none">
+                                    <td><input type="text" class="form-control" id="hiddenPrint" name="hiddenPrint" /></td>
+                                    <td>
+                                        <select id="hiddenMachine" name="hiddenMachine">
+                                            <option id="none">Bitte wählen</option>
+                                            {% for singleMachine in machine %}
+                                            <option id="{{ singleMachine.id }}">{{ singleMachine.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td><input type="text" class="form-control" id="hiddenType" name="hiddenType" /></td>
+                                    <td><input type="text" class="form-control" id="hiddenEdition" name="hiddenEdition" /></td>
+                                    <td><input type="text" class="form-control" id="hiddenFormat" name="hiddenFormat" /></td>
+                                    <td><input type="text" class="form-control" id="hiddenSize" name="hiddenSize" /></td>
+                                    <td><input type="text" class="form-control" id="hiddenColor" name="hiddenColor" /></td>
+                                    <td><input type="text" class="form-control" id="hiddenPaper" name="hiddenPaper" /></td>
+                                    <td><input type="text" class="form-control" id="hiddenRemodelling" name="hiddenRemodelling" /></td>
+                                    <td>
+                                        <div class="checkbox" style="margin-left: 7px;">
+                                            <input name="hiddenFinished" type="checkbox" id="hiddenFinished" >
+                                            <label></label>
+                                        </div> 
+                                    </td>
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-xs-2">
+                                                <input type="text" class="form-control" id="hiddenAmount" name="hiddenAmount" placeholder="EURO" style="width: 60px; font-size: 11px;" />
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr> 
+                            </tbody>
+                        </table>                       
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-8 form-inline">
+                        <button type="button" class="btn btn-primary mrr-8" id="newDrucksache" >Neu</button>
+                        <button type="button" class="btn btn-primary mrr-8" id="hideButtonDrucksache" style="display: none;" >Verstecken</button>                                          
+                        <button type="button" class="btn btn-primary deleteButtonDrucksachen" id="" style="margin-left:-8px;" disabled >Löschen</button>         
+                        <button type="button" class="btn btn-primary mrr-8" >Duplizieren</button> 
+                        <div class="checkbox buttons-line">
+                            <input id="showIndPrice-{{ dates.projectId }}" name="intPriceShow1" type="checkbox" {% if drucksachen.2 == 1 %} checked="checked" {% endif %}>
+                            <label for="bemerkung_an">
+                                Einzelpreise nicht auf RE
+                            </label>
+                        </div> 
+                    </div>
+                    <div class="col-sm-4 v-right">
+                        <h4>Druckkosten <b class="total-price">{% if dates.amountDrucksachen %}{{ dates.amountDrucksachen }}{% endif %} EURO</b></4>
+                        </div>                                    
+                    </div>
+                    <div class="form-group mrt">
+                        <div class="col-sm-6">
+                            <div class="row">
+                                <div class="col-sm-12 form-inline">
+                                    <label class="control-label">Bemerk. auf</label>
+                                    <div class="checkbox">
+                                        <input id="bemerkung_an" name="bemerkung_an" type="checkbox">
+                                        <label for="bemerkung_an">
+                                            AN
+                                        </label>
+                                    </div> 
+                                    <div class="checkbox">
+                                        <input id="bemerkung_au" name="bemerkung_au" type="checkbox">
+                                        <label for="bemerkung_au">
+                                            AU
+                                        </label>
+                                    </div>  
+                                    <div class="checkbox">
+                                        <input id="bemerkung_pm" name="bemerkung_pm" type="checkbox">
+                                        <label for="bemerkung_pm">
+                                            PM
+                                        </label>
+                                    </div> 
+                                    <div class="checkbox">
+                                        <input id="bemerkung_li" name="bemerkung_li" type="checkbox">
+                                        <label for="bemerkung_li">
+                                            LI
+                                        </label>
+                                    </div>  
+                                    <div class="checkbox">
+                                        <input id="bemerkung_re" name="bemerkung_re" type="checkbox">
+                                        <label for="bemerkung_re">
+                                            RE
+                                        </label>
+                                    </div>                                                     
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <textarea class="form-control mrt-10" rows="6" placeholder="Vorstufe - Bemerkungen welche der Kunde auf Angebot und Rechnung sieht"></textarea>
+                                </div>
+                            </div>                                            
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="control-label" for="bemerkungen">Bemerkungen (Intern)</label>
+                            <textarea class="form-control mrt-10" id="bemerkungen" rows="6" placeholder="Freitext für interne Bemerkungen"></textarea>
+                        </div>                           
+                    </div>                                 
+                </form>
+            </div>                       
+        </div>
+    </div>

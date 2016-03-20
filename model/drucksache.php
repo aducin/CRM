@@ -33,7 +33,8 @@ class Drucksache extends formBasics
 	}
 
 	public function getByProjectId($id) {
-		$sql = "SELECT * FROM Drucksache WHERE projectId = :id";
+		$sql = "SELECT Drucksache.id as id, print, Drucksache.machine as machine, Maschine.name as name, type, edition, format, size, color, paper, remodelling, finished, amount, reg_date 
+		FROM Drucksache INNER JOIN Maschine ON Drucksache.machine = Maschine.id WHERE projectId = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
 		$result->execute();
@@ -42,6 +43,7 @@ class Drucksache extends formBasics
 				'id' => $singleResult['id'], 
 				'print' => $singleResult['print'], 
 				'machine' => $singleResult['machine'], 
+				'machineName' => $singleResult['name'],
 				'type' => $singleResult['type'], 
 				'edition' => $singleResult['edition'], 
 				'format' => $singleResult['format'],

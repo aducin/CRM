@@ -1,0 +1,118 @@
+{% extends "head.html" %}
+
+{% block title %}
+    TVSatz - ConfigSite
+{% endblock %}
+
+{% block result %};
+<div class="container">
+    <div class="row header-nav">
+        <div class="inner-block">
+            <ul class="nav nav-pills fl-left">
+                <li role="presentation"><a href="{{ root }}/Liste">Liste</a></li>
+                <li role="presentation"><a href="{{ root }}/Erfassung">Erfassung</a></li>
+                <li role="presentation"><a href="{{ root }}/Ausloggen" id="logoutButton">Ausloggen</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="row main">
+        <div class="col-sm-12 inner-block">
+            <div class="row">
+                <form class="col-sm-12 form-horizontal search-form">
+                    <div class="row">
+                        <div class="col-sm-12 search-head">
+                            <h4 class="fl-left blue-text">Benutzer</h4>
+                            <button type="button" class="btn btn-primary fl-right">speichern</button>         
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="search-head">
+                            <div class="set-height">
+                                <table class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Rolle</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for singleUser in users %}
+                                            <tr>
+                                                <td>{{ singleUser.name }}</td>
+                                                <td>{{ singleUser.rolle }}</td>
+                                            </tr>         
+                                        {% endfor %}                  
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 form-inline">
+                            <button type="button" class="btn btn-primary mrr-8">Neu</button>                                             
+                            <button type="button" class="btn btn-primary mrr-8">Löschen</button>     
+                        </div>                                  
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12 search-head mrt">
+                            <h4 class="fl-left blue-text">Parametrierung</h4>       
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label class="col-sm-6 control-label">Standardtext AN wenn keine Vorstufenarbeiten</label>
+                                <div class="col-sm-6">
+                                    <textarea class="form-control" rows="6">{{ text }}</textarea>
+                                </div>    
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-6 control-label">Zahlungsziele</label>
+                                <div class="col-sm-6">
+                                    <div class="row">
+                                        <div class="set-height">
+                                            <table class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Name</th>
+                                                        <th>Text für Formular</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for singleOption in paymentOptions %}
+                                                        <tr id="{{ singleOption.id }}">
+                                                            <td>{{ singleOption.name }}</td>
+                                                            <td>{{ singleOption.beschreibung }}</td>
+                                                        </tr>         
+                                                    {% endfor %}                  
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="col-sm-12 form-inline">
+                                            <button type="button" class="btn btn-primary mrr-8">Neu</button>                                             
+                                            <button type="button" class="btn btn-primary mrr-8">Löschen</button>     
+                                        </div>
+                                    </div>
+                                </div>  
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div><!-- /container -->
+{% endblock %}
+
+{% block otherScript %}
+    <script src="{{ path }}assets/js/jquery-ui-1.11.4.js"></script>
+{% endblock %}
+
+{% block script %}
+  <script src="{{ path }}assets/js/config.js"></script>
+{% endblock %}
