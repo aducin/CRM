@@ -28,20 +28,68 @@
                     <div class="row">
                         <div class="search-head">
                             <div class="set-height">
-                                <table class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
+                                <table class="table table-striped table-bordered table-hover" id="userTable" cellspacing="0" width="100%">
                                     <thead>
                                         <tr>
-                                            <th>Name</th>
-                                            <th>Rolle</th>
+                                            <th colspan="2">Name</th>
+                                            <th colspan="2">Rolle</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="tableRow">
                                         {% for singleUser in users %}
-                                            <tr>
-                                                <td>{{ singleUser.name }}</td>
-                                                <td>{{ singleUser.rolle }}</td>
-                                            </tr>         
-                                        {% endfor %}                  
+					    <tr class="rowsConfigUser" name="{{ singleUser.id }}" id="{{ singleUser.id }}">
+                                                            <td id="{{ singleUser.id }}" colspan="2">
+							      <div class="configUserToChange" >{{ singleUser.name }}</div>
+							      <div class="configUserToUpdate" id="user" style="display: none;">
+								<input type="text" class="form-control" name="hiddenUserName" id="name" value="{{ singleUser.name }}" />
+							      </div>
+                                                            </td>
+                                                            <td id="{{ singleUser.id }}" colspan="2">
+							      <div class="configUserToChange">{{ singleUser.rolle }}</div>
+								  <div class="configUserToUpdate" id="rolle_id" style="display: none;">
+									<select class="form-control vorstufeToUpdate" name="rolle_id" value="rolle_id">
+									    <option id="{{ singleUser.id }}">{{ singleUser.rolle }}</option>
+									    {% for singleRole in role %}
+										{% if singleRole.name == singleUser.rolle %}
+										{% else %}
+										    <option id="{{ singleRole.id }}">{{ singleRole.name }}</option>
+										{% endif %}
+									    {% endfor %}
+									</select>
+								  </div>
+							      </div>
+							     </td>
+                                                        </tr> 
+                                         {% endfor %} 
+                                                        <tr class="hiddenConfigUser" style="display: none;">
+							    <td>
+								<div class="row form-group" id="userNameDiv">
+								    <input type="text" class="form-control" id="hiddenConfigUserName" name="hiddenConfigUserName" placeholder="Name eingeben" style="width: 80%; margin-left: 10%; margin-top: 5%;"/>
+								    <span id="userNameSpan" aria-hidden="true"></span>
+								</div>
+							    </td>
+							    <td>
+								<div class="row form-group" id="userMailDiv">
+								    <input type="text" class="form-control" id="hiddenConfigUserMail" name="hiddenConfigUserMail" placeholder="Mail eingeben" style="width: 80%; margin-left: 10%; margin-top: 5%;"/>
+								    <span id="userMailSpan" aria-hidden="true"></span>
+								</div>
+							    </td>
+							    <td>
+								<div class="row form-group" id="userPassDiv">
+								    <input type="text" class="form-control" id="hiddenConfigUserPassword" name="hiddenConfigUserPassword" placeholder="Password eingeben" style="width: 80%; margin-left: 10%; margin-top: 5%;"/>
+								    <span id="userPassSpan" aria-hidden="true"></span>
+								</div>
+							    </td>
+							    <td class="col-sm-2 col-md-2">
+								<div>
+								    <select class="form-control vorstufeToUpdate" name="hiddenRole" id="rolle_id" style="margin-top: 11%;">
+									{% for singleRole in role %}
+									  <option id="{{ singleRole.id }}">{{ singleRole.name }}</option>
+									{% endfor %}
+								    </select>
+								</div>
+							    </td>
+							</tr>             
                                     </tbody>
                                 </table>
                             </div>
@@ -49,8 +97,10 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-12 form-inline">
-                            <button type="button" class="btn btn-primary mrr-8">Neu</button>                                             
-                            <button type="button" class="btn btn-primary mrr-8">Löschen</button>     
+                            <button type="button" class="btn btn-primary mrr-8" id="newUser">Neu</button> 
+                            <button type="button" class="btn btn-primary mrr-8" id="saveUser" style="display: none;" >Speichern</button> 
+                            <button type="button" class="btn btn-primary mrr-8 deleteUser" id="" disabled="disabled">Löschen</button>
+                            <button type="button" class="btn btn-primary mrr-8" id="hideUser" style="display: none;" >Verstecken</button>     
                         </div>                                  
                     </div>
                     <div class="row">
@@ -63,7 +113,7 @@
                             <div class="form-group">
                                 <label class="col-sm-6 control-label">Standardtext AN wenn keine Vorstufenarbeiten</label>
                                 <div class="col-sm-6">
-                                    <textarea class="form-control" rows="6">{{ text }}</textarea>
+                                    <textarea class="form-control" id="configStandardText" rows="6">{{ text }}</textarea>
                                 </div>    
                             </div>
                             <div class="form-group">
@@ -71,7 +121,7 @@
                                 <div class="col-sm-6">
                                     <div class="row">
                                         <div class="set-height">
-                                            <table class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
+                                            <table class="table table-striped table-bordered table-hover" id="configPaymentOptTable" cellspacing="0" width="100%">
                                                 <thead>
                                                     <tr>
                                                         <th>Name</th>
@@ -80,17 +130,44 @@
                                                 </thead>
                                                 <tbody>
                                                     {% for singleOption in paymentOptions %}
-                                                        <tr id="{{ singleOption.id }}">
-                                                            <td>{{ singleOption.name }}</td>
-                                                            <td>{{ singleOption.beschreibung }}</td>
+                                                        <tr class="rowsConfigPaymentOpt" name="{{ singleOption.id }}" id="{{ singleOption.id }}">
+                                                            <td id="{{ singleOption.id }}">
+							      <div class="configToChange">{{ singleOption.name }}</div>
+							      <div class="configToUpdate" style="display: none;">
+								<input type="text" class="form-control" name="hiddenConfigName" id="name" value="{{ singleOption.name }}" />
+							      </div>
+                                                            </td>
+                                                            <td id="{{ singleOption.id }}">
+							      <div class="configToChange">{{ singleOption.beschreibung }}</div>
+								  <div class="configToUpdate" style="display: none;">
+								      <input type="text" class="form-control" name="hiddenConfigDescription" id="beschreibung" value="{{ singleOption.beschreibung }}" />
+								  </div>
+							      </div>
+							     </td>
                                                         </tr>         
-                                                    {% endfor %}                  
+                                                    {% endfor %} 
+                                                    <tr id="hiddenConfigPaymentOpt" style="display: none;">
+						      <td>
+							  <div class="row form-group" id="paymentNameDiv">
+							      <input type="text" class="form-control" id="hiddenConfigName" name="hiddenConfigName" placeholder="Name eingeben" style="width: 80%; margin-left: 10%; margin-top: 5%;"/>
+							      <span id="paymentNameSpan" aria-hidden="true"></span>
+							  </div>
+						      </td>
+						      <td>
+							  <div class="row form-group" id="paymentDescDiv">
+							      <input type="text" class="form-control" id="hiddenConfigDescription" name="hiddenConfigDescription" placeholder="Beschreibung eingeben" style="width: 80%; margin-left: 10%; margin-top: 5%;"/>
+							      <span id="paymentDescSpan" aria-hidden="true"></span>
+							  </div>
+						      </td>
+						    </tr>
                                                 </tbody>
                                             </table>
                                         </div>
                                         <div class="col-sm-12 form-inline">
-                                            <button type="button" class="btn btn-primary mrr-8">Neu</button>                                             
-                                            <button type="button" class="btn btn-primary mrr-8">Löschen</button>     
+                                            <button type="button" class="btn btn-primary mrr-8" id="newPaymentOpt">Neu</button> 
+                                            <button type="button" class="btn btn-primary mrr-8" id="savePaymentOpt" style="display: none;" >Speichern</button> 
+                                            <button type="button" class="btn btn-primary mrr-8 deletePaymentOpt" id="" disabled="disabled">Löschen</button>
+                                            <button type="button" class="btn btn-primary mrr-8" id="hidePaymentOpt" style="display: none;" >Verstecken</button>  
                                         </div>
                                     </div>
                                 </div>  

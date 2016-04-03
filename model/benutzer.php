@@ -43,7 +43,7 @@ class Benutzer
 				$this->isLogged = 1;
 				$_SESSION['log'] = 1;
 				$_SESSION['user'] = $this->id;
-				setcookie('crm_logged', '1', time()+3600);
+				//setcookie('crm_logged', '1', time()+3600);
 			} else {
 				$date = $this->checkLogin($ip);
 				if ($date == 'true') {

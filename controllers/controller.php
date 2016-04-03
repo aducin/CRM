@@ -9,26 +9,48 @@ class Controller
 	private $output;
 	private $project;
 	public $params = array();
-    private $currentId;
-
+	private $currentId;
+	
 	public function __construct($dbHandler, $action = null, $variable = null) {
+		$path = 'http://'.$_SERVER["HTTP_HOST"];
 		$this->dbHandler = $dbHandler;
 		$this->creator = new TvsatzCreator($dbHandler);
 		$this->output = new OutputController($dbHandler);
-
-        if (!isset($_SESSION['log']) && !isset($_POST['action']) && !isset($_COOKIE['crm_logged'])) {
-            $this->getLoginPage();
-        } else {
-            if (isset ($_GET['single'])) {
-                $this->currentId = $_GET['single'];
-            }   
-            setcookie('crm_logged', '1', time()+3600);
-            $this->$action();
-        }
-    }
+		if (isset($_GET['token'])) {
+		    $this->getLoginPage();
+		} elseif (!isset($_SESSION['log']) OR !isset($_COOKIE['crm_logged'])) {
+		    if ($action == 'renderLogin') {
+			$this->getLoginPage();
+		    } elseif ($action != 'ajax' && $action != 'login') {
+			header('Location: '.$this->path.'/CRM/Login');
+		    } else {
+			  setcookie('crm_logged', '1', time()+3600);
+			  $this->$action();
+		    }
+		}
+		 elseif (!isset($_SESSION['log']) && !isset($_POST['action']) && !isset($_COOKIE['crm_logged'])) {
+		    $this->getLoginPage();
+		} else {
+		    if (isset ($_GET['single'])) {
+			$this->currentId = $_GET['single'];
+		    }   
+		    setcookie('crm_logged', '1', time()+3600);
+		    $this->$action();
+		}
+	}
 
     private function ajax() {
         $this->creator->createProduct('Ajax', $_POST);
+    }
+
+    private function cloneProject() {
+        $id = $_SESSION['projectId'];
+        $this->project = $this->creator->createProduct('projekt', $id);
+        $this->project->setDates();
+        $success = $this->project->cloneProject();
+        if ($success != true) {
+            $this->output->displayError($success);
+        }
     }
 
     private function config() {
@@ -46,6 +68,7 @@ class Controller
     private function getContent($id, $target) {
         $this->project = $this->creator->createProduct('projekt', $id);
         $this->project->setDates();
+        $_SESSION['projectId'] = $this->project->getId();
         $this->output->$target($this->benutzer, $this->project);
     }
 
@@ -105,6 +128,7 @@ class Controller
         $benutzer = $this->creator->createProduct('benutzer', $number);
         $this->benutzer = $benutzer;
         $this->benutzer->setData();
+
         if ($_SESSION["log"] == 1) {
             $benutzer->setIsLogged();
         } else {

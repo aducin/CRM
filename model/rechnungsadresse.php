@@ -22,6 +22,31 @@ class Rechnungsadresse implements TvsatzInterface
 		}
 	}
 
+	public function clientInsert($values) {
+		$name = $values[1];
+		$departement = $values[2];
+		$address = $values[3];
+		$address2 = $values[4];
+		$code = $values[5];
+		$place = $values[6];
+		$clientId = $values[7];
+		$sql = 'INSERT INTO Rechnungsadressen (name, abteilung, anschrift, anschrift2, plz, ort, firma_id) VALUES (:name, :departement, :address, :address2, :code, :place, :clientId)';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':name', $name);
+		$result->bindValue(':departement', $departement);
+		$result->bindValue(':address', $address);
+		$result->bindValue(':address2', $address2);
+		$result->bindValue(':code', $code);
+		$result->bindValue(':place', $place);
+		$result->bindValue(':clientId', $clientId);
+		if ($result->execute()) {
+			$id = $this->getLastId($values);
+			return $id;
+		} else {
+			return 'false';
+		}
+	}
+
 	public function deleteCurrentDates() {
 		$sql = "DELETE FROM Rechnungsadressen WHERE id = :id";
 		$result=$this->dbHandler->prepare($sql);
@@ -36,6 +61,37 @@ class Rechnungsadresse implements TvsatzInterface
 		unset($this->ort);
 		unset($this->reg_date);
 		unset($this->firma_id);
+	}
+
+	public function deleteSql( $data ) {
+		$sql = "DELETE FROM Rechnungsadressen WHERE id = :id";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $data);
+		if ($result->execute()) {
+			return 'success';
+		} else {
+			return 'false';
+		}
+	}
+	
+	public function getAllRechnungsadressen($id) {
+		$sql = "SELECT * FROM Rechnungsadressen WHERE firma_id = :id";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		$result->execute();
+		$list = array();
+		foreach ($result as $singleResult) {
+		      $list[] = array(
+		      'id' => $singleResult['id'], 
+		      'name' => $singleResult['name'],
+		      'abteilung' => $singleResult['abteilung'],
+		      'anschrift' => $singleResult['anschrift'],
+		      'anschrift2' => $singleResult['anschrift2'],
+		      'plz' => $singleResult['plz'],
+		      'ort' => $singleResult['ort']
+		      );
+		}
+		return $list;
 	}
 
 	public function getDates() {
@@ -55,6 +111,23 @@ class Rechnungsadresse implements TvsatzInterface
 		$array = $result->fetch();
 		$this->id = $array['id'];
 		$this->reg_date = $array['reg_date'];
+	}
+
+	private function getLastId($values) {
+		$sql = 'SELECT id, reg_date FROM Rechnungsadressen WHERE name = :name AND abteilung = :abteilung AND anschrift = :anschrift AND firma_id = :firma_id ORDER BY id DESC LIMIT 1';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':name', $values[1]);
+		$result->bindValue(':abteilung', $values[2]);
+		$result->bindValue(':anschrift', $values[3]);
+		$result->bindValue(':firma_id', $values[7]);
+		$result->execute();
+		$array = $result->fetch();
+		$this->id = $array['id'];
+		return $this->id;
+	}
+
+	public function getObjectId() {
+		return $this->id;
 	}
 	
 	public function searchByChosenName($value) {
@@ -143,5 +216,17 @@ class Rechnungsadresse implements TvsatzInterface
 		$result->bindValue(':ort', $this->ort);
 		$result->bindValue(':firma_id', $this->firma_id);
 		$result->execute();
+	}
+	
+	public function updateRow($column, $rowId, $value) {
+		$sql = 'UPDATE Rechnungsadressen SET '.$column.' = :value WHERE id = :id';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $rowId);
+		$result->bindValue(':value', $value);
+		if ($result->execute()) {
+		    return 'success';
+		} else {
+		    return 'false';
+		}
 	}
 }

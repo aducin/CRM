@@ -1,0 +1,616 @@
+<!-- PRINTER BOX -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Drucken</h4>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <div class="form-group">
+                        <label for="formular" class="control-label col-sm-4">Formular:</label>
+                        <div class="col-sm-8">
+                            <select name="formular" id="formular" class="form-control selectpicker">
+                                <option value="Oferta">Angebot</option>
+                                <option value="Potwierdzenie zamówienia">Angebotsbestätigung</option>
+                                <option value="Wycena">Schätzung</option>
+                                <option value="Faktura">Rechnung</option>
+                                <option value="List przewozowy">Lieferschein</option>
+                                <option value="Okolnik">Rundschreiben</option>
+                            </select> 
+                        </div>
+                    </div>            
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                            <label for="bezeichnung" class="control-label">Bezeichnung für Akte</label>
+                        </div>
+                        <div class="col-sm-8">
+                            <input type="text" name="bezeichnung" id="bezeichnung" class="form-control" placeholder="" value="">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">Drucken</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- EOF PRINTER BOX -->
+
+<!-- NEU BOX -->
+<div class="modal fade bs-example-modal-lg" id="newClientPopup" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Auftraggeber</h4>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <div class="form-group">              
+                    <div class="col-sm-12">
+                        <button type="button" class="btn btn-primary fl-right" id="newPopupSave">Speichern</button> 
+                    </div>
+                </div>
+                <div class="form-group">                    
+                    <div class="col-md-6 sol-sm-12">
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12">
+                                <label for="name" class="col-sm-4 control-label" >Name</label>
+                                <div class="col-sm-8 newNameError" id="newNameDiv">
+                                    <input type="text" name="name" class="form-control" id="newPopupName" placeholder="Name">
+                                </div>    
+                            </div>    
+                        </div>
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12" >
+                                <label for="abteilung" class="col-sm-4 control-label" >Abteilung</label>
+                                <div class="col-sm-8 newNameError" id="newDepartementDiv">
+                                    <input type="text" name="abteilung" class="form-control" id="newPopupDepartement" placeholder="Abteilung">
+                                </div>    
+                            </div>    
+                        </div>
+                        <div class="row mrt-10">
+                           <div class="sol-sm-12">
+                                <label for="anschrift" class="col-sm-4 control-label" >Anschrift</label>
+                                <div class="col-sm-8 newNameError" id="newAddressDiv">
+                                    <input type="text" name="anschrift" class="form-control" id="newPopupAddress" placeholder="Straße">
+                                </div>    
+                            </div>    
+                        </div>   
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12">
+                                <label for="anschrift_2" class="col-sm-4 control-label" >Anschrift 2</label>
+                                <div class="col-sm-8 newNameError" id="newAddressDiv2">
+                                    <input type="text" name="anschrift2" class="form-control" id="newPopupAddress2" placeholder="Straße, Zusatz">
+                                </div>    
+                            </div>    
+                        </div>    
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12">
+                                <label for="ort" class="col-sm-4 control-label" >Ort</label>
+                                <div class="col-sm-8 newNameError" id="newPlaceDiv">
+                                    <input type="text" name="ort" class="form-control" id="newPopupPlace" placeholder="Ort">
+                                </div>    
+                            </div>    
+                        </div>    
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12">
+                                <label for="plz" class="col-sm-4 control-label" >PLZ</label>
+                                <div class="col-sm-8 newNameError" id="newCodeDiv">
+                                    <input type="text" name="plz" class="form-control" id="newPopupCode" placeholder="PLZ">
+                                </div>    
+                            </div>    
+                        </div>    
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12">
+                                <label for="telefon" class="col-sm-4 control-label" >Telefon</label>
+                                <div class="col-sm-8 newNameError" id="newPhoneDiv">
+                                    <input type="text" name="telefon" class="form-control" id="newPopupPhone" placeholder="Telefon">
+                                </div>    
+                            </div>    
+                        </div>    
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12">
+                                <label for="fax" class="col-sm-4 control-label" >Fax</label>
+                                <div class="col-sm-8 newNameError" id="newFaxDiv">
+                                    <input type="text" name="fax" class="form-control" id="newPopupFax" placeholder="Fax">
+                                </div>    
+                            </div>    
+                        </div>     
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12" id="newMailDiv">
+                                <label for="mail" class="col-sm-4 control-label" >Mail</label>
+                                <div class="col-sm-8 newNameError" id="newClientMailDiv">
+                                    <input type="text" name="mail" class="form-control" id="newPopupMail" placeholder="E-mail">
+                                </div>    
+                            </div>    
+                        </div>                         
+                    </div>
+                    <div class="col-md-6 sol-sm-12">
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12">
+                                <label for="skonto_in" class="col-sm-4 control-label">Skonto (in %):</label>
+                                <div class="col-sm-8 newNameError" id="newSkontoDiv">
+                                    <input type="text" name="skonto" class="form-control" id="newPopupSkonto" size="3">
+                                </div>    
+                            </div>    
+                        </div>
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12">
+                                <label for="zahlungsziel" class="col-sm-4 control-label">Zahlungsziel</label>
+                                <div class="col-sm-8 newNameError" id="zahlungsziel">
+                                    <select name="zahlungsziel" class="form-control selectpicker" id="newPopupPaymentOpt">
+                                        {% for single in paymentOpt %}
+                    					    <option class="singleTarget" value="{{ single.id }}">{{ single.name }}</option>
+                    				    {% endfor %}
+                                    </select> 
+                                </div>    
+                            </div>    
+                        </div>
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12">
+                                <label for="skonto_in" class="col-sm-4 control-label">Kundennummer:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="kundennummer" class="form-control" id="kundennummer" value="" size="3" disabled="disabled">
+                                </div>    
+                            </div>    
+                        </div>
+                        <input type="hidden" name="clientId" value="61" id="hiddenClientId">
+                        <br>
+                        <br>
+                        <div class="row mrt-10">
+                            <label class="col-sm-12 modal-title">Rechnungsadressen</label>  
+                        </div>  
+                        <div class="row mrt-10">
+                            <div class="set-height">
+                                <table id="list-sortable-2" class="table table-striped table-bordered table-hover sm-font-table newAddressTable" cellspacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+					                        <th>Firma/Person</th>
+                                            <th class="no-sort">Abteilung</th>
+                                            <th class="no-sort">Anschrift</th>
+                                            <th class="no-sort">Anschrift2</th>
+                                            <th class="no-sort">PLZ</th>
+                                            <th class="no-sort">Ort</th>  
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="clickable-row rowsNewAddress" id="hiddenNewTrAddress" style="display: none;">
+                    					    <td>
+                        						<div class="row form-group hiddenNewAddressTr" id="newAddressNameDiv">
+                        						    <input type="text" name="hiddenAddressName" class="form-control" id="hiddenAddressName" placeholder="Name" value="" style="width: 70%; margin-left:15%; margin-top: 16%;">
+                        						</div>
+                        					</td>
+                        					<td>
+                        						<div class="row form-group hiddenNewAddressTr" id="newAddressAbteilungDiv">
+                        						    <input type="text" name="hiddenAddressAbteilung" class="form-control" id="hiddenAddressAbteilung" placeholder="Abteilung" value="" style="width: 70%; margin-left:15%; margin-top: 16%;">
+                        						</div>
+                        					</td>
+                        					<td>
+                        						<div class="row form-group hiddenNewAddressTr" id="newAddressAnschriftDiv">
+                        						    <input type="text" name="hiddenAddressAnschrift" class="form-control" id="hiddenAddressAnschrift" placeholder="Anschrift" value="" style="width: 70%; margin-left:15%; margin-top: 16%;">
+                        						</div>
+                        					</td>
+                        					<td>
+                        						<div class="row form-group hiddenNewAddressTr" id="newAddressAnschrift2Div">
+                        						    <input type="text" name="hiddenAddressAnschrift2" class="form-control" id="hiddenAddressAnschrift2" placeholder="Anschrift - Teil 2" value="" style="width: 70%; margin-left:15%; margin-top: 16%;">
+                        						</div>
+                        					</td>
+                        					<td>
+                        						<div class="row form-group hiddenNewAddressTr" id="newAddressPlzDiv">
+                        						    <input type="text" name="hiddenAddressPlz" class="form-control" id="hiddenAddressPlz" placeholder="PLZ" value="" style="width: 70%; margin-left:15%; margin-top: 16%;">
+                        						</div>
+                        					</td>
+                        					<td>
+                        						<div class="row form-group hiddenNewAddressTr" id="newAddressOrtDiv">
+                        						    <input type="text" name="hiddenAddressOrt" class="form-control" id="hiddenAddressOrt" placeholder="Ort" value="" style="width: 70%; margin-left:15%; margin-top: 16%;">
+                        						</div>
+                    					    </td>
+                                        </tr>                                    
+                                    </tbody>
+                                </table>
+                            </div>  
+                        </div> 
+                        <div class="row mrt-10">
+                            <div class="col-sm-12">
+                                <button type="button" class="btn btn-primary mrr-8" id="newButtonAddress" disabled="disabled" >Neu</button>
+                                <button type="button" class="btn btn-primary mrr-8" id="hideButtonAddress" style="display: none; margin-left: -7px;" >Verstecken</button>
+                                <button type="button" class="btn btn-primary deleteButtonAddress" id="" style="margin-left:-8px;" disabled >Löschen</button>         
+                            </div> 
+                        </div>
+                    </div>
+                </div>            
+                <div class="form-group mrt">
+                    <label class="col-sm-12 modal-title">Ansprechpartner</label>
+                </div>
+                <div class="form-group">
+                    <div class="set-height">
+                        <table id="list-sortable" class="table table-striped table-bordered table-hover sm-font-table newPersonTable" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Vorname</th>
+                                    <th class="no-sort">Telefon</th>
+                                    <th class="no-sort">Telefon2</th>
+                                    <th class="no-sort">Fax</th>
+                                    <th class="no-sort">Mail</th>                                            
+                                </tr>
+                            </thead>
+                            <tbody>
+            				    <tr class="clickable-row rowsNewPerson" id="hiddenNewTrContact" style="display: none">
+            					    <td>
+                						<div class="row form-group hiddenNewContactTr" id="newContactNameDiv">
+                						    <input type="text" name="hiddenContactName" class="form-control" id="name" placeholder="Name" value="" style="width: 70%; margin-left:15%; margin-top: 10%;">
+                						</div>
+                					</td>
+                					<td>
+                						<div class="row form-group hiddenNewContactTr" id="newContactVornameDiv">
+                						    <input type="text" name="hiddenContactVorname" class="form-control" id="vorname" placeholder="Vorname" value="" style="width: 70%; margin-left:15%; margin-top: 10%;">
+                						</div>
+                					</td>
+                					<td>
+                						<div class="row form-group hiddenNewContactTr" id="newContactTelefonDiv">
+                						    <input type="text" name="hiddenContactTelefon" class="form-control" id="anschrift" placeholder="Anschrift" value="" style="width: 70%; margin-left:15%; margin-top: 10%;">
+                						</div>
+                					</td>
+                					<td>
+                						<div class="row form-group hiddenNewContactTr" id="newContactTelefon2Div">
+                						    <input type="text" name="hiddenContactTelefon2" class="form-control" id="anschrift2" placeholder="Anschrift - Teil 2" value="" style="width: 70%; margin-left:15%; margin-top: 10%;">
+                						</div>
+                					</td>
+                					<td>
+                						<div class="row form-group hiddenNewContactTr" id="newContactFaxDiv">
+                						    <input type="text" name="hiddenContactFax" class="form-control" id="fax" placeholder="Fax" value="" style="width: 70%; margin-left:15%; margin-top: 10%;">
+                						</div>
+                					</td>
+                					<td>
+                						<div class="row form-group hiddenNewContactTr" id="newContactMailDiv" >
+                						    <input type="text" name="hiddenContactMail" class="form-control" id="mail" placeholder="Mail" value="" style="width: 70%; margin-left:15%; margin-top: 10%;">
+                						</div>
+            					    </td>
+                                </tr>                        
+                            </tbody>
+                        </table>
+                    </div>  
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-12">
+                        <button type="button" class="btn btn-primary mrr-8" id="newButtonContact" disabled="disabled">Neu</button>
+                        <button type="button" class="btn btn-primary mrr-8" id="hideButtonContact" style="display: none; margin-left: -7px;" >Verstecken</button>
+                        <button type="button" class="btn btn-primary deleteButtonContact" id="" style="margin-left:-8px;" disabled >Löschen</button>       
+                    </div> 
+                </div>
+            </form>
+        </div>
+    </div>
+  </div>
+</div>
+<!-- EOF NEU BOX -->
+
+<!-- BEARBEITEN BOX -->
+<div class="modal fade bs-example-modal-lg" id="changeClientPopup" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title">Auftraggeber</h4>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <div class="form-group">                    
+                    <div class="col-md-6 sol-sm-12">
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12" id="auftraggeber">
+                                <label for="name" class="col-sm-4 control-label">Name</label>
+                                <div class="col-sm-8 bearbeitenDate" id="{{ customer.id }}">
+                                    <input type="text" name="name" id="name" class="form-control" value="{{ customer.name }}">
+                                </div>    
+                            </div>    
+                        </div>
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12" id="auftraggeber">
+                                <label for="abteilung" class="col-sm-4 control-label">Abteilung</label>
+                                <div class="col-sm-8 bearbeitenDate" id="{{ customer.id }}">
+                                    <input type="text" name="abteilung" id="abteilung" class="form-control" value="{{ customer.abteilung }}">
+                                </div>    
+                            </div>    
+                        </div>
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12" id="auftraggeber">
+                                <label for="anschrift" class="col-sm-4 control-label">Anschrift</label>
+                                <div class="col-sm-8 bearbeitenDate" id="{{ customer.id }}">
+                                    <input type="text" name="anschrift" id="anschrift" class="form-control" value="{{ customer.anschrift }}">
+                                </div>    
+                            </div>    
+                        </div>   
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12" id="auftraggeber">
+                                <label for="anschrift_2" class="col-sm-4 control-label">Anschrift 2</label>
+                                <div class="col-sm-8 bearbeitenDate" id="{{ customer.id }}">
+                                    <input type="text" name="anschrift2" id="anschrift2" class="form-control" value="{{ customer.anschrift2 }}">
+                                </div>    
+                            </div>    
+                        </div>    
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12" id="auftraggeber">
+                                <label for="ort" class="col-sm-4 control-label" value="{{ customer.name }}">Ort</label>
+                                <div class="col-sm-8 bearbeitenDate" id="{{ customer.id }}">
+                                    <input type="text" name="ort" id="ort" class="form-control" value="{{ customer.ort }}">
+                                </div>    
+                            </div>    
+                        </div>    
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12" id="auftraggeber">
+                                <label for="plz" class="col-sm-4 control-label">PLZ</label>
+                                <div class="col-sm-8 bearbeitenDate" id="{{ customer.id }}">
+                                    <input type="text" name="plz" id="plz" class="form-control" value="{{ customer.plz }}">
+                                </div>    
+                            </div>    
+                        </div>    
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12" id="auftraggeber">
+                                <label for="telefon" class="col-sm-4 control-label">Telefon</label>
+                                <div class="col-sm-8 bearbeitenDate" id="{{ customer.id }}">
+                                    <input type="text" name="telefon" id="telefon" class="form-control" value="{{ customer.telefon }}">
+                                </div>    
+                            </div>    
+                        </div>    
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12" id="auftraggeber">
+                                <label for="fax" class="col-sm-4 control-label">Fax</label>
+                                <div class="col-sm-8 bearbeitenDate" id="{{ customer.id }}">
+                                    <input type="text" name="fax" id="fax" class="form-control" value="{{ customer.fax }}">
+                                </div>    
+                            </div>    
+                        </div>     
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12" id="auftraggeber">
+                                <label for="mail" class="col-sm-4 control-label">Mail</label>
+                                <div class="col-sm-8 bearbeitenDate" id="{{ customer.id }}">
+                                    <input type="text" name="mail" id="mail" class="form-control" value="{{ customer.mail }}">
+                                </div>    
+                            </div>    
+                        </div>                         
+                    </div>
+                    <div class="col-md-6 sol-sm-12">
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12" id="auftraggeber">
+                                <label for="skonto_in" class="col-sm-4 control-label">Skonto in %:</label>
+                                <div class="col-sm-8 bearbeitenDate" id="{{ customer.id }}">
+                                    <input type="text" name="skonto" id="skonto" class="form-control" size="3" 
+                                    value="{{ customer.skonto }}">
+                                </div>    
+                            </div>    
+                        </div>
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12" id="auftraggeber">
+                                <label for="zahlungsziel" class="col-sm-4 control-label">Zahlungsziel</label>
+                                <div class="col-sm-8 bearbeitenDate" id="zahlungsziel_id">
+                                    <select name="zahlungszielClient" id="{{ customer.id }}" class="form-control selectpicker">
+                                      <option class="clientTarget" value="{{ customer.zahlungsziel.id }}">{{ customer.zahlungsziel.name }}</option>
+                                      {% for single in paymentOpt %}
+                                      {% if single.name != customer.zahlungsziel.name %}
+                                      <option class="singleTarget" value="{{ single.id }}">{{ single.name }}</option>
+                                      {% endif %}
+                                      {% endfor %}
+                                    </select> 
+                                </div>    
+                            </div>    
+                        </div>
+                        <div class="row mrt-10">
+                            <div class="sol-sm-12">
+                                <label for="skonto_in" class="col-sm-4 control-label">Kundennummer:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="bearbeitenKundennummer" class="form-control" id="bearbeitenKundennummer" value="{{ customer.id }}" size="3" disabled="disabled">
+                                </div>    
+                            </div>    
+                        </div>
+                        <br>
+                        <br>
+                        <div class="row mrt-10">
+                            <label class="col-sm-12 modal-title">Rechnungsadressen</label>  
+                        </div>  
+                    <div class="row mrt-10">
+                        <div class="set-height">
+                            <table id="list-sortable-2" class="table table-striped table-bordered table-hover sm-font-table bearbeitenAddressTable" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>Firma/Person</th>
+                                        <th class="no-sort">Abteilung</th>
+                                        <th class="no-sort">Anschrift</th>
+                                        <th class="no-sort">Anschrift2</th>
+                                        <th class="no-sort">PLZ</th>
+                                        <th class="no-sort">Ort</th>                                            
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                  {% for singleAddress in addressList %}
+                                  <tr class="clickable-row rowsBearbeitenAddress" name="{{ singleAddress.id }}" id="{{ singleAddress.id }}">
+                                    <td id="{{ singleAddress.id }}">
+                                      <div class="bearbeitenAddressToChange" id="name">{% if singleAddress.name %}{{ singleAddress.name }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                      <div class="bearbeitenAddressToUpdate" id="name" style="display: none;"><input type="text" name="rechnungsadresse" class="form-control" value="{{ singleAddress.name }}" /></div>
+                                  </td>
+                                  <td id="{{ singleAddress.id }}">
+                                      <div class="bearbeitenAddressToChange" id="abteilung">{% if singleAddress.abteilung  %}{{ singleAddress.abteilung }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                      <div class="bearbeitenAddressToUpdate" id="abteilung" style="display: none;"><input type="text" name="rechnungsadresse" class="form-control" value="{{ singleAddress.abteilung }}" /></div>
+                                  </td>
+                                  <td id="{{ singleAddress.id }}">
+                                      <div class="bearbeitenAddressToChange" id="anschrift">{% if singleAddress.anschrift  %}{{ singleAddress.anschrift }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                      <div class="bearbeitenAddressToUpdate" id="anschrift" style="display: none;"><input type="text" name="rechnungsadresse" class="form-control" value="{{ singleAddress.anschrift }}" /></div>
+                                  </td>
+                                  <td id="{{ singleAddress.id }}">
+                                      <div class="bearbeitenAddressToChange" id="anschrift2">{% if singleAddress.anschrift2  %}{{ singleAddress.anschrift2 }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                      <div class="bearbeitenAddressToUpdate" id="anschrift2" style="display: none;"><input type="text" name="rechnungsadresse" class="form-control" value="{{ singleAddress.anschrift2 }}" /></div>
+                                  </td>
+                                  <td id="{{ singleAddress.id }}">
+                                      <div class="bearbeitenAddressToChange" id="plz">{% if singleAddress.plz  %}{{ singleAddress.plz }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                      <div class="bearbeitenAddressToUpdate" id="plz" style="display: none;"><input type="text" name="rechnungsadresse" class="form-control" value="{{ singleAddress.plz }}" /></div>
+                                  </td>
+                                  <td id="{{ singleAddress.id }}">
+                                      <div class="bearbeitenAddressToChange" id="ort">{% if singleAddress.ort  %}{{ singleAddress.ort }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                      <div class="bearbeitenAddressToUpdate" id="ort" style="display: none;"><input type="text" name="rechnungsadresse" class="form-control" value="{{ singleAddress.ort }}" /></div>
+                                  </td>
+                              </tr>  
+                              {% endfor %}            
+                              <tr class="clickable-row" id="hiddenBearbeitenTrAddress" style="display: none;">
+                               <td>
+                                  <div class="row form-group hiddenBearbeitenTr" id="hiddenAddressNameDiv">
+                                    <div id="{{ customer.id }}">
+                                      <input type="text" name="hiddenBearbeitungAddressName" class="form-control hiddenBearbeitenAddress" id="hiddenBearbeitenAddressName" placeholder="Name" value="" style="width: 70%; margin-left:15%; margin-top: 12px;" >
+                                    </div>
+                                  </div>
+                              </td>
+                              <td>
+                                  <div class="row form-group hiddenBearbeitenTr" id="hiddenAddressAbteilungDiv">
+                                    <div id="{{ customer.id }}">
+                                      <input type="text" name="hiddenBearbeitungAddressAbteilung" class="form-control hiddenBearbeitenAddress" id="hiddenBearbeitungAddressAbteilung" placeholder="Abteilung" value="" style="width: 70%; margin-left:15%; margin-top: 12px;" >
+                                    </div>
+                                  </div>
+                              </td>
+                              <td>
+                                 <div class="row form-group hiddenBearbeitenTr" id="hiddenAddressAnschriftDiv">
+                                    <div id="{{ customer.id }}">
+                                      <input type="text" name="hiddenBearbeitungAddressAnschrift" class="form-control hiddenBearbeitenAddress" id="hiddenBearbeitungAddressAnschrift" placeholder="Anschrift" value="" style="width: 70%; margin-left:15%; margin-top: 12px;" >
+                                    </div>
+                                  </div>
+                              </td>
+                              <td>
+                                  <div class="row form-group">
+                                      <input type="text" name="hiddenBearbeitungAddressAnschrift2" class="form-control hiddenBearbeitenAddress" id="hiddenBearbeitungAddressAnschrift2" placeholder="Anschrift - Teil 2" value="" style="width: 70%; margin-left:16%; margin-top: 12px;" >
+                                  </div>
+                              </td>
+                              <td>
+                                  <div class="row form-group hiddenBearbeitenTr" id="hiddenAddressPlzDiv">
+                                    <div id="{{ customer.id }}">
+                                      <input type="text" name="hiddenBearbeitungAddressPlz" class="form-control hiddenBearbeitenAddress" id="hiddenBearbeitungAddressPlz" placeholder="PLZ" value="" style="width: 62%; margin-left:20%; margin-top: 12px;" >
+                                    </div>
+                                  </div>
+                              </td>
+                              <td>
+                                  <div class="row form-group hiddenBearbeitenTr" id="hiddenAddressOrtDiv">
+                                    <div id="{{ customer.id }}">
+                                      <input type="text" name="hiddenBearbeitungAddressOrt" class="form-control hiddenBearbeitenAddress" id="hiddenBearbeitungAddressOrt" placeholder="Ort" value="" style="width: 70%; margin-left:16%; margin-top: 12px;" >
+                                    </div>
+                                  </div>
+                              </td>
+                          </tr>                     
+                      </tbody>
+                  </table>
+              </div>  
+          </div> 
+          <div class="row mrt-10">
+            <div class="col-sm-12">
+                <button type="button" class="btn btn-primary mrr-8" id="newBearbeitenButtonAddress" >Neu</button>
+                <button type="button" class="btn btn-primary mrr-8" id="hideBearbeitenButtonAddress" style="display: none; margin-left: -8px;" >Verstecken</button>
+                <button type="button" class="btn btn-primary deleteBearbeitenButtonAddress" id="" style="margin-left:-8px;" disabled >Löschen</button>     
+            </div> 
+        </div>
+    </div>
+</div>            
+<div class="form-group mrt">
+    <label class="col-sm-12 modal-title">Ansprechpartner</label>
+</div>
+<div class="form-group">
+    <div class="set-height">
+        <table id="list-sortable" class="table table-striped table-bordered table-hover sm-font-table bearbeitenPersonTable" cellspacing="0" width="100%">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Vorname</th>
+                    <th class="no-sort">Telefon</th>
+                    <th class="no-sort">Telefon2</th>
+                    <th class="no-sort">Fax</th>
+                    <th class="no-sort">Mail</th>                                            
+                </tr>
+            </thead>
+            <tbody>
+                {% for singleList in sellerList %}
+                <tr class="clickable-row rowsBearbeitenPerson" name="{{ singleList.id }}" id="{{ singleList.id }}">
+                    <td id="{{ singleList.id }}">
+                      <div class="bearbeitenPersonToChange" id="name">{% if singleList.name %}{{ singleList.name }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                      <div class="bearbeitenPersonToUpdate" id="name" style="display: none;"><input type="text" name="ansprechpartner" class="form-control" value="{{ singleList.name }}" /></div>
+                  </td>
+                  <td id="{{ singleList.id }}">
+                      <div class="bearbeitenPersonToChange" id="vorname">{% if singleList.vorname  %}{{ singleList.vorname }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                      <div class="bearbeitenPersonToUpdate" id="vorname" style="display: none;"><input type="text" name="ansprechpartner" class="form-control" value="{{ singleList.vorname }}" /></div>
+                  </td>
+                  <td id="{{ singleList.id }}">
+                      <div class="bearbeitenPersonToChange" id="telefon">{% if singleList.telefon  %}{{ singleList.telefon }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                      <div class="bearbeitenPersonToUpdate" id="telefon" style="display: none;"><input type="text" name="ansprechpartner" class="form-control" value="{{ singleList.telefon }}" /></div>
+                  </td>
+                  <td id="{{ singleList.id }}">
+                      <div class="bearbeitenPersonToChange" id="telefon2">{% if singleList.telefon2  %}{{ singleList.telefon2 }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                      <div class="bearbeitenPersonToUpdate" id="telefon2" style="display: none;"><input type="text" name="ansprechpartner" class="form-control" value="{{ singleList.telefon2 }}" /></div>
+                  </td>
+                  <td id="{{ singleList.id }}">
+                      <div class="bearbeitenPersonToChange" id="fax">{% if singleList.fax  %}{{ singleList.fax }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                      <div class="bearbeitenPersonToUpdate" id="fax" style="display: none;"><input type="text" name="ansprechpartner" class="form-control" value="{{ singleList.fax }}" /></div>
+                  </td>
+                  <td id="{{ singleList.id }}">
+                      <div class="bearbeitenAddressToChange" id="mail">{% if singleList.mail  %}{{ singleList.mail }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                      <div class="bearbeitenAddressToUpdate" id="mail" style="display: none;"><input type="text" name="ansprechpartner" class="form-control" value="{{ singleList.mail }}" /></div>
+                  </td>
+              </tr>
+              {% endfor %} 
+              <tr class="clickable-row" id="hiddenBearbeitenTrPerson" style="display: none;">
+               <td>
+                  <div class="row form-group hiddenBearbeitenPersonTr" id="hiddenPersonNameDiv">
+                      <input type="text" name="hiddenPersonName" class="form-control hiddenBearbeitenPerson" id="hiddenPersonName" placeholder="Neue Name" value="" style="width: 80%; margin-left:10%; margin-top: 10%;">
+                      <span id="mailPersonSpan" aria-hidden="true"></span>
+                    </div>
+                  </div>
+              </td>
+              <td>
+                  <div class="row form-group hiddenBearbeitenPersonTr" id="hiddenPersonVornameDiv">
+                    <div id="{{ customer.id }}">
+                      <input type="text" name="hiddenPersonVorname" class="form-control hiddenBearbeitenPerson" id="hiddenPersonVorname" placeholder="Neue Vorname" value="" style="width: 80%; margin-left:10%; margin-top: 10%;">
+                      <span id="mailPersonSpan" aria-hidden="true"></span>
+                    </div>
+                  </div>
+              </td>
+              <td>
+                  <div class="row form-group hiddenBearbeitenPersonTr" id="hiddenPersonTelefonDiv">
+                    <div id="{{ customer.id }}">
+                      <input type="text" name="hiddenPersonTelefon" class="form-control hiddenBearbeitenPerson" id="hiddenPersonTelefon" placeholder="Telefon" value="" style="width: 80%; margin-left:10%; margin-top: 10%;">
+                    </div>
+                  </div>
+              </td>
+              <td>
+                  <div class="row form-group">
+                      <input type="text" name="hiddenPersonTelefon2" class="form-control hiddenBearbeitenPerson" id="hiddenPersonTelefon2" placeholder="Telefon2" value="" style="width: 80%; margin-left:10%; margin-top: 10%;">
+                  </div>
+              </td>
+              <td>
+                  <div class="row form-group">
+                      <input type="text" name="hiddenPersonFax" class="form-control hiddenBearbeitenPerson" id="hiddenPersonFax" placeholder="Fax" value="" style="width: 80%; margin-left:10%; margin-top: 10%;">
+                  </div>
+              </td>
+              <td>
+                  <div class="row form-group hiddenBearbeitenPersonTr" id="hiddenPersonMailDiv">
+                    <div id="{{ customer.id }}">
+                      <input type="text" name="hiddenPersonMail" class="form-control hiddenBearbeitenPerson" id="hiddenPersonMail" placeholder="Mail" value="" style="width: 80%; margin-left:10%; margin-top: 10%;">
+                    </div>
+                  </div>
+                  <span id="mailPersonSpan" aria-hidden="true"></span>
+              </td>
+          </tr>
+      </tbody>
+  </table>
+</div>  
+</div>
+<div class="form-group">
+    <div class="col-sm-12">
+        <button type="button" class="btn btn-primary mrr-8" id="newBearbeitenButtonPerson" >Neu</button>
+        <button type="button" class="btn btn-primary mrr-8" id="hideBearbeitenButtonPerson" style="display: none; margin-left: -8px;" >Verstecken</button>
+        <button type="button" class="btn btn-primary deleteBearbeitenButtonPerson" id="" style="margin-left:-8px;" disabled >Löschen</button> 
+    </div>
+</div>
+</form>
+</div>
+</div>
+</div>
+</div>
+<!-- EOF BEARBEITEN BOX -->

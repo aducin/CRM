@@ -2,17 +2,27 @@ RewriteEngine On
 
 RewriteRule ^$ /CRM/index.php?action=liste [L]
 RewriteRule ^Ausloggen$ /CRM/index.php?action=logout [L]
+RewriteRule ^Clone$ /CRM/index.php?action=cloneProject [L]
+RewriteRule ^Config$ /CRM/index.php?action=config [L]
 RewriteRule ^Liste$ /CRM/index.php?action=projectSearch [L]
+RewriteRule ^Login$ /CRM/index.php?action=renderLogin [L]
 RewriteRule ^Erfassung$ /CRM/index.php?action=erfassung [L]
 RewriteRule ^Erfassung/(.*)$ /CRM/index.php?action=erfassung&single=$1 [L]
 
 RewriteRule ^Api/Address/Name/(.*)$ /CRM/index.php?action=ajax&concrete=addressSearchByName&value=$1 [L]
 RewriteRule ^Api/Address/(.*)$ /CRM/index.php?action=ajax&concrete=addressSearch&value=$1 [L]
+RewriteRule ^Api/Amount/(.*)$ /CRM/index.php?action=ajax&concrete=amount&value=$1 [L]
+RewriteRule ^Api/ClientOption/(.*)$ /CRM/index.php [L]
+RewriteRule ^Api/Clone/(.*)$ /CRM/index.php?action=ajax&concrete=rowClone&value=$1 [L]
+RewriteRule ^Api/Config/(.*)$ /CRM/index.php [L]
 RewriteRule ^Api/Dates/(.*)$ /CRM/index.php [L]
+RewriteRule ^Api/Description/(.*)$ /CRM/index.php?action=ajax&concrete=description&value=$1 [L]
+RewriteRule ^Api/Employee/Name/(.*)$ /CRM/index.php?action=ajax&concrete=employeeSearchByName&value=$1 [L]
 RewriteRule ^Api/Employee/(.*)$ /CRM/index.php?action=ajax&concrete=employeeSearch&value=$1 [L]
 RewriteRule ^Api/Project/Name/(.*)$ /CRM/index.php?action=ajax&concrete=clientSearchByName&value=$1 [L]
 RewriteRule ^Api/Project/(.*)$ /CRM/index.php?action=ajax&concrete=clientSearch&value=$1 [L]
 RewriteRule ^Api/Row/(.*)$ /CRM/index.php [L]
+RewriteRule ^Api/Select/(.*)$ /CRM/index.php?action=ajax&concrete=select&value=$1 [L]
 RewriteRule ^Api/Status/(.*)$ /CRM/index.php [L]
 
 

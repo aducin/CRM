@@ -1,19 +1,19 @@
 <div id="vorstufeTable" style="display: none"> 
     <div class="row">
         <div class="col-sm-12 form-horizontal gray-form mrb-20">
-            <form action="">
+
                 <div class="form-group mrt">
                     <div class="col-sm-4 ">
                         <label for="termin_korrektur" class="control-label">Termin Korrektur</label>
-                        <input type="text" name="amendmentTime" id="amendmentTime-{{ dates.projectId }}" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if vorstufe.1 %} value="{{ vorstufe.1 }}" {% else %}    placeholder="Bitte wählen" {% endif %} >   
+                        <input type="text" name="amendmentTime" id="amendmentTime" class="form-control datepicker datePickerToUpdate" data-date-format="dd/mm/yyyy" size="9" {% if vorstufe.1 %} value="{{ vorstufe.1 }}" {% else %}    placeholder="Bitte wählen" {% endif %} >   
                     </div>
                     <div class="col-sm-4">
                         <label for="termin_daten" class="control-label">Termin Daten</label>
-                        <input type="text" name="dateTime" id="dateTime-{{ dates.projectId }}" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if vorstufe.2 %} value="{{ vorstufe.2 }}" {% else %} placeholder="Bitte wählen" {% endif %} >
+                        <input type="text" name="dateTime" id="dateTime" class="form-control datepicker datePickerToUpdate" data-date-format="dd/mm/yyyy" size="9" {% if vorstufe.2 %} value="{{ vorstufe.2 }}" {% else %} placeholder="Bitte wählen" {% endif %} >
                     </div>
                     <div class="col-sm-4">
                         <label for="termin_proof_andruck" class="control-label">Termin Proof / Andruck</label>
-                        <input type="text" name="proofTime" id="proofTime-{{ dates.projectId }}" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if vorstufe.3 %} value="{{ vorstufe.3 }}" {% else %} placeholder="Bitte wählen" {% endif %} > 
+                        <input type="text" name="proofTime" id="proofTime" class="form-control datepicker datePickerToUpdate" data-date-format="dd/mm/yyyy" size="9" {% if vorstufe.3 %} value="{{ vorstufe.3 }}" {% else %} placeholder="Bitte wählen" {% endif %} > 
                     </div>
                 </div>
                 <div class="form-group">
@@ -34,18 +34,58 @@
                             </thead>
                             <tbody id="tableRow">
                                 {% for singleVorstufe in vorstufe.0 %}
-                                <tr class="rows" id="{{ singleVorstufe.id }}">
-                                    <td class="trToDelete">{{ singleVorstufe.typeName }}</td>
-                                    <td class="trToDelete">{{ singleVorstufe.performanceTime }}</td>
-                                    <td class="trToDelete" id="{{ singleVorstufe.employeeId }}" >{{ singleVorstufe.employeeName }}</td>
-                                    <td class="trToDelete">{{ singleVorstufe.description }}</td>
-                                    <td class="trToDelete">{{ singleVorstufe.timeProposal }}</td>
-                                    <td class="trToDelete">{{ singleVorstufe.timeReal }}</td>
-                                    <td class="trToDelete">{{ singleVorstufe.timeSettlement }}</td>
-                                    <td class="trToDelete">{{ singleVorstufe.amount }} EUR</td>
+                                <tr class="rowsVorstufe" name="{{ singleVorstufe.id }}" id="{{ singleVorstufe.id }}">
+                                    <td id="{{ singleVorstufe.id }}">
+                                        <div class="vorstufeToChange" id="type">{{ singleVorstufe.typeName }}</div>
+                                        <select name="typeSelect" class="form-control vorstufeToUpdate" id="type" style="display: none;">
+                                            <option id="{{ singleVorstufe.typeId }}">{{ singleVorstufe.typeName }}</option>
+                                            {% for singleArt in art %}
+                                                {% if singleVorstufe.typeName == singleArt.name %}
+                                                {% else %}
+                                                    <option id="{{ singleArt.id }}">{{ singleArt.name }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td id="{{ singleVorstufe.id }}">
+                                        <div class="vorstufeToChange" id="performanceTime">{{ singleVorstufe.performanceTime }}</div>
+                                        <div class="vorstufeToUpdate" id="performanceTime" style="display: none;"><input type="text" class="form-control datepicker" size="9" placeholder="Bitte wählen" name="hiddenPerformanceTime" value="{{ singleVorstufe.performanceTime2 }}" /></div>
+                                    </td>
+                                    <td class="col-sm-2 col-md-2" id="{{ singleVorstufe.id }}">
+                                        <div class="vorstufeToChange" id="employee">{{ singleVorstufe.employeeName.name }}</div>
+                                        <select  class="form-control vorstufeToUpdate" id="employee" name="hiddenMachine" style="display: none;">
+                                            <option id="{{ singleVorstufe.employeeName.id }}">{{ singleVorstufe.employeeName.name }}</option>
+                                            {% for employee in employees %}
+                                                {% if singleVorstufe.employeeName.name == employee.name %}
+                                                {% else %}
+                                                <option id="{{ employee.id }}">{{ employee.name }}</option>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </select>
+                                    </td>
+                                    <td id="{{ singleVorstufe.id }}">
+                                        <div class="vorstufeToChange" id="description">{{ singleVorstufe.description }}</div>
+                                        <div class="vorstufeToUpdate" id="description" style="display: none;"><input type="text" class="form-control" name="hiddenDescription" value="{{ singleVorstufe.description }}" /></div>
+                                    </td>
+                                    <td id="{{ singleVorstufe.id }}">
+                                        <div class="vorstufeToChange" id="timeProposal">{{ singleVorstufe.timeProposal }}</div>
+                                        <div class="vorstufeToUpdate" id="timeProposal" style="display: none;"><input type="text" class="form-control" name="hiddenTimeProposal" value="{{ singleVorstufe.timeProposal }}" /></div>
+                                    </td>
+                                    <td id="{{ singleVorstufe.id }}">
+                                        <div class="vorstufeToChange" id="timeReal">{{ singleVorstufe.timeReal }}</div>
+                                        <div class="vorstufeToUpdate" id="timeReal" style="display: none;"><input type="text" class="form-control" name="hiddenTimeReal" value="{{ singleVorstufe.timeReal }}" /></div>
+                                    </td>
+                                    <td id="{{ singleVorstufe.id }}">
+                                        <div class="vorstufeToChange" id="timeSettlement">{{ singleVorstufe.timeSettlement }}</div>
+                                        <div class="vorstufeToUpdate" id="timeSettlement" style="display: none;"><input type="text" class="form-control" name="hiddenTimeSettlement" value="{{ singleVorstufe.timeSettlement }}" /></div>
+                                    </td>
+                                    <td id="{{ singleVorstufe.id }}">
+                                        <div class="vorstufeToChange" id="amount">{{ singleVorstufe.amount }} EURO</div>
+                                        <div class="vorstufeToUpdate" id="amount" style="display: none;"><input type="text" class="form-control" name="hiddenAmount" value="{{ singleVorstufe.amount }}" /></div>
+                                    </td>
                                     <td class="v-center">
-                                        <div class="checkbox">
-                                            <input name="settlement" type="checkbox">
+                                        <div class="checkbox" id="{{ singleVorstufe.id }}">
+                                            <input name="vorstufeSettlement" id="settlement" type="checkbox" {% if singleVorstufe.settlement == 1 %} checked="checked" {% endif %} >
                                             <label></label>
                                         </div>  
                                     </td>
@@ -53,30 +93,62 @@
                                 {% endfor %}
                                 <tr id="hiddenTr" style="display: none;">
                                     <td>
-                                        <select name="typeSelect" id="typeSelect">
-                                            <option id="none" >Bitte wählen</option>
-                                            {% for singleArt in art %}
-                                            <option id="{{ singleArt.id }}">{{ singleArt.name }}</option>
-                                            {% endfor %}
-                                        </select>
+                                        <div class="row form-group">
+                                            <select name="hiddenVorstufeType" class="form-control" id="hiddenVorstufeType">
+                                                <option id="none" >Bitte wählen</option>
+                                                {% for singleArt in art %}
+                                                <option id="{{ singleArt.id }}">{{ singleArt.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
                                     </td>
-                                    <td><input type="text" name="hiddenDate" id="hiddenDate" class="form-control datepicker" size="9" placeholder="Datum" value=""></td>
                                     <td>
-                                        <select name="employeesSelect" id="employeesSelect">
-                                            <option id="none" >Bitte wählen</option>
-                                            {% for employee in employees %}
-                                            <option>{{ employee.name }}</option>
-                                            {% endfor %}
-                                        </select>
+                                        <div class="row form-group">
+                                            <input type="text" name="hiddenVorstufeDate" id="hiddenDate" class="form-control datepicker" size="9" placeholder="Datum" value="">
+                                        </div>
                                     </td>
-                                    <td><input type="text" class="form-control" id="hiddenDescription" name="hiddenDescription" /></td>
-                                    <td><input type="text" class="form-control" id="hiddenTimeProposal" name="hiddenTimeProposal" /></td>
-                                    <td><input type="text" class="form-control" id="hiddenTimeReal" name="hiddenTimeReal" /></td>
-                                    <td><input type="text" class="form-control" id="hiddenTimeSettlement" name="hiddenTimeSettlement" /></td>
-                                    <td><input type="text" class="form-control" id="hiddenAmount" name="hiddenAmount" placeholder="EURO"/></td>
                                     <td>
-                                        <div class="checkbox" style="margin-left: 22px;">
-                                            <input name="settlement" type="checkbox">
+                                        <div class="row form-group">
+                                            <select name="hiddenVorstufeEmployee" class="form-control" id="hiddenVorstufeEmployee">
+                                                <option id="none" >Bitte wählen</option>
+                                                {% for employee in employees %}
+                                                <option id="{{ employee.id }}">{{ employee.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="row form-group">
+                                            <input type="text" class="form-control" id="hiddenVorstufeDescription" name="hiddenVorstufeDescription" />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="row form-group" id="vorstufeFirstAmountDiv">
+                                            <input type="text" class="form-control" id="hiddenVorstufeTimeProposal" name="hiddenVorstufeTimeProposal" />
+                                            <span id="vorstufeFirstSpan" aria-hidden="true"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="row form-group" id="vorstufeSecondAmountDiv">
+                                            <input type="text" class="form-control" id="hiddenVorstufeTimeReal" name="hiddenVorstufeTimeReal" />
+                                            <span id="vorstufeSecondSpan" aria-hidden="true"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="row form-group" id="vorstufeThirdAmountDiv">
+                                            <input type="text" class="form-control" id="hiddenVorstufeTimeSettlement" name="hiddenVorstufeTimeSettlement" />
+                                            <span id="vorstufeThirdSpan" aria-hidden="true"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="row form-group" id="vorstufeForthAmountDiv">
+                                            <input type="text" class="form-control" id="hiddenVorstufeAmount" name="hiddenVorstufeAmount" placeholder="EURO"/>
+                                            <span id="vorstufeForthSpan" aria-hidden="true"></span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="checkbox" style="margin-left: 22px; margin-top: -15px;">
+                                            <input name="hiddenVorstufeSettlement" type="checkbox">
                                             <label></label>
                                         </div>
                                     </td>
@@ -87,12 +159,13 @@
                 </div>
                 <div class="form-group">
                     <div class="col-sm-6">
-                        <button type="button" class="btn btn-primary mrr-8" id="newButton" >Neu</button>
-                        <button type="button" class="btn btn-primary mrr-8" id="hideButton" style="display: none;" >Verstecken</button>                                          
-                        <button type="button" class="btn btn-primary deleteButton" id="" style="margin-left:-8px;" disabled >Löschen</button>
+                        <button type="button" class="btn btn-primary mrr-8" id="newVorstufeButton" >Neu</button>
+                        <button type="button" class="btn btn-primary mrr-8" id="saveVorstufeButton" style="display: none;" >Speichern</button> 
+                        <button type="button" class="btn btn-primary mrr-8" id="hideVorstufeButton" style="display: none; margin-left: -8px;" >Verstecken</button>                                          
+                        <button type="button" class="btn btn-primary deleteButtonVorstufe" id="" style="margin-left:-8px;" disabled >Löschen</button>
                     </div>
                     <div class="col-sm-6 v-right">
-                        <h4>Kosten Vorstufe: <b class="total-price">{{ dates.amountVorstufe }} EURO</b></h4>
+                        <h4>Kosten Vorstufe: <b class="total-price" id="totalVorstufe">{{ dates.amountVorstufe }} EURO</b></h4>
                     </div>                                    
                 </div>
 
@@ -102,32 +175,32 @@
                             <div class="col-sm-12 form-inline">
                                 <label class="control-label">Bemerk. auf</label>
                                 <div class="checkbox">
-                                    <input id="bemerkung_an" name="bemerkung_an" type="checkbox">
-                                    <label for="bemerkung_an">
+                                    <input class="descCheckbox" id="desc2_an" name="desc2_an" type="checkbox" {% if dates.bemerkung.secondAn == 0 %}{% else %} checked="checked" {% endif %}>
+                                    <label for="desc2_an">
                                         AN
                                     </label>
                                 </div> 
                                 <div class="checkbox">
-                                    <input id="bemerkung_au" name="bemerkung_au" type="checkbox">
-                                    <label for="bemerkung_au">
+                                    <input class="descCheckbox" id="desc2_au" name="desc2_au" type="checkbox" {% if dates.bemerkung.secondAu == 0 %}{% else %} checked="checked" {% endif %}>
+                                    <label for="desc2_au">
                                         AU
                                     </label>
                                 </div>  
                                 <div class="checkbox">
-                                    <input id="bemerkung_pm" name="bemerkung_pm" type="checkbox">
-                                    <label for="bemerkung_pm">
+                                    <input class="descCheckbox" id="desc2_pm" name="desc2_pm" type="checkbox" {% if dates.bemerkung.secondPm == 0 %}{% else %} checked="checked" {% endif %}>
+                                    <label for="desc2_pm">
                                         PM
                                     </label>
                                 </div> 
                                 <div class="checkbox">
-                                    <input id="bemerkung_li" name="bemerkung_li" type="checkbox">
-                                    <label for="bemerkung_li">
+                                    <input class="descCheckbox" id="desc2_li" name="desc2_li" type="checkbox" {% if dates.bemerkung.secondLi == 0 %}{% else %} checked="checked" {% endif %}>
+                                    <label for="desc2_li">
                                         LI
                                     </label>
                                 </div>  
                                 <div class="checkbox">
-                                    <input id="bemerkung_re" name="bemerkung_re" type="checkbox">
-                                    <label for="bemerkung_re">
+                                    <input class="descCheckbox" id="desc2_re" name="desc2_re" type="checkbox" {% if dates.bemerkung.secondRe == 0 %}{% else %} checked="checked" {% endif %}>
+                                    <label for="desc2_re">
                                         RE
                                     </label>
                                 </div>                                                     
@@ -135,16 +208,16 @@
                         </div>
                         <div class="row">
                             <div class="col-sm-12">
-                                <textarea class="form-control mrt-10" rows="6" placeholder="Vorstufe - Bemerkungen welche der Kunde auf Angebot und Rechnung sieht"></textarea>
+                                <textarea class="form-control mrt-10 descTextarea" id="desc2" rows="6" placeholder="Vorstufe - Bemerkungen welche der Kunde auf Angebot und Rechnung sieht">{% if dates.bemerkung.second %}{{ dates.bemerkung.second }}{% endif %}</textarea>
                             </div>
                         </div>                                            
                     </div>
                     <div class="col-sm-6">
                         <label class="control-label" for="bemerkungen">Bemerkungen (Intern)</label>
-                        <textarea class="form-control mrt-10" id="bemerkungen" rows="6" placeholder="Freitext für interne Bemerkungen"></textarea>
+                        <textarea class="form-control mrt-10 descIntern" id="desc6" rows="6" placeholder="Freitext für interne Bemerkungen">{% if dates.bemerkung.fifth %}{{ dates.bemerkung.fifth }}{% endif %}</textarea>
                     </div>                           
                 </div>                                 
-            </form>
+
         </div>                       
     </div>             
 </div>

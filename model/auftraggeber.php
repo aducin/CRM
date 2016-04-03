@@ -31,7 +31,7 @@ class Auftraggeber implements TvsatzInterface
 
 	public function deleteCurrentDates() {
 		$sql = "DELETE FROM Auftraggeber WHERE id = :id";
-		$result=$this->dbHandler->prepare($sql);
+		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
 		$result->execute();
 		unset($this->id);
@@ -49,9 +49,48 @@ class Auftraggeber implements TvsatzInterface
 		unset($this->zahlungsziel);
 	}
 
+	public function getDates() {
+		$result = array(  'id' => $this->id, 'name' => $this->name, 'abteilung' => $this->abteilung, 'anschrift' => $this->anschrift, 'anschrift2' => $this->anschrift2, 'plz' => $this->plz,
+			'ort' => $this->ort, 'telefon' => $this->telefon, 'fax' => $this->fax, 'mail' => $this->mail, 'skonto' => $this->skonto, 
+			'zahlungsziel' => $this->zahlungsziel, 'reg_date' => $this->reg_date);
+		return $result;
+	}
+
+	public function getId() {
+		$sql = 'SELECT id, reg_date FROM Auftraggeber WHERE name = :name AND abteilung = :abteilung AND anschrift = :anschrift AND zahlungsziel_id = :zahlungsziel_id';
+		$result = $this->dbHandler->prepare($sql);
+		$result->bindValue(':name', $this->name);
+		$result->bindValue(':abteilung', $this->abteilung);
+		$result->bindValue(':anschrift', $this->anschrift);
+		$result->bindValue(':zahlungsziel_id', $this->zahlungsziel);
+		$result->execute();
+		$array = $result->fetch();
+		$this->id = $array['id'];
+		$this->reg_date = $array['reg_date'];
+	}
+
+	private function getSql() {
+		$sql='SELECT Auftraggeber.name as name, abteilung, anschrift, anschrift2, plz, ort, telefon, fax, mail, skonto, zahlungsziel_id, reg_date, Zahlungsziel.name as zahlName FROM Auftraggeber
+		INNER JOIN Zahlungsziel ON Auftraggeber.zahlungsziel_id = Zahlungsziel.id 
+		WHERE Auftraggeber.id= :id';
+		return $sql;
+	}
+	
+	public function getObjectId() {
+		return $this->id;
+	}
+
+	public function getAnsprechpartner() {
+		return $this->ansprechpartner;
+	}
+
+	public function getRechnungsadresse() {
+		return $this->rechnungsadresse;
+	}
+
 	private function selectDates() {
 		$sql = $this->getSql();
-		$result=$this->dbHandler->prepare($sql);
+		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
 		$result->execute();
 		$data = $result->fetch();
@@ -86,13 +125,19 @@ class Auftraggeber implements TvsatzInterface
 		$this->mail = $array[8];
 		$this->skonto = $array[9];
 		$this->zahlungsziel = $array[10];
-		$this->saveCustomDates();
+		$success = $this->saveCustomDates();
+		if ($success == 'success') {
+			$this->getId();
+			return $this->getObjectId();
+		} else {
+			return $success;
+		}
 	}
 
 	public function saveCustomDates() {
 		$sql = 'INSERT INTO Auftraggeber (name, abteilung, anschrift, anschrift2, plz, ort, telefon, fax, mail, skonto, zahlungsziel_id, reg_date) 
 			VALUES ( :name, :abteilung, :anschrift, :anschrift2, :plz, :ort, :telefon, :fax, :mail, :skonto, :zahlungsziel, NOW() )';
-		$result=$this->dbHandler->prepare($sql);
+		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':name', $this->name);
 		$result->bindValue(':abteilung', $this->abteilung);
 		$result->bindValue(':anschrift', $this->anschrift);
@@ -104,13 +149,17 @@ class Auftraggeber implements TvsatzInterface
 		$result->bindValue(':mail', $this->mail);
 		$result->bindValue(':skonto', $this->skonto);
 		$result->bindValue(':zahlungsziel', $this->zahlungsziel);
-		$result->execute();
+		if ( $result->execute() ){
+			return 'success';
+		} else {
+			return 'false';
+		}
 	}
 
 	public function searchByName($name) {
 		$name = '%'.$name.'%';
-		$sql="SELECT id, name FROM Auftraggeber WHERE name LIKE ?";
-		$result=$this->dbHandler->prepare($sql);
+		$sql = "SELECT id, name FROM Auftraggeber WHERE name LIKE ?";
+		$result = $this->dbHandler->prepare($sql);
 		$result->execute(array($name));
 		$sql2 = "SELECT skonto, Zahlungsziel.name as paymentName FROM Auftraggeber INNER JOIN Zahlungsziel ON Auftraggeber.zahlungsziel_id = Zahlungsziel.id 		WHERE Auftraggeber.id = :id";
 		foreach ($result as $singleResult) {
@@ -128,9 +177,8 @@ class Auftraggeber implements TvsatzInterface
 	}
 
 	public function setAnsprechpartner() {
-		$sql='SELECT id FROM Ansprechpartner
-		WHERE firma_id= :id';
-		$result=$this->dbHandler->prepare($sql);
+		$sql = 'SELECT id FROM Ansprechpartner WHERE firma_id= :id';
+		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
 		$result->execute();
 		$counter = 0;
@@ -145,9 +193,8 @@ class Auftraggeber implements TvsatzInterface
 	}
 
 	public function setRechnungsadresse() {
-		$sql='SELECT id FROM Rechnungsadressen
-		WHERE firma_id= :id';
-		$result=$this->dbHandler->prepare($sql);
+		$sql = 'SELECT id FROM Rechnungsadressen WHERE firma_id= :id';
+		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
 		$result->execute();
 		$counter = 0;
@@ -160,39 +207,16 @@ class Auftraggeber implements TvsatzInterface
 		}
 
 	}
-
-	private function getSql() {
-		$sql='SELECT Auftraggeber.name as name, abteilung, anschrift, anschrift2, plz, ort, telefon, fax, mail, skonto, zahlungsziel_id, reg_date, Zahlungsziel.name as zahlName FROM Auftraggeber
-		INNER JOIN Zahlungsziel ON Auftraggeber.zahlungsziel_id = Zahlungsziel.id 
-		WHERE Auftraggeber.id= :id';
-		return $sql;
-	}
-
-	public function getDates() {
-		$result = array(  'id' => $this->id, 'name' => $this->name, 'abteilung' => $this->abteilung, 'anschrift' => $this->anschrift, 'anschrift2' => $this->anschrift2, 'plz' => $this->plz,
-			'ort' => $this->ort, 'telefon' => $this->telefon, 'fax' => $this->fax, 'mail' => $this->mail, 'skonto' => $this->skonto, 
-			'zahlungsziel' => $this->zahlungsziel, 'reg_date' => $this->reg_date);
-		return $result;
-	}
-
-	public function getId() {
-		$sql = 'SELECT id, reg_date FROM Auftraggeber WHERE name = :name AND abteilung = :abteilung AND anschrift = :anschrift AND zahlungsziel_id = :zahlungsziel_id';
-		$result=$this->dbHandler->prepare($sql);
-		$result->bindValue(':name', $this->name);
-		$result->bindValue(':abteilung', $this->abteilung);
-		$result->bindValue(':anschrift', $this->anschrift);
-		$result->bindValue(':zahlungsziel_id', $this->zahlungsziel);
-		$result->execute();
-		$array = $result->fetch();
-		$this->id = $array['id'];
-		$this->reg_date = $array['reg_date'];
-	}
-
-	public function getAnsprechpartner() {
-		return $this->ansprechpartner;
-	}
-
-	public function getRechnungsadresse() {
-		return $this->rechnungsadresse;
+	
+	public function updateRow($column, $rowId, $value) {
+		$sql = 'UPDATE Auftraggeber SET '.$column.' = :value WHERE id = :id';
+		$result = $this->dbHandler->prepare($sql);
+		$result->bindValue(':value', $value);
+		$result->bindValue(':id', $rowId);
+		if ($result->execute()) {
+		    return 'success';
+		} else {
+		    return 'false';
+		}
 	}
 }

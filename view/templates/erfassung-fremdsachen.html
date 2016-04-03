@@ -1,20 +1,20 @@
 <div id="fremdarbeitenTable" style="display: none">
     <div class="row">
         <div class="col-sm-12 form-horizontal gray-form mrb-20">
-            <form action="">
+
                 <div class="form-group mrt">
                     <div class="col-sm-6 form-inline">
                         <label for="termin_korrektur" class="control-label">Termin Korrektur</label>
-                        <input type="text" name="termin_fremdarbeiten" id="termin_fremdarbeiten-{{ dates.projectId }}" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if fremdarbeiten.1 %} value="{{ fremdarbeiten.1 }}" {% else %}    placeholder="Bitte wählen" {% endif %} >   
+                        <input type="text" name="termin_fremdarbeiten" id="termin_fremdarbeiten" class="form-control datepicker datePickerToUpdate" data-date-format="dd/mm/yyyy" size="9" {% if fremdarbeiten.1 %} value="{{ fremdarbeiten.1 }}" {% else %}    placeholder="Bitte wählen" {% endif %} >   
                     </div>
                     <div class="col-sm-6 form-inline">
                         <label for="termin_korrektur" class="control-label">Termin Daten</label>
-                        <input type="text" name="termin_fremdarbeitenDaten" id="termin_fremdarbeitenDaten-{{ dates.projectId }}" class="form-control datepicker" data-date-format="dd/mm/yyyy" size="9" {% if fremdarbeiten.2 %} value="{{ fremdarbeiten.2 }}" {% else %}    placeholder="Bitte wählen" {% endif %} >    
+                        <input type="text" name="termin_fremdarbeitenDaten" id="termin_fremdarbeitenDaten" class="form-control datepicker datePickerToUpdate" data-date-format="dd/mm/yyyy" size="9" {% if fremdarbeiten.2 %} value="{{ fremdarbeiten.2 }}" {% else %}    placeholder="Bitte wählen" {% endif %} >    
                     </div>
                 </div>                                
                 <div class="form-group">
                     <div class="set-height">
-                        <table class="table table-striped sm-font-table">
+                        <table class="table table-condensed table-striped sm-font-table" id="tableFrendarbeiten">
                             <thead>
                                 <tr>
                                     <th>Datum</th>
@@ -26,29 +26,60 @@
                             </thead>
                             <tbody>
                                 {% for singleFremdarbeiten in fremdarbeiten.0 %}
-                                <tr class="rowsFremdarbeiten" id="{{ singleFremdarbeiten.id }}">
-                                    <td>{{ singleFremdarbeiten.textDate }}</td>
-                                    <td>{{ singleFremdarbeiten.deliverer }}</td>
-                                    <td>{{ singleFremdarbeiten.description }}</td>
-                                    <td>{{ singleFremdarbeiten.purchasePrice }} EURO</td>
-                                    <td>{{ singleFremdarbeiten.sellPrice }} EURO</td>
+                                <tr class="clickable-row rowsFremdarbeiten" name="{{ singleFremdarbeiten.id }}" id="{{ singleFremdarbeiten.id }}">
+                                    <td id="{{ singleFremdarbeiten.id }}">
+                                        <div class="fremdarbeitenToChange" id="textDate">{% if singleFremdarbeiten.textDate %}{{ singleFremdarbeiten.textDate }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                        <div class="fremdarbeitenToUpdate" id="textDate" style="display: none;"><input type="text" class="form-control datepicker" size="9" placeholder="Bitte wählen" name="hiddenTextDate" value="{{ singleFremdarbeiten.textDate2 }}" /></div>
+                                    </td>
+                                    <td id="{{ singleFremdarbeiten.id }}">
+                                        <div class="fremdarbeitenToChange" id="deliverer">{% if singleFremdarbeiten.deliverer %}{{ singleFremdarbeiten.deliverer }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                        <div class="fremdarbeitenToUpdate" id="deliverer" style="display: none;"><input type="text" class="form-control" name="hiddenDeliverer" value="{% if singleFremdarbeiten.deliverer %}{{ singleFremdarbeiten.deliverer }}{% else %}{% endif %}" /></div>
+                                    </td>
+                                    <td id="{{ singleFremdarbeiten.id }}">
+                                        <div class="fremdarbeitenToChange" id="description">{% if singleFremdarbeiten.description %}{{ singleFremdarbeiten.description }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                        <div class="fremdarbeitenToUpdate" id="description" style="display: none;"><input type="text" class="form-control" name="hiddenDescription" value="{{ singleFremdarbeiten.description }}" /></div>
+                                    </td>
+                                    <td id="{{ singleFremdarbeiten.id }}">
+                                        <div class="fremdarbeitenToChange" id="purchasePrice">{% if singleFremdarbeiten.purchasePrice %}{{ singleFremdarbeiten.purchasePrice }}{% else %}<i>0</i>{% endif %}</div>
+                                        <div class="fremdarbeitenToUpdate" id="purchasePrice" style="display: none;"><input type="text" class="form-control" name="hiddenPurchasePrice" value="{{ singleFremdarbeiten.purchasePrice }}" /></div>
+                                    </td>
+                                    <td id="{{ singleFremdarbeiten.id }}">
+                                        <div class="fremdarbeitenToChange" id="sellPrice">{% if singleFremdarbeiten.sellPrice %}{{ singleFremdarbeiten.sellPrice }}{% else %}<i>0</i>{% endif %}</div>
+                                        <div class="fremdarbeitenToUpdate" id="sellPrice" style="display: none;"><input type="text" class="form-control" name="hiddenSellPrice" value="{{ singleFremdarbeiten.sellPrice }}" /></div>
+                                    </td>
                                 </tr>  
                                 {% endfor %}
-                                <tr id="hiddenTrFremdarbeiten" style="display: none;">
-                                    <td><input type="text" name="hiddenDateFremdarbeiten" id="hiddenDateFremdarbeiten" class="form-control datepicker" size="9" placeholder="Bitte wählen" value=""></td>
-                                    <td><input type="text" class="form-control" id="hiddenCarrier" name="hiddenCarrier" /></td>
-                                    <td><input type="text" class="form-control" id="hiddenDescription" name="hiddenDescription" /></td>
+                                <tr class="clickable-row" id="hiddenTrFremdarbeiten" style="display: none;">
                                     <td>
-                                        <div class="row">
+                                        <div class="row form-group">
+                                            <input type="text" name="hiddenDateFremdarbeiten" id="hiddenDateFremdarbeiten" class="form-control datepicker" size="9" placeholder="Bitte wählen" value="">
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="row form-group">
+                                            <input type="text" class="form-control" id="hiddenCarrier" name="hiddenCarrier" value="" />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="row form-group">
+                                            <input type="text" class="form-control" id="hiddenDesc" name="hiddenDesc" value="" />
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="row form-group" id="hiddenFirstAmountDiv">
                                             <div class="col-xs-2">
-                                                <input type="text" class="form-control" id="hiddenAmount" name="hiddenFirstAmount" placeholder="EURO" style="width: 60px; font-size: 11px;" />
+                                                <input type="text" class="form-control" id="hiddenFirstAmount" name="hiddenFirstAmount" placeholder="EURO" aria-describedby="inputError2Status" 
+                                                style="margin-left: -16px; width: 100px; font-size: 11px;" value="" />
+                                                <span id="hiddenFirstAmountSpan" aria-hidden="true"></span>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="row">
+                                        <div class="row form-group" id="hiddenSecondAmountDiv">
                                             <div class="col-xs-2">
-                                                <input type="text" class="form-control" id="hiddenAmount" name="hiddenSecondAmount" placeholder="EURO" style="width: 60px; font-size: 11px;" />
+                                                <input type="text" class="form-control" id="hiddenSecondAmount" name="hiddenSecondAmount" placeholder="EURO" aria-describedby="inputError2Status" 
+                                                style="margin-left: -16px; width: 100px; font-size: 11px;" value="" />
+                                                <span id="hiddenSecondAmountSpan" aria-hidden="true"></span>
                                             </div>
                                         </div>
                                     </td>
@@ -61,50 +92,51 @@
                 <div class="form-group">
                     <div class="col-sm-8 form-inline">
                         <button type="button" class="btn btn-primary mrr-8" id="newButtonFremdarbeiten" >Neu</button>
-                        <button type="button" class="btn btn-primary mrr-8" id="hideButtonFremdarbeiten" style="display: none;" >Verstecken</button>                                          
+                        <button type="button" class="btn btn-primary mrr-8" id="saveButtonFremdarbeiten" style="display: none; margin-left: -8px;" >Speichern</button> 
+                        <button type="button" class="btn btn-primary mrr-8" id="hideButtonFremdarbeiten" style="display: none;" >Verstecken</button>                                        
                         <button type="button" class="btn btn-primary deleteButtonFremdarbeiten" id="" style="margin-left:-8px;" disabled >Löschen</button>       
                         <div class="checkbox buttons-line">
-                            <input id="showIndPrice-{{ dates.projectId }}" name="intPriceShow2" type="checkbox" {% if drucksachen.2 == 1 %} checked="checked" {% endif %}>
+                            <input id="showIndPrice<>{{ dates.projectId }}" name="intPriceShow2" type="checkbox" {% if drucksachen.2 == 1 %} checked="checked" {% endif %}>
                             <label for="bemerkung_an">
                                 Einzelpreise nicht auf RE
                             </label>
                         </div>  
                     </div>
                     <div class="col-sm-4 v-right">
-                        <h4>Fremdkosten <b class="total-price">{{ dates.amountFremdarbeiten }} EURO</b></h4>
+                        <h4>Fremdkosten <b class="total-price" id="totalFremdarbeiten">{{ dates.amountFremdarbeiten }} EURO</b></h4>
                     </div>                                    
                 </div>
                 <div class="form-group mrt">
                     <div class="col-sm-6">
                         <div class="row">
                             <div class="col-sm-12 form-inline">
-                                <label class="control-label">Bemerk. auf</label>
+                                <label class="control-label" style="margin-top: 5px;">Bemerk. auf</label>
                                 <div class="checkbox">
-                                    <input id="bemerkung_an" name="bemerkung_an" type="checkbox">
+                                    <input class="descCheckbox" id="desc4_an" name="desc4_an" type="checkbox" {% if dates.bemerkung.forthAn == 0 %}{% else %} checked="checked" {% endif %}>
                                     <label for="bemerkung_an">
                                         AN
                                     </label>
                                 </div> 
                                 <div class="checkbox">
-                                    <input id="bemerkung_au" name="bemerkung_au" type="checkbox">
+                                    <input class="descCheckbox" id="desc4_au" name="desc4_au" type="checkbox" {% if dates.bemerkung.forthAu == 0 %}{% else %} checked="checked" {% endif %}>
                                     <label for="bemerkung_au">
                                         AU
                                     </label>
                                 </div>  
                                 <div class="checkbox">
-                                    <input id="bemerkung_pm" name="bemerkung_pm" type="checkbox">
+                                    <input class="descCheckbox" id="desc4_pm" name="desc4_pm" type="checkbox" {% if dates.bemerkung.forthPm == 0 %}{% else %} checked="checked" {% endif %}>
                                     <label for="bemerkung_pm">
                                         PM
                                     </label>
                                 </div> 
                                 <div class="checkbox">
-                                    <input id="bemerkung_li" name="bemerkung_li" type="checkbox">
+                                    <input class="descCheckbox" id="desc4_li" name="desc4_li" type="checkbox" {% if dates.bemerkung.forthLi == 0 %}{% else %} checked="checked" {% endif %}>
                                     <label for="bemerkung_li">
                                         LI
                                     </label>
                                 </div>  
                                 <div class="checkbox">
-                                    <input id="bemerkung_re" name="bemerkung_re" type="checkbox">
+                                    <input class="descCheckbox" id="desc4_re" name="desc4_re" type="checkbox" {% if dates.bemerkung.forthRe == 0 %}{% else %} checked="checked" {% endif %}>
                                     <label for="bemerkung_re">
                                         RE
                                     </label>
@@ -113,16 +145,15 @@
                         </div>
                         <div class="row">
                             <div class="col-sm-12">
-                                <textarea class="form-control mrt-10" rows="6" placeholder="Vorstufe - Bemerkungen welche der Kunde auf Angebot und Rechnung sieht"></textarea>
+                                <textarea class="form-control mrt-10 descTextarea" id="desc4" rows="6" placeholder="Vorstufe - Bemerkungen welche der Kunde auf Angebot und Rechnung sieht">{% if dates.bemerkung.forth %}{{ dates.bemerkung.forth }}{% endif %}</textarea>
                             </div>
                         </div>                                            
                     </div>
                     <div class="col-sm-6">
-                        <label class="control-label" for="bemerkungen">Bemerkungen (Intern)</label>
-                        <textarea class="form-control mrt-10" id="bemerkungen" rows="6" placeholder="Freitext für interne Bemerkungen"></textarea>
+                        <label class="control-label" for="bemerkungen" style="margin-top: 3px;">Bemerkungen (Intern)</label>
+                        <textarea class="form-control mrt-10 descIntern" id="desc8" rows="6" placeholder="Freitext für interne Bemerkungen">{% if dates.bemerkung.fifth %}{{ dates.bemerkung.fifth }}{% endif %}</textarea>
                     </div>                           
                 </div>                                 
-            </form>
         </div>                       
     </div>
 </div> 

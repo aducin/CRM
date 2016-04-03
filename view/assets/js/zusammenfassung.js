@@ -1,5 +1,8 @@
 $( document ).ready(function() {
-
+  
+    var finalResult;
+    var urlPath = "http://ad9bis.vot.pl/CRM/Erfassung";
+  
     $('#termin_korrektur').datepicker( {
         changeDay: true,
         changeMonth: true,
@@ -37,10 +40,115 @@ $( document ).ready(function() {
     $('input[name=termin_fremdarbeiten]').datepicker("option", "dateFormat", "dd/mm/yy");
     $('input[name=termin_fremdarbeitenDaten]').datepicker("option", "dateFormat", "dd/mm/yy");
     $('#hiddenDateFremdarbeiten').datepicker("option", "dateFormat", "dd/mm/yy");
+    $('input[name=hiddenPerformanceTime]').datepicker("option", "dateFormat", "dd/mm/yy");
+    $('input[name=hiddenTextDate]').datepicker("option", "dateFormat", "dd/mm/yy");
     $('input[name=lieferterminInput]').datepicker("option", "dateFormat", "dd/mm/yy");
 
+    function changeClientOption(dates, value) {
+	if ( window.location.href == urlPath ) {
+           console.log('No project at this time');
+        } else {
+           var path = "../Api/ClientOption/";
+	   $.ajax({url: path,
+               type: "post",
+	       data: { 'action' : 'ajax', 'concrete' : 'clientOption', 'value' : dates, 'singleAction' :  value},
+               success: function(result)
+                 {   
+        		    console.log(result);
+        		    finalResult = result;
+                 }
+	    }); 
+        }
+    }
+    
+    function changeDate(curDate, project) {
+        if ( window.location.href == urlPath ) {
+            console.log('No project at this time');
+        } else {
+            var path = "../Api/Dates/";
+            $.ajax({url: path,
+                type: "post",
+                data: { 'action' : 'ajax', 'concrete' : 'dates', 'value' : project, 'singleAction' :  curDate},
+                success: function(result)
+                {   
+                console.log(result);
+                finalResult = result;
+                }
+            }); 
+        }
+    }
+    
+    function changeRow(variable, origin) {
+      if (origin == 'Address') {
+	    $('.bearbeitenAddressToUpdate').hide();
+	    $('.bearbeitenAddressToChange').show();
+      } else {
+	    $('.bearbeitenPersonToUpdate').hide();
+	    $('.bearbeitenPersonToChange').show();
+      }
+      var value = variable.attr('id');
+      var rowId = variable.parent().attr('id');
+      var next = variable.next();
+      variable.hide();
+      next.show();
+      next.find('input:first').focus();
+      next.find('input:first').select();
+    }
+    
+    function columnChange(variable) {
+	var name = variable.children().val();
+	var value = variable.attr('id');
+	var previous = variable.prev();
+	var table = variable.children().attr("name");
+	var rowId = variable.parent().attr('id');
+	var date = table + '<>' + value + '<>' + rowId;
+	changeClientOption(date, name);
+	var timerId = setInterval(function() {
+		if(finalResult !== null) {
+		    if(finalResult == 'success') {
+		      
+			previous.text( name );
+			variable.hide();
+			previous.show();
+		    }
+		clearInterval(timerId);
+		} else {
+		    console.log(finalResult);
+		}
+	    }, 1500);
+      }
+    
+    function description(path, column, value) {
+        $.ajax({url: path + '' + column + '<><>' + value,
+            type: "get",
+            success: function(result)
+            {
+              if(result != 'false') {
+                    console.log(result);
+              } else {
+                console.log('No change available at the moment');
+              }
+            }
+          }); 
+    }
+
+    function rowClick(object) {
+        $("tr.rowsBearbeitenAddress").removeAttr( 'style' );
+        var idVal = object.attr('id');
+        object.css('background-color', "rgb(238, 193, 213)");
+        $('.deleteBearbeitenButtonAddress').attr('id', idVal);
+        $('.deleteBearbeitenButtonAddress').prop('disabled', false);
+    }
+
+    function rowPersonClick(object) {
+        $("tr.rowsBearbeitenPerson").removeAttr( 'style' );
+        var idVal = object.attr('id');
+        object.css('background-color', "rgb(238, 193, 213)");
+        $('.deleteBearbeitenButtonPerson').attr('id', idVal);
+        $('.deleteBearbeitenButtonPerson').prop('disabled', false);
+    }
+
     $('#invidivuell_1').change(function() {
-        //var zielButton = $('[data-id="paymentOpt"]').prop('title');
     	if ($("#invidivuell_1").is(":checked")) {
     	  $('select[name=individual_payment]').prop('disabled', false);
     	  $('select[name=individual_payment]').siblings('button').removeClass('disabled');
@@ -64,7 +172,7 @@ $( document ).ready(function() {
         $( '#auftraggeberDiv' ).removeClass('form-group has-error').addClass('form-group');
         $( '#auftraggeberLabel' ).html('Auftraggeber');
 	    var clientName = $('input[name=auftraggeber]').val();
-	    if (window.location.href == "http://ad9bis.vot.pl/CRM/Erfassung") {
+	    if (window.location.href == "http://kluby.local/CRM/Erfassung") {
 	        path = "Api/Project/";
 	    } else {
 	        path = "../Api/Project/";
@@ -87,36 +195,47 @@ $( document ).ready(function() {
                             $('input[name=auftraggeber]').autocomplete({
                                 source: arr,
                                 select: function (event, ui) {
-				    var name = ui.item.value;
-				    var newPath = path + "Name/";
-				    $.ajax({url: newPath + name, 
-				      type: "get",
-				      success: function(result)
-					    {
-						$('input[name=ansprechpartner]').prop('disabled', false);
-						$('input[name=rechnungsadresse]').prop('disabled', false);
-						var currentVal = $('#hiddenCustomerName').val();
-						if (currentVal != result) {
-						    $('#hiddenCustomerName').val(result);
-						    if (concrete == true) {
-							var projectId = 'auftraggeber-' + $( '#hiddenProjectId' ).val();
-							changeDate(result, projectId);
-						    }
-						    $('input[name=ansprechpartner]').val('');
-						    $('input[name=rechnungsadresse]').val('');
-						    if (concrete == true) {
-							var projectId = 'ansprechpartner-' + $( '#hiddenProjectId' ).val();
-							changeDate(null, projectId);
-						    }
-						    if (concrete == true) {
-							var projectId = 'rechnungsadresse-' + $( '#hiddenProjectId' ).val();
-							changeDate(null, projectId);
-						    }
-						} else {
-						    alert('the same');
-						}
-					}
-				    }); 
+								    var name = ui.item.value;
+								    var newPath = path + "Name/";
+								    $.ajax({url: newPath + name, 
+									    type: "get",
+						      			success: function(result)
+							    		{
+											$('input[name=ansprechpartnerBasic]').prop('disabled', false);
+											$('input[name=rechnungsadresse]').prop('disabled', false);
+											var currentVal = $('#hiddenCustomerName').val();
+											if (currentVal == name) {
+												console.log('The same');
+												return false;
+											} else {
+											    $('#hiddenCustomerName').val(name);
+											    if (concrete == true) {
+												var projectId = 'auftraggeber<>' + $( '#hiddenProjectId' ).val();
+												changeDate(result, projectId);
+											    }
+											    $('input[name=ansprechpartnerBasic]').val('');
+											    $('input[name=rechnungsadresse]').val('');
+											    if (concrete == true) {
+												var projectId = 'ansprechpartner<>' + $( '#hiddenProjectId' ).val();
+												changeDate('null', projectId);
+											    }
+											    if (concrete == true) {
+												var projectId = 'rechnungsadresse<>' + $( '#hiddenProjectId' ).val();
+												changeDate('null', projectId);
+												var timerId = setInterval(function() {
+												  if(finalResult !== null) {
+												      if(finalResult == 'success') {
+													location.reload();
+												      }
+												    clearInterval(timerId);
+												    } else {
+													console.log(finalResult);
+												    }
+												}, 1500);
+											    }
+											} 
+										}
+								    }); 
                                 }
                             });
                         }
@@ -124,13 +243,13 @@ $( document ).ready(function() {
         }); 
     });
 
-	$('input[name=ansprechpartner]').keyup(function() {
+	$('input[name=ansprechpartnerBasic]').keyup(function() {
 		$( '#ansprechpartnerDiv' ).removeClass('form-group has-error').addClass('form-group');
 		$( '#ansprechpartnerLabel' ).html('Ansprechpartner');
 		var clientName = $('input[name=auftraggeber]').val();
-		var searchedName = $('input[name=ansprechpartner]').val();
+		var searchedName = $('input[name=ansprechpartnerBasic]').val();
 		var dates = [ searchedName, clientName ];
-		if (window.location.href == "http://ad9bis.vot.pl/CRM/Erfassung") {
+		if (window.location.href == urlPath) {
 		  var path = "Api/Employee/";
 		} else {
 		  var path = "../Api/Employee/";
@@ -148,31 +267,37 @@ $( document ).ready(function() {
 				      break;
 
 				    default:
-				      var arr = jsonData.map(function(object){ return object.name + '->' + object.id });
+				      var arr = jsonData.map(function(object){ return object.name });
 
-				    $('input[name=ansprechpartner]').autocomplete({
+				    $('input[name=ansprechpartnerBasic]').autocomplete({
 					source: arr,
-							select: function (event, ui) {
-								idNumber = ui.item.value.split("->")[1];
-								ui.item.value = ui.item.value.split("->")[0];
-								if (concrete == true) {
-								    var project = $(this).attr('id');
-								    changeDate(idNumber, project);
+					select: function (event, ui) {
+							var name = ui.item.value;
+							var newPath = path + "Name/";
+							$.ajax({url: newPath + name, 
+								type: "get",
+								success: function(result)
+								{
+									if (concrete == true) {
+										var projectId = 'ansprechpartner<>' + $( '#hiddenProjectId' ).val();
+										changeDate(result, projectId);
+									}
 								}
-							}
+							}); 
+						}
 				    });
 				}
 			}
 		}); 
 	});
 
-	$('input[name=rechnungsadresse]').keyup(function() {
+	$('input[name=rechnungsadresseBasic]').keyup(function() {
 		$( '#rechnungsadresseDiv' ).removeClass('form-group has-error').addClass('form-group');
 		$( '#rechnungsadresseLabel' ).html('Rechnungsadresse');
 		var clientName = $('input[name=auftraggeber]').val();
-		var searchedName = $('input[name=rechnungsadresse]').val();
+		var searchedName = $('input[name=rechnungsadresseBasic]').val();
 		var dates = [ searchedName, clientName ];
-		if (window.location.href == "http://ad9bis.vot.pl/CRM/Erfassung") {
+		if (window.location.href == urlPath) {
 			var path = "Api/Address/";
 		} else {
 			var path = "../Api/Address/";
@@ -191,7 +316,7 @@ $( document ).ready(function() {
 
 					default:
 					var arr = jsonData.map(function(object){ return object.name });
-					$('input[name=rechnungsadresse]').autocomplete({
+					$('input[name=rechnungsadresseBasic]').autocomplete({
 						source: arr,
 						select: function (event, ui) {
 							var name = ui.item.value;
@@ -201,7 +326,7 @@ $( document ).ready(function() {
 								success: function(result)
 								{
 									if (concrete == true) {
-										var projectId = 'rechnungsadresse-' + $( '#hiddenProjectId' ).val();
+										var projectId = 'rechnungsadresse<>' + $( '#hiddenProjectId' ).val();
 										changeDate(result, projectId);
 									}
 								}
@@ -239,33 +364,33 @@ $( document ).ready(function() {
     $('input[name=auftraggeber]').blur(function() {
         var currentClient = $(this).val();
         if (currentClient == '') {
-	    $('input[name=ansprechpartner]').val('');
-            $('input[name=ansprechpartner]').prop('disabled', 'disabled');
-	    $('input[name=rechnungsadresse]').val('');
-            $('input[name=rechnungsadresse]').prop('disabled', 'disabled');
-	    var projectId = 'ansprechpartner-' + $( '#hiddenProjectId' ).val();
+	    $('input[name=ansprechpartnerBasic]').val('');
+        $('input[name=ansprechpartnerBasic]').prop('disabled', 'disabled');
+	    $('input[name=rechnungsadresseBasic]').val('');
+        $('input[name=rechnungsadresseBasic]').prop('disabled', 'disabled');
+	    var projectId = 'ansprechpartner<' + $( '#hiddenProjectId' ).val();
 	    changeDate(null, projectId);
-	    var projectId = 'rechnungsadresse-' + $( '#hiddenProjectId' ).val();
+	    var projectId = 'rechnungsadresse<>' + $( '#hiddenProjectId' ).val();
 	    changeDate(null, projectId);
-	    var projectId = 'auftraggeber-' + $( '#hiddenProjectId' ).val();
-	    changeDate(null, projectId);
-        }
-    });
-    
-    $('input[name=ansprechpartner]').blur(function() {
-        var currentClient = $(this).val();
-        if (currentClient == '') {
-	    $('input[name=ansprechpartner]').val('');
-	    var projectId = 'ansprechpartner-' + $( '#hiddenProjectId' ).val();
+	    var projectId = 'auftraggeber<' + $( '#hiddenProjectId' ).val();
 	    changeDate(null, projectId);
         }
     });
     
-    $('input[name=rechnungsadresse]').blur(function() {
+    $('input[name=ansprechpartnerBasic]').blur(function() {
         var currentClient = $(this).val();
         if (currentClient == '') {
-	    $('input[name=rechnungsadresse]').val('');
-	    var projectId = 'rechnungsadresse-' + $( '#hiddenProjectId' ).val();
+	    $('input[name=ansprechpartnerBasic]').val('');
+	    var projectId = 'ansprechpartner<>' + $( '#hiddenProjectId' ).val();
+	    changeDate(null, projectId);
+        }
+    });
+    
+    $('input[name=rechnungsadresseBasic]').blur(function() {
+        var currentClient = $(this).val();
+        if (currentClient == '') {
+	    $('input[name=rechnungsadresseBasic]').val('');
+	    var projectId = 'rechnungsadresse<>' + $( '#hiddenProjectId' ).val();
 	    changeDate(null, projectId);
         }
     });
@@ -296,118 +421,217 @@ $( document ).ready(function() {
 	changeDate(checkbox, projectId);
     });
     
-    function changeDate(curDate, project) {
-	var values = project + '-' + curDate;
-	if (window.location.href == "http://kluby.local/CRM/Erfassung") {
-           alert('No project at this time');
-        } else {
-           var path = "../Api/Dates/";
-	   $.ajax({url: path,
-               type: "post",
-	       data: { 'action' : 'ajax', 'concrete' : 'dates', 'value' : values },
-               success: function(result)
-                 {
-		    alert(result);
-                 }
-	    }); 
+    $( '.datePickerToUpdate' ).change(function() {
+    	var curDate = $(this).val();
+    	var project = $(this).attr('id');
+    	var projectId = $( '#hiddenProjectId' ).val();
+	if (project == 'termin_fremdarbeiten') {
+	    var date = 'amendmentTime<>' + projectId;
+	} else if (project == 'termin_fremdarbeitenDaten') {
+	    var date = 'dateTime<>' + projectId;
+	} else {
+	    var date = project + '<>' + projectId;
+	}
+    	changeDate(curDate, date);
+	if (project == 'amendmentTime') {
+	    $('input[name=termin_fremdarbeiten]').val(curDate);
+	} else if (project == 'dateTime') {
+	    $('input[name=termin_fremdarbeitenDaten]').val(curDate);
+	} else if (project == 'termin_fremdarbeiten') {
+	    $('input[name=amendmentTime]').val(curDate);
+	} else if (project == 'termin_fremdarbeitenDaten') {
+	    $('input[name=dateTime]').val(curDate);
+	}
+    });
+    
+    $( '.dateToUpdate' ).change(function() {
+    	var curDate = $(this).val();
+    	var project = $(this).attr('id');
+	var projectId = $( '#hiddenProjectId' ).val();
+	var array = [project, projectId];
+    	changeDate(curDate, array);
+    });
+
+    $( '.singleDateToChange' ).blur(function() {
+        function isInteger(value)      
+        {       
+            num = value.trim();         
+            return !(value.match(/\s/g)||num==""||isNaN(num)||(typeof(value)=='number'));        
         }
-    }
-    
-    $( ".mandant" ).change(function() {
-        var mandant = $( this ).val();
-	var project = $( this ).attr('id');
-	changeDate(mandant, project);    
+        var projectId = $( '#hiddenProjectId' ).val();
+        var curDate = $( this ).val();
+        var variable = $( this ).attr('id');
+        if ( variable == 'pattern' ) {
+            $( '#patternDiv' ).removeClass('form-group has-error').addClass('form-group');
+            var check = isInteger(curDate);
+            if (check == false) {
+                $( '#patternDiv' ).removeClass('form-group').addClass('form-group has-error');
+                return false;
+            }
+        }
+        var array = [variable, projectId];
+        changeDate(curDate, array);
+    });
+
+    $('.descCheckbox').change(function() {
+        var ifChecked = $(this).is(":checked");
+        var column = $( this ).attr('id');
+        if (ifChecked == true) {
+            var checkbox = 1;
+        } else {
+            var checkbox = 0;
+        }
+        if (window.location.href == urlPath) {
+          console.log('No project at this time');
+        } else {
+          var path = "../Api/Description/";
+          description(path, column, checkbox);
+        } 
+    });
+
+    $('.descTextarea').change(function() {
+        var value = $(this).val();
+        var column = $( this ).attr('id');
+        if (window.location.href == urlPath) {
+          consloe.log('No project at this time');
+        } else {
+          var path = "../Api/Description/";
+          description(path, column, value);
+        } 
+    });
+
+    $('.descIntern').change(function() {
+        var value = $(this).val();
+        var column = $( this ).attr('id');
+        var fakeColumn = 'desc5';
+        if (window.location.href == urlPath) {
+          console.log('No project at this time');
+        } else {
+          var path = "../Api/Description/";
+          description(path, fakeColumn, value);
+          $('.descIntern').val('');
+          $( '#desc5').val(value);
+          $( '#desc6').val(value);
+          $( '#desc7').val(value);
+          $( '#desc8').val(value);
+        } 
+    });
+    $( "#topNewButton" ).click(function() {
+        $( '#productToReplace' )[0].click();
+    });
+
+    $( "#cloneButton" ).click(function() {
+        $( '#productToClone' )[0].click();
+    });
+
+    $('input[type=radio][name=lieferung]').change(function() {
+        if ($(this).attr('id') == 'adresse_auftragsgeber') {
+            $( '#lieferadresse_abweichend' ).prop('disabled', true);
+        } else if ($(this).attr('id') == 'abweichend') {
+            $( '#lieferadresse_abweichend' ).prop('disabled', false);
+        }
     });
     
-    $( '.projectStatus' ).change(function() {
-        var status = $( this ).val();
-	var project = $( this ).attr('id');
-	changeDate(status, project); 
+    $( '.calculationCheckbox' ).change(function() {
+    	var ifChecked = $(this).is(":checked");
+        var column = $( this ).attr('id');
+	var projectId = $( '#hiddenProjectId' ).val();
+        if (ifChecked == true) {
+            var checkbox = 1;
+        } else {
+            var checkbox = 0;
+        }
+        var array = ['Project_Calculation', projectId, column, checkbox];
+    	changeDate('update', array);
+    });
+
+    $( '.calcToChange' ).dblclick(function() {
+	function isInteger(value)      
+        {       
+            num = value.trim();         
+            return !(value.match(/\s/g)||num==""||isNaN(num)||(typeof(value)=='number'));        
+        }
+        var previous = $( '.newCalc' ).val();
+	var previousId = $( '.newCalc' ).attr('id');
+	if (previousId) {
+	    var split = previousId.split('_');
+	    var parent = $( '.newCalc' ).parent();
+	    $( '.newCalc' ).remove();
+	    if (previous == '') {
+		    parent.text('--');
+	    } else if (split[0] == 'preis') {
+		    parent.text(previous + ' EURO');
+	    } else {
+		    parent.text(previous);
+	    }
+	}
+	var column = $( this ).children().attr('id');
+	var split = column.split('_');
+	var origin = split[0];
+	var total = split[1];
+	var value = $( this ).children().text();
+	var projectId = $( '#hiddenProjectId' ).val();
+	value = value.replace(" EURO", "");
+	$( this ).children().text('');
+	if (value == '--') {
+	    value = '';
+	}
+	$( this ).children().append('<input type="text" name="sth" class="form-control1 newCalc" id="' + column + '" value="' + value +'" />');
+	$( '.newCalc' ).focus();
+	$( '.newCalc' ).select();
+	if (value == '') {
+	    value = 0;
+	}
+	$( '.newCalc' ).change(function() {
+	    $( '.newCalc' ).css("border-color", "");
+	    var newValue = $( this ).val();
+	    newValue = newValue.replace(',' , '.');
+	    var valueCheck = isInteger(newValue);
+	    if (newValue  != '') {
+		if (valueCheck == false) {
+		      $( this ).css('border-color', 'red');
+		      return false;
+		}
+	    }
+	    var array = ['Project_Calculation', projectId, column, newValue];
+	    changeDate('update', array);
+	    var timerId = setInterval(function() {
+		if(finalResult !== null) {
+		    if(finalResult == 'success') {
+		      $( '.newCalc' ).remove();
+		      if (newValue == '') {
+			  newValue = 0;
+		      }
+		      if (origin == 'preis') {
+			  var oldTotal = $( '#total' + total ).text();
+			  oldTotal = oldTotal.replace(' EURO', '');
+			  oldTotal = parseFloat(oldTotal);
+			  value = parseFloat(value);
+			  newValue = parseFloat(newValue);
+			  var newTotal = oldTotal - value + newValue;
+			  $( '#total' + total ).text(newTotal + ' EURO');
+			  if (newValue != 0) {
+			      newValue = newValue + ' EURO';
+			  } else {
+			      newValue = '--';
+			  }
+		      }
+		      $( '#' + column ).text(newValue);
+		    }
+		clearInterval(timerId);
+		} else {
+		    console.log(finalResult);
+		}
+	    }, 1500);
+	});
     });
     
-    $('input[name=projektname]').blur(function(){
-        var name = $( this ).val();
-	var project = $( this ).attr('id');
-	changeDate(name, project); 
+    $( "#topNewButton" ).mouseover(function() {
+        $(this).css('cursor', 'not-allowed');
     });
     
-    $('input[name=lieferterminInput]').change(function() {
-	var curDate = $(this).val();
-	var project = $(this).attr('id');
-	changeDate(curDate, project);
+    $( "#topNewButton" ).click(function() {
+        event.preventDefault();
     });
     
-    $('input[name=amendmentTime]').change(function() {
-	var curDate = $(this).val();
-	var project = $(this).attr('id');
-	changeDate(curDate, project);
-	$('input[name=termin_fremdarbeiten]').val(curDate);
-    });
-    
-    $('input[name=dateTime]').change(function() {
-	var curDate = $(this).val();
-	var project = $(this).attr('id');
-	changeDate(curDate, project);
-	$('input[name=termin_fremdarbeitenDaten]').val(curDate);
-    });
-    
-    $('input[name=proofTime]').change(function() {
-	var curDate = $(this).val();
-	var project = $(this).attr('id');
-	changeDate(curDate, project);
-    });
-    
-    $('input[name=printTime]').change(function() {
-	var curDate = $(this).val();
-	var project = $(this).attr('id');
-	changeDate(curDate, project);
-    });
-    
-    $('input[name=termin_fremdarbeiten]').change(function() {
-	var curDate = $(this).val();
-	var project = $(this).attr('id');
-	var newproject = project.replace('termin_fremdarbeiten', '');
-	finalProject = 'amendmentTime' + newproject;
-	changeDate(curDate, finalProject);
-	$('input[name=amendmentTime]').val(curDate);
-    });
-    
-    $('input[name=termin_fremdarbeitenDaten]').change(function() {
-	var curDate = $(this).val();
-	var project = $(this).attr('id');
-	var newproject = project.replace('termin_fremdarbeitenDaten', '');
-	finalProject = 'dateTime' + newproject;
-	changeDate(curDate, finalProject);
-	$('input[name=dateTime]').val(curDate);
-    });
-    
-    $('input[name=pattern]').blur(function() {
-	var curDate = $(this).val();
-	var project = $(this).attr('id');
-	changeDate(curDate, project);
-    });
-    
-    $('input[name=pattern_to]').blur(function() {
-	var curDate = $(this).val();
-	var project = $(this).attr('id');
-	changeDate(curDate, project);
-    });
-    
-    $('select[name=individual_payment]').change(function() {
-	var curDate = $(this).val();
-	var project = $(this).attr('id');
-	changeDate(curDate, project);
-    });
-    
-    $('input[name=individual_skonto]').blur(function() {
-	var curDate = $(this).val();
-	var project = $(this).attr('id');
-	changeDate(curDate, project);
-    });
-    
-    $('input[name=lieferant_id]').click(function() {
-	var curDate = $(this).val();
-	var project = $(this).attr('id');
-	changeDate(curDate, project);
-    }); 
 });

@@ -22,6 +22,31 @@ class Ansprechpartner implements TvsatzInterface
 		}
 	}
 
+	public function clientInsert($values) {
+		$name = $values[1];
+		$vorname = $values[2];
+		$telefon = $values[3];
+		$telefon2 = $values[4];
+		$fax = $values[5];
+		$mail = $values[6];
+		$clientId = $values[7];
+		$sql = 'INSERT INTO Ansprechpartner (name, vorname, telefon, telefon2, fax, mail, firma_id) VALUES (:name, :vorname, :telefon, :telefon2, :fax, :mail, :clientId)';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':name', $name);
+		$result->bindValue(':vorname', $vorname);
+		$result->bindValue(':telefon', $telefon);
+		$result->bindValue(':telefon2', $telefon2);
+		$result->bindValue(':fax', $fax);
+		$result->bindValue(':mail', $mail);
+		$result->bindValue(':clientId', $clientId);
+		if ($result->execute()) {
+			$id = $this->getLastId($values);
+			return $id;
+		} else {
+			return 'false';
+		}
+	}
+
 	public function deleteCurrentDates() {
 		$sql = "DELETE FROM Ansprechpartner WHERE id = :id";
 		$result=$this->dbHandler->prepare($sql);
@@ -36,6 +61,37 @@ class Ansprechpartner implements TvsatzInterface
 		unset($this->mail);
 		unset($this->reg_date);
 		unset($this->firma_id);
+	}
+
+	public function deleteSql( $data ) {
+		$sql = "DELETE FROM Ansprechpartner WHERE id = :id";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $data);
+		if ($result->execute()) {
+			return 'success';
+		} else {
+			return 'false';
+		}
+	}
+	
+	public function getAllAnsprechpartner($id) {
+		$sql = "SELECT * FROM Ansprechpartner WHERE firma_id = :id";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		$result->execute();
+		$list = array();
+		foreach ($result as $singleResult) {
+		      $list[] = array(
+		      'id' => $singleResult['id'], 
+		      'name' => $singleResult['name'],
+		      'vorname' => $singleResult['vorname'],
+		      'telefon' => $singleResult['telefon'],
+		      'telefon2' => $singleResult['telefon2'],
+		      'fax' => $singleResult['fax'],
+		      'mail' => $singleResult['mail']
+		      );
+		}
+		return $list;
 	}
 
 	public function getDates() {
@@ -54,6 +110,23 @@ class Ansprechpartner implements TvsatzInterface
 		$array = $result->fetch();
 		$this->id = $array['id'];
 		$this->reg_date = $array['reg_date'];
+	}
+
+	private function getLastId($values) {
+		$sql = 'SELECT id, reg_date FROM Ansprechpartner WHERE name = :name AND vorname = :vorname AND telefon = :telefon AND firma_id = :firma_id ORDER BY id DESC LIMIT 1';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':name', $values[1]);
+		$result->bindValue(':vorname', $values[2]);
+		$result->bindValue(':telefon', $values[3]);
+		$result->bindValue(':firma_id', $values[7]);
+		$result->execute();
+		$array = $result->fetch();
+		$this->id = $array['id'];
+		return $this->id;
+	}
+
+	public function getObjectId() {
+		return $this->id;
 	}
 
 	public function searchById($id) {
@@ -136,5 +209,17 @@ class Ansprechpartner implements TvsatzInterface
 		$result->bindValue(':mail', $this->mail);
 		$result->bindValue(':firma_id', $this->firma_id);
 		$result->execute();
+	}
+
+	public function updateRow($column, $rowId, $value) {
+		$sql = 'UPDATE Ansprechpartner SET '.$column.' = :value WHERE id = :id';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $rowId);
+		$result->bindValue(':value', $value);
+		if ($result->execute()) {
+		    return 'success';
+		} else {
+		    return 'false';
+		}
 	}
 }

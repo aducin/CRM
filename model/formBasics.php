@@ -17,13 +17,17 @@ abstract class formBasics
 
 	abstract public function delete();
 
-	abstract protected function save($data);
+	//abstract protected function save($data);
 
-	protected function deleteSql() {
+	public function deleteSql($id) {
 		$sql = 'DELETE FROM '.$this->selfName.' WHERE id = :id';
 		$result = $this->dbHandler->prepare($sql);
-		$result->bindValue(':id', $this->id);
-		$result->execute();
+		$result->bindValue(':id', $id);
+		if ($result->execute()) {
+			return 'success';
+		} else {
+			return 'false';
+		}
 	}
 
 	protected function getById() {
@@ -36,6 +40,31 @@ abstract class formBasics
 	}
 
 	abstract function getByProjectId($id);
+
+	public function getTotalAmount($name) {
+		$dates = explode('-', $name);
+		$table = $dates[0];
+		$projectId = $dates[1];
+		if ($table == 'Fremdsache') {
+			$column = 'sellPrice';
+		} elseif ($table == 'Drucksache') {
+			$column = 'amount';
+		} elseif ($table == 'Vorstufe') {
+			$column = 'amount';
+		}
+		$sql = "SELECT ".$column." FROM ".$table." WHERE projectId = ".$projectId;
+		$result = $this->dbHandler->prepare($sql);
+	    if ($result->execute()) {
+	    	$amount = '';
+	    	foreach ($result as $singleResult) {
+	    		$amount += $singleResult[$column];
+	    	}
+	    	$amount = number_format($amount, 2, '.', '');
+	    } else {
+		$amount = 'false';
+	    }
+	    return $amount;
+	}
 
 	public function row($origin, $id, $column, $value) {
 	    $sql = 'UPDATE '.$origin.' SET '.$column.' = :value WHERE id = :id';

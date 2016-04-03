@@ -1,195 +1,27 @@
 <div id="kalkulationTable" style="display: none">
 	<div class="row">
 		<div class="col-sm-12 form-horizontal gray-form mrb-20">
-			<form action="">
-				<div class="form-group mrt">
+				<div class="form-group mrt2">
 					<div class="col-sm-4 calculation-margin-top">
+					        {% for singleField in calculationFields %}
 						<div class="row mer-10">
 							<div class="col-sm-12">
 								<div class="checkbox">
-									<input id="bogenmontage" name="bogenmontage" type="checkbox">
-									<label for="bogenmontage">
-										Bogenmontage
+									<input id="checkbox{{ singleField.id }}" class="calculationCheckbox" name="{{ singleField.name }}" type="checkbox" {% if singleField.checkbox == 1 %} checked="checked" {% endif %}>
+									<label for="{{ singleField.name }}">
+										{{ singleField.name }}
 									</label>
 								</div>                      
 							</div>
 						</div>
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="plattenkopierkosten" name="plattenkopierkosten" type="checkbox">
-									<label for="plattenkopierkosten">
-										Plattenkopierkosten
-									</label>
-								</div>                      
-							</div>
-						</div>     
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="papier" name="papier" type="checkbox">
-									<label for="papier">
-										Papier
-									</label>
-								</div>                      
-							</div>
-						</div> 
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="einrichten" name="einrichten" type="checkbox">
-									<label for="einrichten">
-										Einrichten
-									</label>
-								</div>                      
-							</div>
-						</div> 
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="einrichten_numer_perf" name="einrichten_numer_perf" type="checkbox">
-									<label for="einrichten_numer_perf">
-										Einrichten Numer./perf
-									</label>
-								</div>                      
-							</div>
-						</div> 
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="fortdruck" name="fortdruck" type="checkbox">
-									<label for="fortdruck">
-										Fortdruck
-									</label>
-								</div>                      
-							</div>
-						</div> 
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="farbwechsel" name="farbwechsel" type="checkbox">
-									<label for="farbwechsel">
-										Farbwechsel
-									</label>
-								</div>                      
-							</div>
-						</div> 
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="farbmischen" name="farbmischen" type="checkbox">
-									<label for="farbmischen">
-										Farbmischen
-									</label>
-								</div>                      
-							</div>
-						</div> 
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="kopieren" name="kopieren" type="checkbox">
-									<label for="kopieren">
-										Kopieren
-									</label>
-								</div>                      
-							</div>
-						</div> 
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="zu_beschneiden" name="zu_beschneiden" type="checkbox">
-									<label for="zu_beschneiden">
-										Zu-/Beschneiden
-									</label>
-								</div>                      
-							</div>
-						</div> 
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="falzen" name="falzen" type="checkbox">
-									<label for="falzen">
-										Falzen
-									</label>
-								</div>                      
-							</div>
-						</div> 
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="zusammentr" name="zusammentr" type="checkbox">
-									<label for="zusammentr">
-										Zusammentr. (Hand/M)
-									</label>
-								</div>                      
-							</div>
-						</div> 
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="bohren" name="bohren" type="checkbox">
-									<label for="bohren">
-										Bohren
-									</label>
-								</div>                      
-							</div>
-						</div> 
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="leimen" name="leimen" type="checkbox">
-									<label for="leimen">
-										Leimen
-									</label>
-								</div>                      
-							</div>
-						</div> 
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="heften" name="heften" type="checkbox">
-									<label for="heften">
-										Heften
-									</label>
-								</div>                      
-							</div>
-						</div> 
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="falzeln" name="falzeln" type="checkbox">
-									<label for="falzeln">
-										Fälzeln
-									</label>
-								</div>                      
-							</div>
-						</div> 
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="rollen_stanzen" name="rollen_stanzen" type="checkbox">
-									<label for="rollen_stanzen">
-										Rollen/Stanzen
-									</label>
-								</div>                      
-							</div>
-						</div> 
-						<div class="row mer-10">
-							<div class="col-sm-12">
-								<div class="checkbox">
-									<input id="verpacken" name="verpacken" type="checkbox">
-									<label for="verpacken">
-										Verpacken
-									</label>
-								</div>                      
-							</div>
-						</div>                                         
+						{% endfor %}
+						                                         
 					</div>
 					<div class="col-sm-2">
 						<div class="row">
 							<div class="col-sm-12">
 								<label class="control-label">Auflage</label>
-								<input type="text" name="termin_daten" class="form-control" value="freitext">   
+								<input type="text" name="auflage1" id="auflage1" class="form-control singleDateToChange" value="{{ dates.calcTitle.0 }}">   
 							</div>
 						</div>
 						<div class="row mrt-10">
@@ -202,78 +34,16 @@
 										</tr>
 									</thead>
 									<tbody>
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>        
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>      
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>  
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>        
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>      
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr> 
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>                                                     
+										{% for first in firstCalc %}
+										      <tr>
+											      <td class="calcToChange">
+												  <div id="{{ first.timeId }}">{% if first.time %}{{ first.time }}{% else %}--{% endif %}</div>
+											      </td>
+											      <td class="calcToChange">
+												  <div id="{{ first.amountId }}">{% if first.amount %}{{ first.amount }} EURO{% else %}--{% endif %}</div>
+											      </td>
+										      </tr>        
+										{% endfor %}
 									</tbody>
 								</table>                       
 							</div>
@@ -283,7 +53,7 @@
 						<div class="row">
 							<div class="col-sm-12">
 								<label class="control-label">Auflage</label>
-								<input type="text" name="termin_daten" class="form-control" value="freitext">   
+								<input type="text" name="auflage2" id="auflage2" class="form-control singleDateToChange" value="{{ dates.calcTitle.1 }}">   
 							</div> 
 						</div>
 						<div class="row mrt-10">
@@ -296,78 +66,16 @@
 										</tr>
 									</thead>
 									<tbody>
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>        
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>      
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>  
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>        
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>      
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr> 
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>                                                     
+										{% for second in secondCalc %}
+										      <tr>
+											      <td class="calcToChange">
+												  <div id="{{ second.timeId }}">{% if second.time %}{{ second.time }}{% else %}--{% endif %}</div>
+											      </td>
+											      <td class="calcToChange">
+												  <div id="{{ second.amountId }}">{% if second.amount %}{{ second.amount }} EURO{% else %}--{% endif %}</div>
+											      </td>
+										      </tr>        
+										{% endfor %}
 									</tbody>
 								</table>                       
 							</div>
@@ -377,7 +85,7 @@
 						<div class="row">
 							<div class="col-sm-12">
 								<label class="control-label">Auflage</label>
-								<input type="text" name="termin_daten" class="form-control" value="freitext">   
+								<input type="text" name="auflage3" id="auflage3" class="form-control singleDateToChange" value="{{ dates.calcTitle.2 }}">   
 							</div>
 						</div>
 						<div class="row mrt-10">
@@ -390,78 +98,16 @@
 										</tr>
 									</thead>
 									<tbody>
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>        
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>      
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>  
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>        
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>      
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr> 
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>                                                     
+										{% for third in thirdCalc %}
+										      <tr>
+											      <td class="calcToChange">
+												  <div id="{{ third.timeId }}">{% if third.time %}{{ third.time }}{% else %}--{% endif %}</div>
+											      </td>
+											      <td class="calcToChange">
+												  <div id="{{ third.amountId }}">{% if third.amount %}{{ third.amount }} EURO{% else %}--{% endif %}</div>
+											      </td>
+										      </tr>        
+										{% endfor %}
 									</tbody>
 								</table>                       
 							</div>
@@ -471,7 +117,7 @@
 						<div class="row">
 							<div class="col-sm-12">
 								<label class="control-label">Auflage</label>
-								<input type="text" name="termin_daten" class="form-control" value="freitext">   
+								<input type="text" name="auflage4" id="auflage4" class="form-control singleDateToChange" value="{{ dates.calcTitle.3 }}">   
 							</div>
 						</div>
 						<div class="row mrt-10">
@@ -484,78 +130,16 @@
 										</tr>
 									</thead>
 									<tbody>
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>        
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>      
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>  
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>        
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>      
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>       
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr> 
-										<tr>
-											<td>8</td>
-											<td>40 EURO</td>
-										</tr>                                                     
+										{% for fourth in fourthCalc %}
+										      <tr>
+											      <td class="calcToChange">
+												  <div id="{{ fourth.timeId }}">{% if fourth.time %}{{ fourth.time }}{% else %}--{% endif %}</div>
+											      </td>
+											      <td class="calcToChange">
+												  <div id="{{ fourth.amountId }}">{% if fourth.amount %}{{ fourth.amount }} EURO{% else %}--{% endif %}</div>
+											      </td>
+										      </tr>        
+										{% endfor %}
 									</tbody>
 								</table>                       
 							</div>
@@ -573,33 +157,32 @@
 					<div class="col-sm-2">
 						<div class="row">
 							<div class="col-sm-12 v-right">
-								<h4>70 EURO</h4>
+								<h4 id="total1">{% if calcCount.1 %}{{ calcCount.1 }} EURO{% endif %}</h4>
 							</div>
 						</div>
 					</div>
 					<div class="col-sm-2">
 						<div class="row">
 							<div class="col-sm-12 v-right">
-								<h4>40 EURO</h4>
+								<h4 id="total2">{% if calcCount.1 %}{{ calcCount.2 }} EURO{% endif %}</h4>
 							</div>
 						</div>
 					</div>
 					<div class="col-sm-2">
 						<div class="row">
 							<div class="col-sm-12 v-right">
-								<h4>240 EURO</h4>
+								<h4 id="total3">{% if calcCount.1 %}{{ calcCount.3 }} EURO{% endif %}</h4>
 							</div>
 						</div>
 					</div>
 					<div class="col-sm-2">
 						<div class="row">
 							<div class="col-sm-12 v-right">
-								<h4></h4>
+								<h4 id="total4">{% if calcCount.1 %}{{ calcCount.4 }} EURO{% endif %}</h4>
 							</div>
 						</div>
 					</div>                                    
 				</div>                                
-			</form>
 		</div>                       
 	</div>  
 </div>

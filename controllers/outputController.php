@@ -30,12 +30,13 @@ class OutputController
     	$this->dbHandler = $dbHandler;
         $this->creator = new TvsatzCreator($dbHandler);
         $this->helper = $this->creator->createProduct('helpers');
-        $this->employees = $this->helper->getAnsprechpartner();
+        $this->helper->setBenutzerList();
+        $this->employees = $this->helper->getBenutzerList();
         $this->mandant = $this->helper->getMandant();
     }
 
     public static function displayError($error) {
-        include ('view/error.html');
+        include ('view/templates/error.html');
     }
 
     public function renderConfigSite($paymentOptions, $role, $users) {
@@ -58,6 +59,7 @@ class OutputController
         $carrierList = $this->helper->setLieferant();
         $paymentOpt = $this->helper->getZahlungsziel();
         $status = $this->helper->getStatusList();
+        $calculationField = $this->helper->setKalkulationsfelder();
         $this->helper->setArt();
         $art = $this->helper->getArt();
         $this->helper->setMachine();
@@ -76,7 +78,10 @@ class OutputController
         if ($project) {
             $projectId = $project->getId();
             $individual = $project->getIndividuals();
+            $bemerkung = $project->setBemerkung();
             $customer = $project->auftraggeber->getDates();
+            $sellerList = $project->ansprechpartner->getAllAnsprechpartner($customer['id']);
+            $addressList = $project->rechnungsadresse->getAllRechnungsadressen($customer['id']);
             $seller = $project->ansprechpartner->getDates();
             $address = $project->rechnungsadresse->getDates();
             $patterns = $project->getPatterns();
@@ -89,10 +94,15 @@ class OutputController
             $time = explode("/", $vorstufe[3]);
             $vorstufe[3] = $time[1].'/'.$time[0].'/'.$time[2];
             $amount = 0;
-             if (isset($vorstufe[0])) {
-	      foreach($vorstufe[0] as $singleRow) {
-		  $amount += $singleRow['amount'];
-	      }
+            $counter = 0;
+            if (isset($vorstufe[0])) {
+    	        foreach($vorstufe[0] as $singleRow) {
+    		        $amount += $singleRow['amount'];;
+                    $textDate = explode('.', $singleRow["performanceTime"]);
+                    $vorstufe[0][$counter]["performanceTime"] = $textDate[0].'/'.$textDate[1].'/'.$textDate[2];
+                    $vorstufe[0][$counter]["performanceTime2"] = $textDate[1].'/'.$textDate[0].'/'.$textDate[2];
+                    $counter++;
+    	        }
             }
             $amountVorstufe = number_format($amount, 2);
             $drucksachen = $project->getDrucksachen();
@@ -100,9 +110,9 @@ class OutputController
             $drucksachen[1] = $time[1].'/'.$time[0].'/'.$time[2];
             $amount = 0;
             if (isset($drucksachen[0])) {
-	      foreach($drucksachen[0] as $singleRow) {
-		  $amount += $singleRow['amount'];
-	      }
+	            foreach($drucksachen[0] as $singleRow) {
+		            $amount += $singleRow['amount'];
+	            }
             }
             $amountDrucksachen = number_format($amount, 2);
             $fremdarbeiten = $project->getFremdsache();
@@ -112,9 +122,16 @@ class OutputController
             $fremdarbeiten[2] = $time[1].'/'.$time[0].'/'.$time[2];
             $amount = 0;
             if (isset($fremdarbeiten[0])) {
-	      foreach($fremdarbeiten[0] as $singleRow) {
-		  $amount += $singleRow['sellPrice'];
-	      }
+                $counter = 0;
+	            foreach($fremdarbeiten[0] as $singleRow) {
+		            $amount += $singleRow['sellPrice'];
+                    if ($singleRow['textDate'] != '') {
+                        $textDate = explode('-', $singleRow['textDate']);
+                        $fremdarbeiten[0][$counter]['textDate'] = $textDate[2].'/'.$textDate[1].'/'.$textDate[0];
+                        $fremdarbeiten[0][$counter]['textDate2'] = $textDate[1].'/'.$textDate[2].'/'.$textDate[0];
+                    }       
+                    $counter++;
+	            }
             }
             $amountFremdarbeiten = number_format($amount, 2);
             $regDate = explode(' ', $project->getRegDate());
@@ -122,6 +139,47 @@ class OutputController
             $deliveryTime = $project->getDeliveryTime();
             $time = explode('-', $deliveryTime);
             $deliveryTime = $time[1].'/'.$time[2].'/'.$time[0];
+            $calculation = $this->creator->createProduct('calculation');
+            $calcTable = $calculation->getDates($projectId);
+            $counter = 0;
+            $firstTable = array();
+            $secondTable = array();
+            $thirdTable = array();
+            $fourthTable = array();
+            foreach ($calculationField as $singleRow) {
+		  $field = 'checkbox'.$singleRow['id'];
+		  $calculationField[$counter]['checkbox'] = $calcTable[0][$field];
+		  $firstTime = 'zeit_1_'.$singleRow['id'];
+		  $firstAmount = 'preis_1_'.$singleRow['id'];
+		  $secondTime = 'zeit_2_'.$singleRow['id'];
+		  $secondAmount = 'preis_2_'.$singleRow['id'];
+		  $thirdTime = 'zeit_3_'.$singleRow['id'];
+		  $thirdAmount = 'preis_3_'.$singleRow['id'];
+		  $fourthTime = 'zeit_4_'.$singleRow['id'];
+		  $fourthAmount = 'preis_4_'.$singleRow['id'];
+		  $firstTable[] = array('timeId' => $firstTime, 'time' => $calcTable[0][$firstTime], 'amountId' => $firstAmount, 'amount' => $calcTable[0][$firstAmount]);
+		  $secondTable[] = array('timeId' => $secondTime, 'time' => $calcTable[0][$secondTime], 'amountId' => $secondAmount, 'amount' => $calcTable[0][$secondAmount]);
+		  $thirdTable[] = array('timeId' => $thirdTime, 'time' => $calcTable[0][$thirdTime], 'amountId' => $thirdAmount, 'amount' => $calcTable[0][$thirdAmount]);
+		  $fourthTable[] = array('timeId' => $fourthTime, 'time' => $calcTable[0][$fourthTime], 'amountId' => $fourthAmount, 'amount' => $calcTable[0][$fourthAmount]);
+		  $counter++;
+            }
+            $firstCount = 0;
+            $secondCount = 0;
+            $thirdCount = 0;
+            $fourthTime = 0;
+            $calcCount = array();
+            foreach ($firstTable as $table) {
+		$calcCount[1] = $calcCount[1] + $table['amount'];
+            }
+            foreach ($secondTable as $table) {
+		$calcCount[2] = $calcCount[2] + $table['amount'];
+            }
+            foreach ($thirdTable as $table) {
+		$calcCount[3] = $calcCount[3] + $table['amount'];
+            }
+            foreach ($fourthTable as $table) {
+		$calcCount[4] = $calcCount[4] + $table['amount'];
+            }
             $dates = array(
                 'name' => $project->getName(),
                 'regDate' => $regDate[0],
@@ -134,18 +192,21 @@ class OutputController
                 'amountDrucksachen' => $amountDrucksachen,
                 'amountFremdarbeiten' => $amountFremdarbeiten,
                 'projectStatus' => $projectStatus,
-                'deliveryTime' => $deliveryTime
+                'deliveryTime' => $deliveryTime,
+                'bemerkung' => $bemerkung,
+                'delivery' => $project->getDeliveryConditions(),
+                'calcTitle' => $project->getCalculationTitles()
             );
             $individuals = array();
-            if ($individual[payment] != null) {
-		if ($customer['zahlungsziel']['id'] != $individual[payment]) {
-		    $dates['payment_name'] = $this->helper->getSingleZahlungsziel($individual[payment]);
-		    $dates['payment'] = $individual[payment];
+            if ($individual['payment'] != null) {
+		if ($customer['zahlungsziel']['id'] != $individual['payment']) {
+		    $dates['payment_name'] = $this->helper->getSingleZahlungsziel($individual['payment']);
+		    $dates['payment'] = $individual['payment'];
 		}
             }
-            if ($individual[skonto] != null) {
-		if ($customer['skonto'] != $individual[skonto]) {
-		    $dates['skonto'] = $individual[skonto];
+            if ($individual['skonto'] != null) {
+		if ($customer['skonto'] != $individual['skonto']) {
+		    $dates['skonto'] = $individual['skonto'];
 		}
             }
             $output = $this->twig->render('/zusammenfassung.html', array(
@@ -167,7 +228,15 @@ class OutputController
                 'fremdarbeiten' => $fremdarbeiten,
                 'art' => $art,
                 'machine' => $machine,
-                'status' => $status
+                'status' => $status,
+                'sellerList' => $sellerList,
+                'addressList' => $addressList,
+                'calculationFields' => $calculationField,
+                'firstCalc' => $firstTable,
+                'secondCalc' => $secondTable,
+                'thirdCalc' => $thirdTable,
+                'fourthCalc' => $fourthTable,
+                'calcCount' => $calcCount,
             ));
         } else {
             $output = $this->twig->render('/zusammenfassung.html', array(
@@ -180,7 +249,8 @@ class OutputController
                 'paymentOpt' => $paymentOpt,
                 'art' => $art,
                 'machine' => $machine,
-                'status' => $status
+                'status' => $status,
+                'calculationFields' => $calculationField,
             ));
         }  
     echo $output;
@@ -190,11 +260,11 @@ class OutputController
     public function renderListe($user, $result, $params) { //$params może być null
         $this->user = $user;
         $status = $this->helper->getStatusList();
-        if (isset($params['begin'])) {
+        if (isset($params['begin']) && $params['begin'] != '') {
             $begin = explode("/", $params['begin']);
             $params['begin'] = $begin[1].'/'.$begin[0].'/'.$begin[2];
         }
-        if (isset($params['endDate'])) {
+        if (isset($params['endDate']) && $params['endDate'] != '') {
             $begin = explode("/", $params['endDate']);
             $params['endDate'] = $begin[1].'/'.$begin[0].'/'.$begin[2];
         }

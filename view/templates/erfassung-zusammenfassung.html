@@ -1,7 +1,7 @@
 <div id="zusammenfassungTable">
     <div class="row">
         <div class="col-sm-12 form-horizontal gray-form mrb-20">
-            <form action="">
+            <form id="newProjectForm" action="index.php" method="post">
                 <div class="form-group mrt" id="auftraggeberDiv">
                     <label for="auftraggeber" id="auftraggeberLabel" class="col-sm-3 control-label">Auftraggeber</label>
                     <div class="col-sm-6">
@@ -13,8 +13,8 @@
                         </div>
                     </div>    
                     <div class="col-sm-3">
-                        <button type="button" class="btn btn-primary fl-right">Bearbeiten</button>                                             
-                        <button type="button" class="btn btn-primary fl-right mrr-8">Neu</button>
+                        <button type="button" class="btn btn-primary fl-right" data-toggle="modal" data-target="#changeClientPopup" data-head="@mdo" style="margin-left: 5px;">Bearbeiten</button>                                             
+                        <button type="button" class="btn btn-primary fl-right" data-toggle="modal" data-target="#newClientPopup" data-head="@mdo">Neu</button>
                     </div>                                        
                 </div>
                 <div class="form-group" id="ansprechpartnerDiv">
@@ -22,7 +22,7 @@
                     <div class="col-sm-6">
                         <div class="input-group">
                             <div class="input-group-addon"><i class="fa fa-search"></i></div>                                            
-                            <input type="text" name="ansprechpartner" id="ansprechpartner-{{ dates.projectId }}" class="form-control" placeholder="Suchen Sie einen Ansprechpartner aus" value="{% if seller.name %}{{ seller.name }} {{ seller.vorname }}{% endif %}" {% if customer.name %}{% else %} disabled="disabled" {% endif %} />
+                            <input type="text" name="ansprechpartnerBasic" id="ansprechpartner<>{{ dates.projectId }}" class="form-control" placeholder="Suchen Sie einen Ansprechpartner aus" value="{% if seller.name %}{{ seller.name }} {{ seller.vorname }}{% endif %}" {% if customer.name %}{% else %} disabled="disabled" {% endif %} />
                         </div>
                     </div>                                      
                 </div>  
@@ -31,14 +31,14 @@
                     <div class="col-sm-6">
                         <div class="input-group">
                             <div class="input-group-addon"><i class="fa fa-search"></i></div>                                            
-                            <input type="text" name="rechnungsadresse" id="rechnungsadresse-{{ dates.projectId }}" class="form-control" placeholder="Suchen Sie eine Rechnungsadresse aus" value="{% if address.name %}{{ address.name }}: {{ address.abteilung }}{% endif %}" {% if customer.name %}{% else %} disabled="disabled" {% endif %} >
+                            <input type="text" name="rechnungsadresseBasic" id="rechnungsadresse<>{{ dates.projectId }}" class="form-control" placeholder="Suchen Sie eine Rechnungsadresse aus" value="{% if address.name %}{{ address.name }}: {{ address.abteilung }}{% endif %}" {% if customer.name %}{% else %} disabled="disabled" {% endif %} >
                         </div>
                     </div>                                      
                 </div>   
                 <div class="form-group">
-                    <label for="kundenauftragsnummer" class="col-sm-3 control-label">Kundenauftragsnummer</label>
+                    <label for="kundenauftragsnummer" class="col-sm-3 control-label ">Kundenauftragsnummer</label>
                     <div class="col-sm-6">                                        
-                        <input type="text" name="kundenauftragsnummer" id="kundenauftragsnummer" class="form-control" placeholder="" value="{% if dates %}{{ dates.kundenNummer }}{% endif %}">
+                        <input type="text" name="kundenauftragsnummer" id="kundenauftragsnummer" class="form-control singleDateToChange" placeholder="" value="{% if dates %}{{ dates.kundenNummer }}{% endif %}">
                     </div>                                      
                 </div>        
                 <div class="form-group">
@@ -55,7 +55,7 @@
                         </div> 
                     </div> 
                     <div class="col-sm-3"> 
-                        <select name="individual_payment" id="individual_payment-{{ dates.projectId }}" class="form-control selectpicker" {% if dates.payment %}{% else %} disabled="disabled" {% endif %}>
+                        <select name="individual_payment" id="individual_payment" class="form-control selectpicker dateToUpdate" {% if dates.payment %}{% else %} disabled="disabled" {% endif %}>
                             <option class="singleTarget" value="{% if dates.payment %}{{ dates.payment }}{% endif %}">{% if dates.payment %}{{ dates.payment_name }}{% else %}Bitte wählen{% endif %}</option>
                             {% for single in paymentOpt %}
                             {% if single.name != dates.payment_name %}
@@ -79,19 +79,19 @@
                         </div> 
                     </div> 
                     <div class="col-sm-3 form-inline" id="skontoDiv"> 
-                        <input type="text" name="individual_skonto" id="individual_skonto-{{ dates.projectId }}" class="form-control" placeholder="Prozent" value="{% if dates.skonto %}{{ dates.skonto }}{% endif %}" size="3" {% if dates.skonto %}{% else %} disabled="disabled" {% endif %} >
+                        <input type="text" name="individual_skonto" id="individual_skonto" class="form-control singleDateToChange" placeholder="Prozent" value="{% if dates.skonto %}{{ dates.skonto }}{% endif %}" size="3" {% if dates.skonto %}{% else %} disabled="disabled" {% endif %} >
                     </div>                                   
                 </div> 
                 <div class="form-group">
                     <label for="muster" class="col-sm-3 control-label">Muster in Tasche</label>
-                    <div class="col-sm-6 form-inline">                                   
-                        <input type="text" name="pattern" id="pattern-{{ dates.projectId }}" class="form-control" placeholder="" value="{% if patterns %}{{ patterns.pattern }}{% endif %}" size="3" style="text-align: center;">
+                    <div class="col-sm-6 form-inline" id="patternDiv">                                   
+                        <input type="text" name="pattern" id="pattern" class="form-control singleDateToChange" placeholder="" value="{% if patterns %}{{ patterns.pattern }}{% endif %}" size="3" style="text-align: center;">
                     </div>                                      
                 </div>
                 <div class="form-group">
                     <label for="stuck" class="col-sm-3 control-label">Stück Muster an</label>
                     <div class="col-sm-9">                                   
-                        <input type="text" name="pattern_to" id="pattern_to-{{ dates.projectId }}" class="form-control" placeholder="" value="{% if patterns %}{{ patterns.patternTo }}{% endif %}">
+                        <input type="text" name="pattern_to" id="pattern_to" class="form-control singleDateToChange" placeholder="" value="{% if patterns %}{{ patterns.patternTo }}{% endif %}">
                     </div>                                      
                 </div>     
                 <div class="form-group">
@@ -99,7 +99,7 @@
                     <div class="col-sm-9 form-inline">  
                      {% for singleCarrier in carrierList %}
                      <div class="radio">
-                        <input name="lieferant_id" id="lieferant_id-{{ dates.projectId }}" type="radio" value="{{ singleCarrier.id}}" {% if carrier %}{% if singleCarrier.id == carrier.id %} 
+                        <input name="lieferant_id" id="lieferant_id" class="dateToUpdate" type="radio" value="{{ singleCarrier.id}}" {% if carrier %}{% if singleCarrier.id == carrier.id %} 
                         checked="checked" {% endif %}{% endif %} >
                         <label for="lieferung_tv">
                             {% if singleCarrier %}{{ singleCarrier.name }}{% endif %}
@@ -114,32 +114,32 @@
                         <div class="col-sm-12 form-inline">
                             <label class="control-label">Bemerk. auf</label>
                             <div class="checkbox">
-                                <input id="bemerkung_an" name="bemerkung_an" type="checkbox">
-                                <label for="bemerkung_an">
+                                <input class="descCheckbox" id="desc1_an" name="desc1_an" type="checkbox" {% if dates.bemerkung.firstAn == 0 %}{% else %} checked="checked" {% endif %}>
+                                <label for="desc1_an">
                                     AN
                                 </label>
                             </div> 
                             <div class="checkbox">
-                                <input id="bemerkung_au" name="bemerkung_au" type="checkbox">
-                                <label for="bemerkung_au">
+                                <input class="descCheckbox" id="desc1_au" name="desc1_au" type="checkbox" {% if dates.bemerkung.firstAu == 0 %}{% else %} checked="checked" {% endif %}>
+                                <label for="desc1_au">
                                     AU
                                 </label>
                             </div>  
                             <div class="checkbox">
-                                <input id="bemerkung_pm" name="bemerkung_pm" type="checkbox">
-                                <label for="bemerkung_pm">
+                                <input class="descCheckbox" id="desc1_pm" name="desc1_pm" type="checkbox" {% if dates.bemerkung.firstPm == 0 %}{% else %} checked="checked" {% endif %}>
+                                <label for="desc1_pm">
                                     PM
                                 </label>
                             </div> 
                             <div class="checkbox">
-                                <input id="bemerkung_li" name="bemerkung_li" type="checkbox">
-                                <label for="bemerkung_li">
+                                <input class="descCheckbox" id="desc1_li" name="desc1_li" type="checkbox" {% if dates.bemerkung.firstLi == 0 %}{% else %} checked="checked" {% endif %}>
+                                <label for="desc1_li">
                                     LI
                                 </label>
                             </div>  
                             <div class="checkbox">
-                                <input id="bemerkung_re" name="bemerkung_re" type="checkbox">
-                                <label for="bemerkung_re">
+                                <input class="descCheckbox" id="desc1_re" name="desc1_re" type="checkbox" {% if dates.bemerkung.firstRe == 0 %}{% else %} checked="checked" {% endif %}>
+                                <label for="desc1_re">
                                     RE
                                 </label>
                             </div>                                                     
@@ -147,16 +147,16 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-12">
-                            <textarea class="form-control mrt-10" rows="6" placeholder="Vorstufe - Bemerkungen welche der Kunde auf Angebot und Rechnung sieht"></textarea>
+                            <textarea class="form-control mrt-10 descTextarea" id="desc1" rows="6" placeholder="Vorstufe - Bemerkungen welche der Kunde auf Angebot und Rechnung sieht">{% if dates.bemerkung.first %}{{ dates.bemerkung.first }}{% endif %}</textarea>
                         </div>
                     </div>                                            
                 </div>
                 <div class="col-sm-6">
                     <label class="control-label" for="bemerkungen">Bemerkungen (Intern)</label>
-                    <textarea class="form-control mrt-10" id="bemerkungen" rows="6" placeholder="Freitext für interne Bemerkungen"></textarea>
+                    <textarea class="form-control mrt-10 descIntern" id="desc5" rows="6" placeholder="Freitext für interne Bemerkungen">{% if dates.bemerkung.fifth %}{{ dates.bemerkung.fifth }}{% endif %}</textarea>
                 </div>                           
             </div>                                 
-        </form>
+
     </div>                       
 </div>
 </div>

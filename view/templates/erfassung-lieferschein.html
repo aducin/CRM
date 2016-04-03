@@ -1,18 +1,34 @@
+<style>
+	::-webkit-input-placeholder {
+		text-align: justify;
+	}
+
+	:-moz-placeholder { /* Firefox 18- */
+		text-align: justify;
+	}
+
+	::-moz-placeholder {  /* Firefox 19+ */
+		text-align: justify;
+	}
+
+	:-ms-input-placeholder {  
+		text-align: justify;
+	}
+</style>
 <div id="lieferscheinTable" style="display: none">
 	<div class="row">
 		<div class="col-sm-12 form-horizontal gray-form mrb-20">
-			<form action="">
 				<div class="form-group mrt">
 					<label for="status" class="col-sm-3 control-label">Lieferung an</label>
 					<div class="col-sm-6 form-inline">
 						<div class="radio">
-							<input id="adresse_auftragsgeber" name="lieferung" type="radio">
-							<label for="adresse_auftragsgeber">
+							<input id="abweichend" class="dateToUpdate" name="lieferung" value="0" type="radio" {% if dates.delivery.ifOtherAddress == 0 %} checked="checked" {% endif %}>
+							<label for="abweichend">
 								Adresse Auftragsgeber
 							</label>
 						</div> 
 						<div class="radio">
-							<input id="abweichend" name="lieferung" type="radio" checked="checked">
+							<input id="abweichend" class="dateToUpdate" name="lieferung" value="1" type="radio"{% if dates.delivery.ifOtherAddress == 1 %} checked="checked" {% endif %}>
 							<label for="abweichend">
 								abweichend
 							</label>
@@ -22,19 +38,19 @@
 				<div class="form-group mrt">
 					<div class="col-sm-6">
 						<label class="control-label" for="lieferschein_positionstext">Lieferschein Positionstext</label>
-						<textarea class="form-control mrt-10" name="lieferschein_positionstext" id="lieferschein_positionstext" rows="11" placeholder="Freitext für interne Bemerkungen">70 Stück Dies&#13;&#10;l80 Stück das&#13;&#10;&#13;&#10;&#13;&#10;FREITEXT welcher im Formular Lieferschein&#13;&#10;als Positionstext ausgegeben wird.</textarea>
+						<textarea class="form-control mrt-10 singleDateToChange" name="lieferschein_text" id="lieferschein_text" rows="11" placeholder="FREITEXT welcher im Formular Lieferschein als Positionstext ausgegeben wird.">{{ dates.delivery.text }}</textarea>
 					</div>
 					<div class="col-sm-6">
 						<label class="control-label" for="lieferadresse_abweichend">Lieferadresse abweichend</label>
-						<textarea class="form-control mrt-10" id="lieferadresse_abweichend" name="lieferadresse_abweichend" rows="11" placeholder="Freitext für interne Bemerkungen">Musterfirma GmbH&#13;&#10;Demostraße 19&#13;&#10;94554 Musterhausen&#13;&#10;&#13;&#10;FREITEXT welcher im Adressfeld ausgegeben&#13;&#10;wird, wenn oben bei "Lieferung an" "abweichend" gewählt wurde</textarea>
+						<textarea class="form-control mrt-10 singleDateToChange" id="lieferadresse_ab" name="lieferadresse_ab" rows="11" placeholder='FREITEXT welcher im Adressfeld ausgegeben wird, wenn oben bei "Lieferung an" "abweichend" gewählt wurde.' {% if dates.delivery.ifOtherAddress == 0 %} disabled="disabled" {% endif %} >{{ dates.delivery.otherAddress }}</textarea>
 					</div>                           
 				</div>                                
 				<div class="form-group mrt">
 					<div class="col-sm-12">
 						<label class="control-label" for="Lieferanweisung_intern">Lieferanweisung intern</label>
-						<textarea class="form-control mrt-10" id="Lieferanweisung_intern" name="Lieferanweisung_intern" rows="13" placeholder="Freitext für interne Bemerkungen"></textarea>
+						<textarea class="form-control mrt-10 singleDateToChange" id="lieferanweisung" name="lieferanweisung" rows="13" placeholder="Freitext für interne Bemerkungen">{{ dates.delivery.notes }}</textarea>
 					</div>                           
-				</div>                                 
+				</div>  
 			</form>
 		</div>                       
 	</div> 

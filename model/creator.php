@@ -33,9 +33,15 @@ class TvsatzCreator implements creator{
             case 'auftragszettel':
                 return new Auftragszettel($this->dbHandler, $data);
                 break;
+            case 'bemerkung':
+                return new Bemerkung($this->dbHandler);
+                break;     
             case 'benutzer':
                 return new Benutzer($this->dbHandler, $data);
                 break;
+            case 'calculation':
+                return new Project_Calculation($this->dbHandler);
+                break;  
             case 'Drucksache':
                 return new Drucksache($this->dbHandler, $item);
                 break;

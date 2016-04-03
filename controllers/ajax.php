@@ -16,6 +16,15 @@ class Ajax
 		if( isset($_POST['concrete'] )) {
 			$action = $_POST['concrete'];
 			$value = $_POST['value'];
+			if (isset($_POST['singleAction'])) {
+			    $single = $_POST['singleAction'];
+			    if(!isset($_POST['object'])) {
+				$this->$action($single, $value);
+			    }
+			    $object = $_POST['object'];
+			    $this->$action($single, $object, $value);
+			    exit();
+			}
 		} elseif ( isset($_GET['concrete'] )) {
 			$action = $_GET['concrete'];
 			$value = $_GET['value'];
@@ -33,6 +42,14 @@ class Ajax
     	echo $result;
     }
 
+    private function amount($value) {
+    	$table = explode('-', $value);
+    	$table = $table[0];
+    	$object = $this->creator->createProduct($table);
+    	$value = $object->getTotalAmount($value);
+    	echo $value;
+    }
+
     private function changePassword($value) {
     	if ($value[1] != $value[2]) {
     		$error = 'Beide Passwörter sind nicht wesensgleich!';
@@ -46,12 +63,22 @@ class Ajax
     		$this->user = $this->creator->createProduct('benutzer');
     		$user = $this->user->checkByToken( $value[3], $value[0] );
     		$this->user->saveNewPassword($user['id'], $password);
-            $data = array(
+		$data = array(
 	      		'success' => 'true',
 	      		'name' => $user['name']
 	   		);
     		echo json_encode($data);
     	}
+    }
+    
+    private function clientOption($value, $dates) {
+	$explode = explode('<>', $dates);
+	$table = $explode[0];
+	$column = $explode[1];
+	$rowId = $explode[2];
+	$object = $this->creator->createProduct($table);
+	$success = $object->updateRow($column, $rowId, $value);
+	echo $success; exit();
     }
 
     private function clientSearch($value) {
@@ -62,30 +89,80 @@ class Ajax
     	$this->searchResult('auftraggeber', $value, 'single');
     }
     
-    private function dates($value) {
-	$values = explode('-', $value);
-	$column = $values[0];
-	$projectId = $values[1];
-	$insert = explode('/', $values[2]);
-	if(isset($insert[1])) {
-	    $date = $insert[2].'-'.$insert[1].'-'.$insert[0];
-	} else {
-	    $date = $insert[0];
-	}
-	$project = $this->creator->createProduct('projekt');
-	$success = $project->updateDate($projectId, $column, $date);
-	echo $success;
+    private function config($single, $object, $value) {
+	$helper = $this->creator->createProduct('helpers');
+	$result = $helper->$single($object, $value);
+	echo $result;
+    }
+    /*
+    private function dates($date, $path) {
+        if (is_array($path)) {
+            $values = $path;
+        } else {
+            $values = explode('<>', $path);
+        }
+        $column = $values[0];
+        $projectId = $values[1];
+        if ($column != 'kundenauftragsnummer') {
+            $insert = explode('/', $date);
+            if(isset($insert[1])) {
+                $date = $insert[2].'-'.$insert[1].'-'.$insert[0];
+            } else {
+                $date = $insert[0];
+            }
+        }
+        if ($column == 'Rechnungsadressen') {
+            $object = $this->creator->createProduct('rechnungsadresse');
+            $success = $object->$date($values);
+        } elseif ($column == 'Ansprechpartner') {
+            $object = $this->creator->createProduct('ansprechpartner');
+            $success = $object->$date($values);
+        }else {
+           $project = $this->creator->createProduct('projekt');
+           $success = $project->updateDate($projectId, $column, $date);
+        }
+        echo $success; exit();
+    }
+  */
+  
+    private function dates($date, $path) {
+        if (is_array($path)) {
+            $values = $path;
+        } else {
+            $values = explode('<>', $path);
+            $insert = explode('/', $date);
+            if(isset($insert[1])) {
+                $date = $insert[2].'-'.$insert[1].'-'.$insert[0];
+            } else {
+                $date = $insert[0];
+            }
+        }
+        $column = $values[0];
+        $projectId = $values[1];
+        if ($column == 'Rechnungsadressen') {
+            $object = $this->creator->createProduct('rechnungsadresse');
+            $success = $object->$date($values);
+        } elseif ($column == 'Ansprechpartner') {
+            $object = $this->creator->createProduct('ansprechpartner');
+            $success = $object->$date($values);
+        } elseif ($column == 'Project_Calculation') {
+            $object = $this->creator->createProduct('calculation');
+            $success = $object->$date($values);
+        } else {
+           $project = $this->creator->createProduct('projekt');
+           $success = $project->updateDate($projectId, $column, $date);
+        }
+        echo $success; exit();
     }
     
-    public function drucksache($value) {
-	$values = explode('-', $value);
-	$origin = $values[0];
-	$rowId = $values[1];
-	$column = $values[2];
-	$value = $values[3];
-	$table = $this->creator->createProduct($origin);
-	$result = $table->row($origin, $rowId, $column, $value);
-	echo $result;
+    private function description($value) {
+    	$bemerkung = $this->creator->createProduct('bemerkung');
+    	$action = $bemerkung->update($value);
+    	echo $action;
+    }
+    
+    private function employeeSearchByName($value) {
+    	$this->searchResult('ansprechpartner', $value, 'single');
     }
 
     private function employeeSearch($value) {
@@ -101,14 +178,14 @@ class Ajax
 		require($this->path."/vendor/phpmailer/class.phpmailer.php");
 		require_once($this->path."/vendor/phpmailer/class.smtp.php");
 		$dbHandler = $this->getDbHandler();
-		$url = Helpers::getSettings('second host').'index.php?token='.$result['token'];
+		$url = Helpers::getSettings('secondHost').'index.php?token='.$result['token'];
 		$subject = 'Passwort ändern';
 		$message = "=?UTF-8?B?".base64_encode("Passwort ändern")."?=";
 		$message ="";
 		$message.='<p>Hallo '.$name.',</p>';
 		$message.='<p>Klicken Sie bitte hier: <a href = "'.$url.'">'.$url.'</a> um Ihr Passwort zu ändern.</p>';
 		$message.='<p>Mit Grüßen,<br />
-		    '.Helpers::getSettings('portal_name', $dbHandler).' Team</p>';
+		    '.Helpers::getSettings('portal_name').' Team</p>';
 		$message.='<p>Dieser Bericht wurde automatisch erstellt. Sie müssen darauf nicht antworten.</p>';
 		
 		$this->headers = 'MIME-Version: 1.0' . "\r\n";
@@ -167,6 +244,35 @@ class Ajax
 	echo $success;
     }
   */
+    private function newClient($value) {
+        $client = $this->creator->createProduct( 'auftraggeber' );
+        $success = $client->setCustomDates($value);
+        echo $success;
+    }
+
+    private function row($value) {
+    	$task = explode('-', $value);
+    	$action = $task[0];
+    	$table = $task[1];
+    	$data = $task[2];
+    	$object = $this->creator->createProduct( $table );
+    	if ($action == 'delete') {
+    		$success = $object->deleteSql( $data );
+    		echo $success;
+    	} elseif ($action == 'insert') {
+    		$success = $object->insertSql( $data );
+    		echo $success;
+    	}
+    }
+
+    private function rowClone($value) {
+		$object = $this->creator->createProduct('Drucksache');
+		$data = $object->getById($value);
+		$object->save($data[0]);
+		$result = $object->getLastId($data[0]);
+	    	echo $result;
+    }
+
     private function searchResult($name, $value, $single = null) {
     	$object = $this->creator->createProduct($name);
     	$result = $object->searchByName($value);
@@ -183,6 +289,14 @@ class Ajax
 	        echo json_encode($result);
     	}
     }
+
+    private function select($value) {
+    	$table = explode('-', $value);
+    	$table = $table[0];
+    	$helper = $this->creator->createProduct('helpers');
+    	$value = $helper->getSingleSelect($value);
+    	echo $value;
+    }
     /*
     private function status($value) {
 	$values = explode('-', $value);
@@ -191,4 +305,18 @@ class Ajax
 	echo $success;
     }
     */
+
+    public function tableUpdate($value) {
+    	$values = explode('-', $value);
+    	$origin = $values[0];
+    	$rowId = $values[1];
+    	$column = $values[2];
+    	$value = $values[3];
+    	if ($column == 'textDate' || $column == 'performanceTime') {
+    		$value = str_replace('/', '-', $value);
+    	}
+    	$table = $this->creator->createProduct($origin);
+    	$result = $table->row($origin, $rowId, $column, $value);
+    	echo $result;
+    }
 }

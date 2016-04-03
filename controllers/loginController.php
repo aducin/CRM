@@ -22,6 +22,8 @@ class LoginController
 
     private function logout() {
     	unset($_SESSION['log']);
+        unset($_SESSION['user']);
+        unset($_SESSION['projectId']);
         $this->output = new OutputController($this->dbHandler);
         $this->output->renderLoginPage();
     }

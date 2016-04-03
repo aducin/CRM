@@ -14,11 +14,10 @@
             <div class="row">
                 <div class="col-sm-12 col-md-9">
                     <div class="row">
-                        <form class="col-sm-12 form-horizontal search-form">
+                        <form class="col-sm-12 form-horizontal search-form" id="newProjectForm" action="index.php" method="post">
                             {% block innerList %}
                                 {% include 'innerList.html' %}
                             {% endblock %}
-                        </form>
                     </div>
                     <div class="row">
                         <div class="col-sm-12">
@@ -27,7 +26,11 @@
                                 <li role="presentation" class="liTable" id="vorstufeId"><a href="#" id="vorstufeHref">Vorstufe</a></li>
                                 <li role="presentation" class="liTable" id="drucksachenId"><a href="#" id="drucksachenHref">Drucksachen</a></li>
                                 <li role="presentation" class="liTable" id="fremdarbeitenId"><a href="#" id="fremdarbeitenHref">Fremdarbeiten</a></li>
-                                <li role="presentation" class="liTable" id="kalkulationId"><a href="#" id="kalkulationHref">Kalkulation</a></li>
+                                <li role="presentation" class="liTable" id="kalkulationId" >{% if user == 1 %}
+                                <a href="#"  id="kalkulationHref" >Kalkulation</a>
+                                {% else %}
+                                <a href="#"  id="kalkulationNotAllowed">Kalkulation</a>
+                                {% endif %}</li>
                                 <li role="presentation" class="liTable" id="lieferscheinId"><a href="#" id="lieferscheinHref">Lieferschein</a></li>
                                 <li role="presentation" class="liTable" id="akteId"><a href="#" id="akteHref">Akte</a></li>
                             </ul>  
@@ -42,10 +45,9 @@
                     {% include 'erfassung-akte.html' %}
                 </div>
                 <div class="col-sm-12 col-md-3">
-                    <form action="">
                         <div class="row">
                             <div class="col-sm-12">
-                                <button type="button" class="btn btn-primary fl-right">Speichern</button>        
+                                <button type="button" class="btn btn-primary fl-right" id="saveProjectButton">Speichern</button>        
                             </div>
                         </div>                
                         <div class="row">
@@ -73,6 +75,9 @@
         </div>
     </div>
 </div><!-- /container -->
+{% include 'popup.html' %}
+
+
 {% endblock %}
 
 {% block otherScript %}
@@ -81,7 +86,8 @@
 
 $( document ).ready(function() {
 
-    $( "#zusammenfassungHref" ).click(function() {
+    $( "#zusammenfassungHref" ).click(function($e) {
+    $e.preventDefault();
         $( '.liTable' ).removeClass( 'active' );
         $( '#vorstufeTable' ).hide();
         $( '#drucksachenTable' ).hide();
@@ -93,7 +99,8 @@ $( document ).ready(function() {
         $( '#zusammenfassungId' ).addClass( 'active' );
     });
 
-    $( "#vorstufeHref" ).click(function() {
+    $( "#vorstufeHref" ).click(function($e) {
+    $e.preventDefault();
         $( '.liTable' ).removeClass( 'active' );
         $( '#zusammenfassungTable' ).hide();
         $( '#drucksachenTable' ).hide();
@@ -105,7 +112,8 @@ $( document ).ready(function() {
         $( '#vorstufeId' ).addClass( 'active' );
     });
 
-    $( "#drucksachenHref" ).click(function() {
+    $( "#drucksachenHref" ).click(function($e) {
+    $e.preventDefault();
         $( '.liTable' ).removeClass( 'active' );
         $( '#zusammenfassungTable' ).hide();
         $( '#vorstufeTable' ).hide();
@@ -117,7 +125,8 @@ $( document ).ready(function() {
         $( '#drucksachenId' ).addClass( 'active' );
     });
 
-    $( "#fremdarbeitenHref" ).click(function() {
+    $( "#fremdarbeitenHref" ).click(function($e) {
+    $e.preventDefault();
         $( '.liTable' ).removeClass( 'active' );
         $( '#zusammenfassungTable' ).hide();
         $( '#vorstufeTable' ).hide();
@@ -129,7 +138,8 @@ $( document ).ready(function() {
         $( '#fremdarbeitenId' ).addClass( 'active' );
     });
     
-    $( "#kalkulationHref" ).click(function() {
+    $( "#kalkulationHref" ).click(function($e) {
+    $e.preventDefault();
         $( '.liTable' ).removeClass( 'active' );
         $( '#zusammenfassungTable' ).hide();
         $( '#vorstufeTable' ).hide();
@@ -141,7 +151,16 @@ $( document ).ready(function() {
         $( '#kalkulationId' ).addClass( 'active' );
     });
     
-    $( "#lieferscheinHref" ).click(function() {
+    $( "#kalkulationNotAllowed" ).mouseover(function() {
+        $(this).css('cursor', 'not-allowed');
+    });
+    
+    $( "#kalkulationNotAllowed" ).click(function($e) {
+        $e.preventDefault();
+    });
+    
+    $( "#lieferscheinHref" ).click(function($e) {
+    $e.preventDefault();
         $( '.liTable' ).removeClass( 'active' );
         $( '#zusammenfassungTable' ).hide();
         $( '#vorstufeTable' ).hide();
@@ -153,7 +172,8 @@ $( document ).ready(function() {
         $( '#lieferscheinId' ).addClass( 'active' );
     });
     
-    $( "#akteHref" ).click(function() {
+    $( "#akteHref" ).click(function($e) {
+    $e.preventDefault();
         $( '.liTable' ).removeClass( 'active' );
         $( '#zusammenfassungTable' ).hide();
         $( '#vorstufeTable' ).hide();
@@ -163,6 +183,10 @@ $( document ).ready(function() {
         $( '#lieferscheinTable' ).hide();
         $( '#akteTable' ).show();
         $( '#akteId' ).addClass( 'active' );
+    });
+    
+    $( "#saveProjectButton" ).click(function() {
+	$( "#newProjectForm" ).submit();
     });
 });
 
@@ -175,4 +199,5 @@ $( document ).ready(function() {
   <script src="{{ path }}assets/js/vorstufe.js"></script>
   <script src="{{ path }}assets/js/drucksachen.js"></script>
   <script src="{{ path }}assets/js/fremdarbeiten.js"></script>
+  <script src="{{ path }}assets/js/popup.js"></script>
 {% endblock %}
