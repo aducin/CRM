@@ -14,7 +14,7 @@
             <div class="row">
                 <div class="col-sm-12 col-md-9">
                     <div class="row">
-                        <form class="col-sm-12 form-horizontal search-form" id="newProjectForm" action="index.php" method="post">
+                        <form class="col-sm-12 form-horizontal search-form" id="newProjectForm" action="NewProject" method="post">
                             {% block innerList %}
                                 {% include 'innerList.html' %}
                             {% endblock %}
@@ -47,9 +47,14 @@
                 <div class="col-sm-12 col-md-3">
                         <div class="row">
                             <div class="col-sm-12">
-                                <button type="button" class="btn btn-primary fl-right" id="saveProjectButton">Speichern</button>        
+				{% if dates.projectId %}
+				    <br>
+				    <br>
+				{% else %}
+				    <button type="button" class="btn btn-primary fl-right" id="saveProjectButton">Speichern</button> 
+				{% endif %}
                             </div>
-                        </div>                
+                        </div> 
                         <div class="row">
                             <div class="col-sm-12 processed-list">
                                 <ul class="list-group">
@@ -183,10 +188,6 @@ $( document ).ready(function() {
         $( '#lieferscheinTable' ).hide();
         $( '#akteTable' ).show();
         $( '#akteId' ).addClass( 'active' );
-    });
-    
-    $( "#saveProjectButton" ).click(function() {
-	$( "#newProjectForm" ).submit();
     });
 });
 

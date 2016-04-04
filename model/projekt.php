@@ -288,6 +288,27 @@ class Projekt
 		$result = array($this->vorstufe, $this->amendmentTime, $this->dateTime, $this->proofTime);
 		return $result;
 	}
+	
+	public function insertNewProject() {
+	      $sql = 'INSERT INTO Projekt (name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner) VALUES
+	      (:name, :kundenauftragsnummer, :auftraggeber, :rechnungsadresse, :ansprechpartner)';
+	      $result=$this->dbHandler->prepare($sql);
+	      $result->bindValue(':name', $_POST['projektname']);
+	      $result->bindValue(':kundenauftragsnummer', $_POST['kundenauftragsnummer']);
+	      $result->bindValue(':auftraggeber', $_POST['clientId']);
+	      $result->bindValue(':rechnungsadresse', $_POST['personId']);
+	      $result->bindValue(':ansprechpartner', $_POST['addressId']);
+	      if ($result->execute()) {
+			$this->id = $this->getLastIdValue();
+			$path = explode('/',$_SERVER["REQUEST_URI"]);
+			$finalPath = '/'.$path[1].'/Erfassung/'.$this->id;
+			$_SESSION['projectId'] = $this->id;
+			header( 'Location:'.$finalPath );
+		} else {
+			$this->error = 'no project created';
+			return error;
+		}
+	}
 
 	private function insertProject($client, $employee, $address) {
 		$amendment = explode('/', $this->amendmentTime); 

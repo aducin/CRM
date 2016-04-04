@@ -2,14 +2,22 @@
     <div class="row">
         <div class="col-sm-12 form-horizontal gray-form mrb-20">
             <form id="newProjectForm" action="index.php" method="post">
-                <div class="form-group mrt" id="auftraggeberDiv">
+                <div class="form-group mrt clientDiv errorNewProjectDiv" id="auftraggeberDiv">
                     <label for="auftraggeber" id="auftraggeberLabel" class="col-sm-3 control-label">Auftraggeber</label>
                     <div class="col-sm-6">
                         <div class="input-group">
                             <div class="input-group-addon"><i class="fa fa-search"></i></div>                                            
-                            <input type="text" name="auftraggeber" id="auftraggeberId" class="form-control" placeholder="Suchen Sie einen Auftraggeber aus" value="{% if customer %}{{ customer.name }}{% endif %}" />
-                            <input type="hidden" id="hiddenProjectId" value="{{ dates.projectId }}" >
+                            <input type="text" name="auftraggeber" id="{{ customer.id }}" class="form-control" placeholder="Suchen Sie einen Auftraggeber aus" value="{% if customer %}{{ customer.name }}{% endif %}" />
+                        </div>
+                        <div>
+			  {% if dates.projectId %}
+			    <input type="hidden" id="hiddenProjectId" value="{{ dates.projectId }}" >
                             <input type="hidden" id="hiddenCustomerName" value="{{ customer.name }}" >
+                           {% else %}
+			    <input type="hidden" id="newProjectClient" name="clientId" value="" />
+			    <input type="hidden" id="newProjectPerson" name="personId" value="" />
+			    <input type="hidden" id="newProjectAddress" name="addressId" value="" />
+			  {% endif %}
                         </div>
                     </div>    
                     <div class="col-sm-3">
@@ -17,27 +25,27 @@
                         <button type="button" class="btn btn-primary fl-right" data-toggle="modal" data-target="#newClientPopup" data-head="@mdo">Neu</button>
                     </div>                                        
                 </div>
-                <div class="form-group" id="ansprechpartnerDiv">
+                <div class="form-group personDiv errorNewProjectDiv" id="ansprechpartnerDiv">
                     <label for="ansprechpartner" id="ansprechpartnerLabel" class="col-sm-3 control-label">Ansprechpartner</label>
                     <div class="col-sm-6">
                         <div class="input-group">
                             <div class="input-group-addon"><i class="fa fa-search"></i></div>                                            
-                            <input type="text" name="ansprechpartnerBasic" id="ansprechpartner<>{{ dates.projectId }}" class="form-control" placeholder="Suchen Sie einen Ansprechpartner aus" value="{% if seller.name %}{{ seller.name }} {{ seller.vorname }}{% endif %}" {% if customer.name %}{% else %} disabled="disabled" {% endif %} />
+                            <input type="text" name="ansprechpartnerBasic" id="{{ seller.id }}" class="form-control" placeholder="Suchen Sie einen Ansprechpartner aus" value="{% if seller.name %}{{ seller.name }} {{ seller.vorname }}{% endif %}" {% if customer.name %}{% else %} disabled="disabled" {% endif %} />
                         </div>
                     </div>                                      
                 </div>  
-                <div class="form-group" id="rechnungsadresseDiv">
+                <div class="form-group addressDiv errorNewProjectDiv" id="rechnungsadresseDiv">
                     <label for="rechnungsadresse" id="rechnungsadresseLabel" class="col-sm-3 control-label">Rechnungsadresse</label>
                     <div class="col-sm-6">
                         <div class="input-group">
                             <div class="input-group-addon"><i class="fa fa-search"></i></div>                                            
-                            <input type="text" name="rechnungsadresseBasic" id="rechnungsadresse<>{{ dates.projectId }}" class="form-control" placeholder="Suchen Sie eine Rechnungsadresse aus" value="{% if address.name %}{{ address.name }}: {{ address.abteilung }}{% endif %}" {% if customer.name %}{% else %} disabled="disabled" {% endif %} >
+                            <input type="text" name="rechnungsadresseBasic" id="{{ address.id }}" class="form-control" placeholder="Suchen Sie eine Rechnungsadresse aus" value="{% if address.name %}{{ address.name }}: {{ address.abteilung }}{% endif %}" {% if customer.name %}{% else %} disabled="disabled" {% endif %} >
                         </div>
                     </div>                                      
                 </div>   
-                <div class="form-group">
+                <div class="form-group errorNewProjectDiv" id="numberDiv">
                     <label for="kundenauftragsnummer" class="col-sm-3 control-label ">Kundenauftragsnummer</label>
-                    <div class="col-sm-6">                                        
+                    <div class="col-sm-6">                                      
                         <input type="text" name="kundenauftragsnummer" id="kundenauftragsnummer" class="form-control singleDateToChange" placeholder="" value="{% if dates %}{{ dates.kundenNummer }}{% endif %}">
                     </div>                                      
                 </div>        

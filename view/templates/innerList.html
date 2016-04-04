@@ -62,9 +62,9 @@
                 </div>                                            
             </div>                                        
         </div>  
-        <div class="form-group">
+        <div class="form-group projectDiv errorNewProjectDiv">
             <label for="status" class="col-sm-2 control-label">Projektname</label>
-            <div class="col-sm-6 mrb-20">
+            <div class="col-sm-6 mrb-20 errorNewProjectDiv">
                 <input type="text" name="projektname" id="name" class="form-control singleDateToChange" placeholder="Geben Sie die Projektname ein" value="{% if dates %}{{ dates.name }}{% endif %}">                                        
             </div>  
             {% if user == 3 %}

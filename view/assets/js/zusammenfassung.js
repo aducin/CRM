@@ -147,6 +147,46 @@ $( document ).ready(function() {
         $('.deleteBearbeitenButtonPerson').attr('id', idVal);
         $('.deleteBearbeitenButtonPerson').prop('disabled', false);
     }
+    
+    $( "#saveProjectButton" ).click(function() {
+	$( '.errorNewProjectDiv' ).removeClass('form-group has-error').addClass('form-group');
+	var name = $( 'input[name=projektname]' ).val();
+	var clientId = $( 'input[name=auftraggeber]' ).attr('id');
+	var personId = $( 'input[name=ansprechpartnerBasic]' ).attr('id');
+	var addressId = $( 'input[name=rechnungsadresseBasic]' ).attr('id');
+	var client = $( 'input[name=auftraggeber]' ).val();
+	var person = $( 'input[name=ansprechpartnerBasic]' ).val();
+	var address = $( 'input[name=rechnungsadresseBasic]' ).val();
+	var kundenauftragsnummer = $( 'input[name=kundenauftragsnummer]' ).val();
+	var error = false;
+	if (name == '') {
+	     $( '.projectDiv' ).removeClass('form-group').addClass('form-group has-error');
+	     error = true;
+	}
+	if (client == '') {
+	     $( '.clientDiv' ).removeClass('form-group').addClass('form-group has-error');
+	     error = true;
+	}
+	if (person == '') {
+	     $( '.personDiv' ).removeClass('form-group').addClass('form-group has-error');
+	     error = true;
+	}
+	if (address == '') {
+	     $( '.addressDiv' ).removeClass('form-group').addClass('form-group has-error');
+	     error = true;
+	}
+	if (kundenauftragsnummer == '') {
+	     $( '#numberDiv' ).removeClass('form-group').addClass('form-group has-error');
+	     error = true;
+	}
+	if (error == true) {
+	     return false;
+	}
+	$( '#newProjectClient' ).val(clientId);
+	$( '#newProjectPerson' ).val(personId);
+	$( '#newProjectAddress' ).val(addressId);
+	$( "#newProjectForm" ).submit();
+    });
 
     $('#invidivuell_1').change(function() {
     	if ($("#invidivuell_1").is(":checked")) {
@@ -172,7 +212,10 @@ $( document ).ready(function() {
         $( '#auftraggeberDiv' ).removeClass('form-group has-error').addClass('form-group');
         $( '#auftraggeberLabel' ).html('Auftraggeber');
 	    var clientName = $('input[name=auftraggeber]').val();
-	    if (window.location.href == "http://kluby.local/CRM/Erfassung") {
+	    if (clientName == '') {
+		return false;
+	    }
+	    if (window.location.href == urlPath) {
 	        path = "Api/Project/";
 	    } else {
 	        path = "../Api/Project/";
@@ -202,7 +245,8 @@ $( document ).ready(function() {
 						      			success: function(result)
 							    		{
 											$('input[name=ansprechpartnerBasic]').prop('disabled', false);
-											$('input[name=rechnungsadresse]').prop('disabled', false);
+											$('input[name=rechnungsadresseBasic]').prop('disabled', false);
+											$( 'input[name=auftraggeber]' ).attr('id', result);
 											var currentVal = $('#hiddenCustomerName').val();
 											if (currentVal == name) {
 												console.log('The same');
@@ -213,15 +257,16 @@ $( document ).ready(function() {
 												var projectId = 'auftraggeber<>' + $( '#hiddenProjectId' ).val();
 												changeDate(result, projectId);
 											    }
+											    var current = null;
 											    $('input[name=ansprechpartnerBasic]').val('');
-											    $('input[name=rechnungsadresse]').val('');
+											    $('input[name=rechnungsadresseBasic]').val('');
 											    if (concrete == true) {
 												var projectId = 'ansprechpartner<>' + $( '#hiddenProjectId' ).val();
-												changeDate('null', projectId);
+												changeDate(current, projectId);
 											    }
 											    if (concrete == true) {
 												var projectId = 'rechnungsadresse<>' + $( '#hiddenProjectId' ).val();
-												changeDate('null', projectId);
+												changeDate(current, projectId);
 												var timerId = setInterval(function() {
 												  if(finalResult !== null) {
 												      if(finalResult == 'success') {
@@ -278,6 +323,7 @@ $( document ).ready(function() {
 								type: "get",
 								success: function(result)
 								{
+									$('input[name=ansprechpartnerBasic]').attr('id', result);
 									if (concrete == true) {
 										var projectId = 'ansprechpartner<>' + $( '#hiddenProjectId' ).val();
 										changeDate(result, projectId);
@@ -325,6 +371,7 @@ $( document ).ready(function() {
 								type: "get",
 								success: function(result)
 								{
+									$('input[name=rechnungsadresseBasic]').attr('id', result);
 									if (concrete == true) {
 										var projectId = 'rechnungsadresse<>' + $( '#hiddenProjectId' ).val();
 										changeDate(result, projectId);
@@ -365,14 +412,14 @@ $( document ).ready(function() {
         var currentClient = $(this).val();
         if (currentClient == '') {
 	    $('input[name=ansprechpartnerBasic]').val('');
-        $('input[name=ansprechpartnerBasic]').prop('disabled', 'disabled');
+	    $('input[name=ansprechpartnerBasic]').prop('disabled', 'disabled');
 	    $('input[name=rechnungsadresseBasic]').val('');
-        $('input[name=rechnungsadresseBasic]').prop('disabled', 'disabled');
-	    var projectId = 'ansprechpartner<' + $( '#hiddenProjectId' ).val();
+	    $('input[name=rechnungsadresseBasic]').prop('disabled', 'disabled');
+	    var projectId = 'ansprechpartner<>' + $( '#hiddenProjectId' ).val();
 	    changeDate(null, projectId);
 	    var projectId = 'rechnungsadresse<>' + $( '#hiddenProjectId' ).val();
 	    changeDate(null, projectId);
-	    var projectId = 'auftraggeber<' + $( '#hiddenProjectId' ).val();
+	    var projectId = 'auftraggeber<>' + $( '#hiddenProjectId' ).val();
 	    changeDate(null, projectId);
         }
     });
@@ -453,6 +500,7 @@ $( document ).ready(function() {
     });
 
     $( '.singleDateToChange' ).blur(function() {
+	$( this ).parent().removeClass('form-group has-error').addClass('form-group');
         function isInteger(value)      
         {       
             num = value.trim();         
@@ -462,7 +510,7 @@ $( document ).ready(function() {
         var curDate = $( this ).val();
         var variable = $( this ).attr('id');
         if ( variable == 'pattern' ) {
-            $( '#patternDiv' ).removeClass('form-group has-error').addClass('form-group');
+            
             var check = isInteger(curDate);
             if (check == false) {
                 $( '#patternDiv' ).removeClass('form-group').addClass('form-group has-error');

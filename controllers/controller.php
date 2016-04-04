@@ -89,6 +89,12 @@ class Controller
         $array = array('action' => 'logout');
         $this->creator->createProduct('loginController', $array);
     }
+    
+    private function newProject() {
+	$this->project = $this->creator->createProduct('projekt');
+	$success = $this->project->insertNewProject();
+	var_dump($success); exit();
+    }
 
     private function postLogin() { 
         $array = array(
