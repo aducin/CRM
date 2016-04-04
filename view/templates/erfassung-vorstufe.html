@@ -1,7 +1,7 @@
 <div id="vorstufeTable" style="display: none"> 
     <div class="row">
         <div class="col-sm-12 form-horizontal gray-form mrb-20">
-
+	    <form class="col-sm-12 form-horizontal search-form" id="newProjectForm" action="NewProject" method="post">
                 <div class="form-group mrt">
                     <div class="col-sm-4 ">
                         <label for="termin_korrektur" class="control-label">Termin Korrektur</label>
@@ -18,7 +18,7 @@
                 </div>
                 <div class="form-group">
                     <div class="set-height">
-                        <table class="table table-striped sm-font-table">
+                        <table class="table table-striped sm-font-table" id="vorstufeMainTable">
                             <thead>
                                 <tr>
                                     <th>Art</th>
@@ -36,7 +36,7 @@
                                 {% for singleVorstufe in vorstufe.0 %}
                                 <tr class="rowsVorstufe" name="{{ singleVorstufe.id }}" id="{{ singleVorstufe.id }}">
                                     <td id="{{ singleVorstufe.id }}">
-                                        <div class="vorstufeToChange" id="type">{{ singleVorstufe.typeName }}</div>
+                                        <div class="vorstufeToChange" id="type">{% if singleVorstufe.typeName %}{{ singleVorstufe.typeName }}{% else %}<i>Keine Daten</i>{% endif %}</div>
                                         <select name="typeSelect" class="form-control vorstufeToUpdate" id="type" style="display: none;">
                                             <option id="{{ singleVorstufe.typeId }}">{{ singleVorstufe.typeName }}</option>
                                             {% for singleArt in art %}
@@ -48,11 +48,12 @@
                                         </select>
                                     </td>
                                     <td id="{{ singleVorstufe.id }}">
-                                        <div class="vorstufeToChange" id="performanceTime">{{ singleVorstufe.performanceTime }}</div>
+                                        <div class="vorstufeToChange" id="performanceTime">{% if singleVorstufe.performanceTime %}
+                                        {{ singleVorstufe.performanceTime }}{% else %}<i>Keine Daten</i>{% endif %}</div>
                                         <div class="vorstufeToUpdate" id="performanceTime" style="display: none;"><input type="text" class="form-control datepicker" size="9" placeholder="Bitte wählen" name="hiddenPerformanceTime" value="{{ singleVorstufe.performanceTime2 }}" /></div>
                                     </td>
                                     <td class="col-sm-2 col-md-2" id="{{ singleVorstufe.id }}">
-                                        <div class="vorstufeToChange" id="employee">{{ singleVorstufe.employeeName.name }}</div>
+                                        <div class="vorstufeToChange" id="employee">{% if singleVorstufe.employeeName.name %}{{ singleVorstufe.employeeName.name }}{% else %}<i>keine Daten</i>{% endif %}</div>
                                         <select  class="form-control vorstufeToUpdate" id="employee" name="hiddenMachine" style="display: none;">
                                             <option id="{{ singleVorstufe.employeeName.id }}">{{ singleVorstufe.employeeName.name }}</option>
                                             {% for employee in employees %}
@@ -64,23 +65,24 @@
                                         </select>
                                     </td>
                                     <td id="{{ singleVorstufe.id }}">
-                                        <div class="vorstufeToChange" id="description">{{ singleVorstufe.description }}</div>
+                                        <div class="vorstufeToChange" id="description">{% if singleVorstufe.description %}
+                                        {{ singleVorstufe.description }}{% else %}<i>keine Daten</i>{% endif %}</div>
                                         <div class="vorstufeToUpdate" id="description" style="display: none;"><input type="text" class="form-control" name="hiddenDescription" value="{{ singleVorstufe.description }}" /></div>
                                     </td>
                                     <td id="{{ singleVorstufe.id }}">
-                                        <div class="vorstufeToChange" id="timeProposal">{{ singleVorstufe.timeProposal }}</div>
+                                        <div class="vorstufeToChange" id="timeProposal">{% if singleVorstufe.timeProposal %}{{ singleVorstufe.timeProposal }}{% else %}<i>keine Daten</i>{% endif %}</div>
                                         <div class="vorstufeToUpdate" id="timeProposal" style="display: none;"><input type="text" class="form-control" name="hiddenTimeProposal" value="{{ singleVorstufe.timeProposal }}" /></div>
                                     </td>
                                     <td id="{{ singleVorstufe.id }}">
-                                        <div class="vorstufeToChange" id="timeReal">{{ singleVorstufe.timeReal }}</div>
+                                        <div class="vorstufeToChange" id="timeReal">{% if singleVorstufe.timeReal %}{{ singleVorstufe.timeReal }}{% else %}<i>keine Daten</i>{% endif %}</div>
                                         <div class="vorstufeToUpdate" id="timeReal" style="display: none;"><input type="text" class="form-control" name="hiddenTimeReal" value="{{ singleVorstufe.timeReal }}" /></div>
                                     </td>
                                     <td id="{{ singleVorstufe.id }}">
-                                        <div class="vorstufeToChange" id="timeSettlement">{{ singleVorstufe.timeSettlement }}</div>
+                                        <div class="vorstufeToChange" id="timeSettlement">{% if singleVorstufe.timeSettlement %}{{ singleVorstufe.timeSettlement }}{% else %}<i>keine Daten</i>{% endif %}</div>
                                         <div class="vorstufeToUpdate" id="timeSettlement" style="display: none;"><input type="text" class="form-control" name="hiddenTimeSettlement" value="{{ singleVorstufe.timeSettlement }}" /></div>
                                     </td>
                                     <td id="{{ singleVorstufe.id }}">
-                                        <div class="vorstufeToChange" id="amount">{{ singleVorstufe.amount }} EURO</div>
+                                        <div class="vorstufeToChange" id="amount">{% if singleVorstufe.amount %}{{ singleVorstufe.amount }} EURO{% else %}<i>keine Daten</i>{% endif %}</div>
                                         <div class="vorstufeToUpdate" id="amount" style="display: none;"><input type="text" class="form-control" name="hiddenAmount" value="{{ singleVorstufe.amount }}" /></div>
                                     </td>
                                     <td class="v-center">
@@ -91,7 +93,7 @@
                                     </td>
                                 </tr>
                                 {% endfor %}
-                                <tr id="hiddenTr" style="display: none;">
+                                <tr id="hiddenTrVorstufe" style="display: none;">
                                     <td>
                                         <div class="row form-group">
                                             <select name="hiddenVorstufeType" class="form-control" id="hiddenVorstufeType">
@@ -103,7 +105,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="row form-group">
+                                        <div class="row form-group vorstufeClassDiv" id="vorstufeZeroDiv">
                                             <input type="text" name="hiddenVorstufeDate" id="hiddenDate" class="form-control datepicker" size="9" placeholder="Datum" value="">
                                         </div>
                                     </td>
@@ -118,30 +120,30 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="row form-group">
+                                        <div class="row form-group vorstufeClassDiv">
                                             <input type="text" class="form-control" id="hiddenVorstufeDescription" name="hiddenVorstufeDescription" />
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="row form-group" id="vorstufeFirstAmountDiv">
+                                        <div class="row form-group vorstufeClassDiv" id="vorstufeFirstAmountDiv">
                                             <input type="text" class="form-control" id="hiddenVorstufeTimeProposal" name="hiddenVorstufeTimeProposal" />
                                             <span id="vorstufeFirstSpan" aria-hidden="true"></span>
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="row form-group" id="vorstufeSecondAmountDiv">
+                                        <div class="row form-group vorstufeClassDiv" id="vorstufeSecondAmountDiv">
                                             <input type="text" class="form-control" id="hiddenVorstufeTimeReal" name="hiddenVorstufeTimeReal" />
                                             <span id="vorstufeSecondSpan" aria-hidden="true"></span>
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="row form-group" id="vorstufeThirdAmountDiv">
+                                        <div class="row form-group vorstufeClassDiv" id="vorstufeThirdAmountDiv">
                                             <input type="text" class="form-control" id="hiddenVorstufeTimeSettlement" name="hiddenVorstufeTimeSettlement" />
                                             <span id="vorstufeThirdSpan" aria-hidden="true"></span>
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="row form-group" id="vorstufeForthAmountDiv">
+                                        <div class="row form-group vorstufeClassDiv" id="vorstufeForthAmountDiv">
                                             <input type="text" class="form-control" id="hiddenVorstufeAmount" name="hiddenVorstufeAmount" placeholder="EURO"/>
                                             <span id="vorstufeForthSpan" aria-hidden="true"></span>
                                         </div>
@@ -173,7 +175,7 @@
                     <div class="col-sm-6">
                         <div class="row">
                             <div class="col-sm-12 form-inline">
-                                <label class="control-label">Bemerk. auf</label>
+                                <label class="control-label">Bemerkung</label>
                                 <div class="checkbox">
                                     <input class="descCheckbox" id="desc2_an" name="desc2_an" type="checkbox" {% if dates.bemerkung.secondAn == 0 %}{% else %} checked="checked" {% endif %}>
                                     <label for="desc2_an">
@@ -217,7 +219,7 @@
                         <textarea class="form-control mrt-10 descIntern" id="desc6" rows="6" placeholder="Freitext für interne Bemerkungen">{% if dates.bemerkung.fifth %}{{ dates.bemerkung.fifth }}{% endif %}</textarea>
                     </div>                           
                 </div>                                 
-
+	  </form>
         </div>                       
     </div>             
 </div>

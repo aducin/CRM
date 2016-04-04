@@ -139,6 +139,15 @@ class OutputController
             $deliveryTime = $project->getDeliveryTime();
             $time = explode('-', $deliveryTime);
             $deliveryTime = $time[1].'/'.$time[2].'/'.$time[0];
+            $regDate = explode(' ', $project->getRegDate());
+            $exploded = explode('-', $regDate[0]);
+            $regDate = $exploded[2].'/'.$exploded[1].'/'.$exploded[0];
+            $changeDate = explode('-', $project->getChangeDate());
+            if ($changeDate[0] != '') {
+		$changeDate = $changeDate[2].'/'.$changeDate[1].'/'.$changeDate[0];
+            } else {
+		$changeDate = null;
+            }
             $calculation = $this->creator->createProduct('calculation');
             $calcTable = $calculation->getDates($projectId);
             $counter = 0;
@@ -148,7 +157,7 @@ class OutputController
             $fourthTable = array();
             foreach ($calculationField as $singleRow) {
 		  $field = 'checkbox'.$singleRow['id'];
-		  $calculationField[$counter]['checkbox'] = $calcTable[0][$field];
+		  $calculationField[$counter]['checkbox'] = $calcTable[$field];	  
 		  $firstTime = 'zeit_1_'.$singleRow['id'];
 		  $firstAmount = 'preis_1_'.$singleRow['id'];
 		  $secondTime = 'zeit_2_'.$singleRow['id'];
@@ -157,10 +166,10 @@ class OutputController
 		  $thirdAmount = 'preis_3_'.$singleRow['id'];
 		  $fourthTime = 'zeit_4_'.$singleRow['id'];
 		  $fourthAmount = 'preis_4_'.$singleRow['id'];
-		  $firstTable[] = array('timeId' => $firstTime, 'time' => $calcTable[0][$firstTime], 'amountId' => $firstAmount, 'amount' => $calcTable[0][$firstAmount]);
-		  $secondTable[] = array('timeId' => $secondTime, 'time' => $calcTable[0][$secondTime], 'amountId' => $secondAmount, 'amount' => $calcTable[0][$secondAmount]);
-		  $thirdTable[] = array('timeId' => $thirdTime, 'time' => $calcTable[0][$thirdTime], 'amountId' => $thirdAmount, 'amount' => $calcTable[0][$thirdAmount]);
-		  $fourthTable[] = array('timeId' => $fourthTime, 'time' => $calcTable[0][$fourthTime], 'amountId' => $fourthAmount, 'amount' => $calcTable[0][$fourthAmount]);
+		  $firstTable[] = array('timeId' => $firstTime, 'time' => $calcTable[$firstTime], 'amountId' => $firstAmount, 'amount' => $calcTable[$firstAmount]);
+		  $secondTable[] = array('timeId' => $secondTime, 'time' => $calcTable[$secondTime], 'amountId' => $secondAmount, 'amount' => $calcTable[$secondAmount]);
+		  $thirdTable[] = array('timeId' => $thirdTime, 'time' => $calcTable[$thirdTime], 'amountId' => $thirdAmount, 'amount' => $calcTable[$thirdAmount]);
+		  $fourthTable[] = array('timeId' => $fourthTime, 'time' => $calcTable[$fourthTime], 'amountId' => $fourthAmount, 'amount' => $calcTable[$fourthAmount]);
 		  $counter++;
             }
             $firstCount = 0;
@@ -182,8 +191,8 @@ class OutputController
             }
             $dates = array(
                 'name' => $project->getName(),
-                'regDate' => $regDate[0],
-                'changeDate' => $project->getChangeDate(),
+                'regDate' => $regDate,
+                'changeDate' => $changeDate,
                 'kundenNummer' => $project->getKundenautragsnummer(),
                 'mandantSelect' => $project->getMandantSelect(),
                 'vorgangsnummer' => $project->getVorgangsnummer(),
@@ -268,6 +277,7 @@ class OutputController
             $begin = explode("/", $params['endDate']);
             $params['endDate'] = $begin[1].'/'.$begin[0].'/'.$begin[2];
         }
+        //var_dump($params); exit();
         $userFunction = $this->user->getRolle();
         $output = $this->twig->render('/listeTwig.html', array(
             'root' => $this->root,

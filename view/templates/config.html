@@ -39,13 +39,13 @@
                                         {% for singleUser in users %}
 					    <tr class="rowsConfigUser" name="{{ singleUser.id }}" id="{{ singleUser.id }}">
                                                             <td id="{{ singleUser.id }}" colspan="2">
-							      <div class="configUserToChange" >{{ singleUser.name }}</div>
+							      <div class="configUserToChange" id="user">{{ singleUser.name }}</div>
 							      <div class="configUserToUpdate" id="user" style="display: none;">
 								<input type="text" class="form-control" name="hiddenUserName" id="name" value="{{ singleUser.name }}" />
 							      </div>
                                                             </td>
                                                             <td id="{{ singleUser.id }}" colspan="2">
-							      <div class="configUserToChange">{{ singleUser.rolle }}</div>
+							      <div class="configUserToChange" id="rolle_id">{{ singleUser.rolle }}</div>
 								  <div class="configUserToUpdate" id="rolle_id" style="display: none;">
 									<select class="form-control vorstufeToUpdate" name="rolle_id" value="rolle_id">
 									    <option id="{{ singleUser.id }}">{{ singleUser.rolle }}</option>
@@ -132,16 +132,10 @@
                                                     {% for singleOption in paymentOptions %}
                                                         <tr class="rowsConfigPaymentOpt" name="{{ singleOption.id }}" id="{{ singleOption.id }}">
                                                             <td id="{{ singleOption.id }}">
-							      <div class="configToChange">{{ singleOption.name }}</div>
-							      <div class="configToUpdate" style="display: none;">
-								<input type="text" class="form-control" name="hiddenConfigName" id="name" value="{{ singleOption.name }}" />
-							      </div>
+							      <div class="configToChange" id="name">{{ singleOption.name }}</div>
                                                             </td>
                                                             <td id="{{ singleOption.id }}">
-							      <div class="configToChange">{{ singleOption.beschreibung }}</div>
-								  <div class="configToUpdate" style="display: none;">
-								      <input type="text" class="form-control" name="hiddenConfigDescription" id="beschreibung" value="{{ singleOption.beschreibung }}" />
-								  </div>
+							      <div class="configToChange" id="beschreibung">{{ singleOption.beschreibung }}</div>
 							      </div>
 							     </td>
                                                         </tr>         

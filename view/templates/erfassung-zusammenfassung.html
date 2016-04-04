@@ -1,7 +1,7 @@
 <div id="zusammenfassungTable">
     <div class="row">
         <div class="col-sm-12 form-horizontal gray-form mrb-20">
-            <form id="newProjectForm" action="index.php" method="post">
+            <form class="col-sm-12 form-horizontal search-form" id="newProjectForm" action="NewProject" method="post">
                 <div class="form-group mrt clientDiv errorNewProjectDiv" id="auftraggeberDiv">
                     <label for="auftraggeber" id="auftraggeberLabel" class="col-sm-3 control-label">Auftraggeber</label>
                     <div class="col-sm-6">
@@ -155,16 +155,16 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-12">
-                            <textarea class="form-control mrt-10 descTextarea" id="desc1" rows="6" placeholder="Vorstufe - Bemerkungen welche der Kunde auf Angebot und Rechnung sieht">{% if dates.bemerkung.first %}{{ dates.bemerkung.first }}{% endif %}</textarea>
+                            <textarea class="form-control mrt-10 descTextarea" name="desc1" id="desc1" rows="6" placeholder="Vorstufe - Bemerkungen welche der Kunde auf Angebot und Rechnung sieht">{% if dates.bemerkung.first %}{{ dates.bemerkung.first }}{% endif %}</textarea>
                         </div>
                     </div>                                            
                 </div>
                 <div class="col-sm-6">
                     <label class="control-label" for="bemerkungen">Bemerkungen (Intern)</label>
-                    <textarea class="form-control mrt-10 descIntern" id="desc5" rows="6" placeholder="Freitext für interne Bemerkungen">{% if dates.bemerkung.fifth %}{{ dates.bemerkung.fifth }}{% endif %}</textarea>
+                    <textarea class="form-control mrt-10 descIntern" name="desc5" id="desc5" rows="6" placeholder="Freitext für interne Bemerkungen">{% if dates.bemerkung.fifth %}{{ dates.bemerkung.fifth }}{% endif %}</textarea>
                 </div>                           
             </div>                                 
-
+	</form>
     </div>                       
 </div>
 </div>

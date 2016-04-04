@@ -100,6 +100,7 @@ $( document ).ready(function() {
     }
   
   function columnChange(variable) {
+    variable.children().css('border-color', '');
     var value = variable.attr('id');
     if (value == 'employee') {
 	var select = variable.find(":selected");
@@ -114,8 +115,10 @@ $( document ).ready(function() {
       function isNumber(n) { return /^-?[\d.]+(?:e-?\d+)?$/.test(n); }
       var check = isNumber(name);
       if (check == false) {
-        variable.children().val(previous.text());
-        console.log('Inkorrektes format!');
+        //variable.children().val(previous.text());
+        variable.children().css('border-color', 'red');
+	variable.children().focus();
+	variable.children().select();
         return false;
       }
       var name2 = name.split(".");
@@ -195,25 +198,26 @@ $( document ).ready(function() {
 
   $( "#newVorstufeButton" ).click(function() {
       $( '#hiddenTrVorstufe' ).fadeIn( 'slow' );
-	    $( '#newVorstufeButton' ).hide();
+      $( '#newVorstufeButton' ).hide();
       $( '#saveVorstufeButton' ).show();
       $( '#hideVorstufeButton' ).show();
+      $("tr.rowsVorstufe").css('background-color', "#f9f9f9");
+      $('.deleteButtonVorstufe').prop('disabled', true);
+      $('.deleteButtonVorstufe').attr('id', '');
     });
 
     $( "#saveVorstufeButton" ).click(function() {
+	$("tr.rowsVorstufe").css('background-color', "#f9f9f9");
         function isNumber(n) {
             return !isNaN(parseFloat(n)) && isFinite(n);
         }
-        $( '#vorstufeFirstAmountDiv' ).removeClass('form-group has-error').addClass('form-group');
-        $( '#vorstufeSecondAmountDiv' ).removeClass('form-group has-error').addClass('form-group');
-        $( '#vorstufeThirdAmountDiv' ).removeClass('form-group has-error').addClass('form-group');
-        $( '#vorstufeForthAmountDiv' ).removeClass('form-group has-error').addClass('form-group');
-        $( '#vorstufeFirstSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
-        $( '#vorstufeSecondSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
-        $( '#vorstufeThirdSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
-        $( '#vorstufeForthSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
+        $( '.vorstufeClassDiv' ).removeClass('form-group has-error').addClass('form-group');
         var type = $('select[name=hiddenVorstufeType]').find('option:selected').attr('id');
         var performanceTime = $('input[name=hiddenVorstufeDate]').val();
+	if (performanceTime.length == 0) {
+	    var error = true;
+            $( '#vorstufeZeroDiv' ).removeClass('form-group').addClass('form-group has-error');
+	}
 	var timeArray = performanceTime.split("/");
 	var performanceTime2 = timeArray[2] + '/' + timeArray[1] + '/' + timeArray[0];
         var employee = $('select[name=hiddenVorstufeEmployee]').find('option:selected').attr('id');
@@ -236,28 +240,24 @@ $( document ).ready(function() {
         if (firstCheck == false) {
             if (timeProposal.length != 0) {
                 var error = true;
-                $( '#vorstufeFirstSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
                 $( '#vorstufeFirstAmountDiv' ).removeClass('form-group').addClass('form-group has-error');
             }
         }
         if (secondCheck == false) {
             if (timeReal.length != 0) {
                 var error = true;
-                $( '#vorstufeSecondSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
                 $( '#vorstufeSecondAmountDiv' ).removeClass('form-group').addClass('form-group has-error');
             }
         }
         if (thirdCheck == false) {
             if (timeSettlement.length != 0) {
                 var error = true;
-                $( '#vorstufeThirdSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
                 $( '#vorstufeThirdAmountDiv' ).removeClass('form-group').addClass('form-group has-error');
             }
         }
         if (forthCheck == false) {
             if (amount.length != 0) {
                 var error = true;
-                $( '#vorstufeForthSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
                 $( '#vorstufeForthAmountDiv' ).removeClass('form-group').addClass('form-group has-error');
             }
         }
@@ -299,7 +299,7 @@ $( document ).ready(function() {
                   } else if (type == 6){
                       tableRow += 'sonstiges';
                   } else {
-                      tableRow += '<i>keine Daten</i>';
+                      tableRow += '<i>Keine Daten</i>';
                   }
                   tableRow += '</div>';
                   tableRow += '<div class="vorstufeToUpdate" id="type" style="display: none;">';
@@ -340,7 +340,7 @@ $( document ).ready(function() {
 		  tableRow += '</select></div></td>';
 		  tableRow += '<td id="' + result + '"><div class="vorstufeToChange" id="performanceTime">';
 		  if (textDate.length == 0) {
-		    tableRow += '<i>keine Daten</i>';
+		    tableRow += '<i>Keine Daten</i>';
 		  } else {
 		    tableRow +=  performanceTime; 
 		  }
@@ -348,7 +348,7 @@ $( document ).ready(function() {
 		  tableRow += '<div class="vorstufeToUpdate" id="performanceTime" style="display: none;"><input type="text" class="form-control datepicker" size="9" placeholder="Bitte wählen" name="hiddenVorstufePerformanceTime" value="' + performanceTime + '" /></div></td>';
                   tableRow += '<td id="' + result + '"><div class="vorstufeToChange" id="employee">';
 		  if (employee.length == 0) {
-                      tableRow += '<i>keine Daten</i>';
+                      tableRow += '<i>Keine Daten</i>';
                   } else {
                       tableRow +=  employeeName; 
                   } 
@@ -357,7 +357,7 @@ $( document ).ready(function() {
 		  tableRow += '</div></td>';
 		  tableRow += '<td id="' + result + '"><div class="vorstufeToChange" id="description">';
                   if (description.length == 0) {
-                      tableRow += '<i>keine Daten</i>';
+                      tableRow += '<i>Keine Daten</i>';
                   } else {
                       tableRow +=  description; 
                   } 
@@ -366,7 +366,7 @@ $( document ).ready(function() {
                   tableRow += '</td>';
 		  tableRow += '<td id="' + result + '"><div class="vorstufeToChange" id="timeProposal">';
                   if (timeProposal.length == 0) {
-                      tableRow += '<i>keine Daten</i>';
+                      tableRow += '<i>Keine Daten</i>';
                   } else {
                       tableRow +=  timeProposal; 
                   } 
@@ -375,7 +375,7 @@ $( document ).ready(function() {
                   tableRow += '</td>';
 		  tableRow += '<td id="' + result + '"><div class="vorstufeToChange" id="timeReal">';
                   if (timeReal.length == 0) {
-                      tableRow += '<i>keine Daten</i>';
+                      tableRow += '<i>Keine Daten</i>';
                   } else {
                       tableRow +=  timeReal; 
                   } 
@@ -384,7 +384,7 @@ $( document ).ready(function() {
                   tableRow += '</td>';
 		  tableRow += '<td id="' + result + '"><div class="vorstufeToChange" id="timeSettlement">';
                   if (timeSettlement.length == 0) {
-                      tableRow += '<i>keine Daten</i>';
+                      tableRow += '<i>Keine Daten</i>';
                   } else {
                       tableRow +=  timeSettlement; 
                   } 
@@ -393,7 +393,7 @@ $( document ).ready(function() {
                   tableRow += '</td>';
 		  tableRow += '<td id="' + result + '"><div class="vorstufeToChange" id="amount">';
                   if (amount.length == 0) {
-                      tableRow += '<i>keine Daten</i>';
+                      tableRow += '<i>Keine Daten</i>';
                   } else {
                       tableRow +=  amount + ' EURO'; 
                   } 
@@ -529,6 +529,7 @@ $( document ).ready(function() {
     });
     
     $('.vorstufeToUpdate').change(function() {
+      $( this ).children().css('border-color', '');
       var name = $( this ).children().val();
       var value = $( this ).attr('id');
       var previous = $( this ).prev();
@@ -541,6 +542,12 @@ $( document ).ready(function() {
       } else if (value == 'amount') {
         name = name.replace(",", ".");
         var check = isNumber(name);
+	if (check == false) {
+          $( this ).children().css('border-color', 'red');
+	  $( this ).children().focus();
+	  $( this ).children().select();
+          return false;
+        }
         var name2 = name.split(".");
         if (name2[1] == null) {
           name = name + '.00';
@@ -550,11 +557,13 @@ $( document ).ready(function() {
           name = name + '00';
         }
       } 
-      if (value == 'edition' || value == 'amount') {
+      if (value == 'timeProposal' || value == 'timeReal' || value == 'timeSettlement') {
         var check = isNumber(name);
         if (check == false) {
-          $( this ).children().val(previous.text());
-          console.log('Inkorrektes format!');
+          //$( this ).children().val(previous.text());
+          $( this ).children().css('border-color', 'red');
+	  $( this ).children().focus();
+	  $( this ).children().select();
           return false;
         }
       }

@@ -132,6 +132,9 @@ class Drucksache extends formBasics
 
 	public function insertSql( $data ) {
 		$data = explode('<>', $data);
+		if ($data[2] = 'none') {
+		    $data[2] = null;
+		}
 		$sql = 'INSERT INTO Drucksache (projectId, print, machine, type, edition, format, size, color, paper, remodelling, finished, amount, reg_date) 
 		VALUES (:projectId, :print, :machine, :type, :edition, :format, :size, :color, :paper, :remodelling, :finished, :amount, NOW())';
 		$result=$this->dbHandler->prepare($sql);

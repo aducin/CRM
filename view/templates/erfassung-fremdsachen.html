@@ -1,7 +1,7 @@
 <div id="fremdarbeitenTable" style="display: none">
     <div class="row">
         <div class="col-sm-12 form-horizontal gray-form mrb-20">
-
+	    <form class="col-sm-12 form-horizontal search-form" id="newProjectForm" action="NewProject" method="post">
                 <div class="form-group mrt">
                     <div class="col-sm-6 form-inline">
                         <label for="termin_korrektur" class="control-label">Termin Korrektur</label>
@@ -51,7 +51,7 @@
                                 {% endfor %}
                                 <tr class="clickable-row" id="hiddenTrFremdarbeiten" style="display: none;">
                                     <td>
-                                        <div class="row form-group">
+                                        <div class="row form-group fremdClassDiv" id="hiddenDateErrorDiv">
                                             <input type="text" name="hiddenDateFremdarbeiten" id="hiddenDateFremdarbeiten" class="form-control datepicker" size="9" placeholder="Bitte wählen" value="">
                                         </div>
                                     </td>
@@ -66,7 +66,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="row form-group" id="hiddenFirstAmountDiv">
+                                        <div class="row form-group fremdClassDiv" id="hiddenFirstAmountDiv">
                                             <div class="col-xs-2">
                                                 <input type="text" class="form-control" id="hiddenFirstAmount" name="hiddenFirstAmount" placeholder="EURO" aria-describedby="inputError2Status" 
                                                 style="margin-left: -16px; width: 100px; font-size: 11px;" value="" />
@@ -75,7 +75,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="row form-group" id="hiddenSecondAmountDiv">
+                                        <div class="row form-group fremdClassDiv" id="hiddenSecondAmountDiv">
                                             <div class="col-xs-2">
                                                 <input type="text" class="form-control" id="hiddenSecondAmount" name="hiddenSecondAmount" placeholder="EURO" aria-describedby="inputError2Status" 
                                                 style="margin-left: -16px; width: 100px; font-size: 11px;" value="" />
@@ -93,7 +93,7 @@
                     <div class="col-sm-8 form-inline">
                         <button type="button" class="btn btn-primary mrr-8" id="newButtonFremdarbeiten" >Neu</button>
                         <button type="button" class="btn btn-primary mrr-8" id="saveButtonFremdarbeiten" style="display: none; margin-left: -8px;" >Speichern</button> 
-                        <button type="button" class="btn btn-primary mrr-8" id="hideButtonFremdarbeiten" style="display: none;" >Verstecken</button>                                        
+                        <button type="button" class="btn btn-primary mrr-8" id="hideButtonFremdarbeiten" style="display: none; margin-left:-8px;" >Verstecken</button>                                        
                         <button type="button" class="btn btn-primary deleteButtonFremdarbeiten" id="" style="margin-left:-8px;" disabled >Löschen</button>       
                         <div class="checkbox buttons-line">
                             <input id="showIndPrice<>{{ dates.projectId }}" name="intPriceShow2" type="checkbox" {% if drucksachen.2 == 1 %} checked="checked" {% endif %}>
@@ -110,7 +110,7 @@
                     <div class="col-sm-6">
                         <div class="row">
                             <div class="col-sm-12 form-inline">
-                                <label class="control-label" style="margin-top: 5px;">Bemerk. auf</label>
+                                <label class="control-label" style="margin-top: 5px;">Bemerkung</label>
                                 <div class="checkbox">
                                     <input class="descCheckbox" id="desc4_an" name="desc4_an" type="checkbox" {% if dates.bemerkung.forthAn == 0 %}{% else %} checked="checked" {% endif %}>
                                     <label for="bemerkung_an">
@@ -153,7 +153,8 @@
                         <label class="control-label" for="bemerkungen" style="margin-top: 3px;">Bemerkungen (Intern)</label>
                         <textarea class="form-control mrt-10 descIntern" id="desc8" rows="6" placeholder="Freitext für interne Bemerkungen">{% if dates.bemerkung.fifth %}{{ dates.bemerkung.fifth }}{% endif %}</textarea>
                     </div>                           
-                </div>                                 
+                </div> 
+            </form>
         </div>                       
     </div>
 </div> 

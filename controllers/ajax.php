@@ -128,6 +128,10 @@ class Ajax
     private function dates($date, $path) {
         if (is_array($path)) {
             $values = $path;
+            if ($values[0] == 'deliveryTime') {
+		$tempDate = explode('/', $date);
+		$date = $tempDate[2].'-'.$tempDate[1].'-'.$tempDate[0];
+            }
         } else {
             $values = explode('<>', $path);
             $insert = explode('/', $date);
@@ -151,6 +155,9 @@ class Ajax
         } else {
            $project = $this->creator->createProduct('projekt');
            $success = $project->updateDate($projectId, $column, $date);
+        }
+        if ($success == 'success') {
+            $project->updateDateChange($projectId);
         }
         echo $success; exit();
     }
@@ -231,6 +238,11 @@ class Ajax
 		$data = array('success' => 'false', 'name' => $error);
 	    }
 	    echo json_encode($data);
+    }
+    
+    private function getClientDetails($value) {
+        $auftraggeber = $this->creator->createProduct('auftraggeber');
+        $result = $auftraggeber->getClientDetails($value);
     }
 
     private function getDbHandler() {

@@ -1,7 +1,7 @@
 <div id="drucksachenTable" style="display: none">
     <div class="row">
         <div class="col-sm-12 form-horizontal gray-form mrb-20">
-
+	      <form class="col-sm-12 form-horizontal search-form" id="newProjectForm" action="NewProject" method="post">
                 <div class="form-group mrt">
                     <div class="col-sm-6 form-inline">
                         <label for="termin_korrektur" class="control-label">Termin Andruck</label>
@@ -30,23 +30,23 @@
                                 {% for singleDrucksachen in drucksachen.0 %}
                                     <tr class="clickable-row rowsDrucksachen" name="{{ singleDrucksachen.id }}" id="{{ singleDrucksachen.id }}" >
                                         <td id="{{ singleDrucksachen.id }}">
-                                           <div class="drucksacheToChange" id="print">{% if singleDrucksachen.print %}{{ singleDrucksachen.print }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                           <div class="drucksacheToChange" id="print">{% if singleDrucksachen.print %}{{ singleDrucksachen.print }}{% else %}<i>Keine Daten</i>{% endif %}</div>
                                            <div class="drucksacheToUpdate" id="print" style="display: none;"><input type="text" class="form-control" name="hiddenPrint" value="{{ singleDrucksachen.print }}" /></div>
                                        </td>
                                        <td class="col-sm-2 col-md-2" id="{{ singleDrucksachen.id }}" style="text-align: center;">
-                                            <div class="drucksacheToChange" id="machine">{% if singleDrucksachen.machineName %}{{ singleDrucksachen.machineName }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                            <div class="drucksacheToChange" id="machine">{% if singleDrucksachen.machineName %}{{ singleDrucksachen.machineName }}{% else %}<i>Keine Daten</i>{% endif %}</div>
                                             <select  class="form-control drucksacheToUpdate" id="machine" name="hiddenMachine" style="display: none;">
                                                 <option id="{{ singleDrucksachen.machine }}">{{ singleDrucksachen.machineName }}</option>
                                                 {% for singleMachine in machine %}
-                        						    {% if singleDrucksachen.machineName == singleMachine.name %}
-                        						    {% else %}
-                        							    <option id="{{ singleMachine.id }}">{{ singleMachine.name }}</option>
+						    {% if singleDrucksachen.machineName == singleMachine.name %}
+						    {% else %}
+                        				<option id="{{ singleMachine.id }}">{{ singleMachine.name }}</option>
                                                     {% endif %}
                                                 {% endfor %}
                                             </select>
                                         </td>
                                         <td id="{{ singleDrucksachen.id }}">
-                                            <div class="drucksacheToChange" id="type">{% if singleDrucksachen.type %}{{ singleDrucksachen.type }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                            <div class="drucksacheToChange" id="type">{% if singleDrucksachen.type %}{{ singleDrucksachen.type }}{% else %}<i>Keine Daten</i>{% endif %}</div>
                                             <div class="drucksacheToUpdate" id="type" style="display: none;"><input type="text" class="form-control" name="hiddenType" value="{{ singleDrucksachen.type }}" /></div>
                                         </td>
                                         <td id="{{ singleDrucksachen.id }}">
@@ -54,23 +54,23 @@
                                             <div class="drucksacheToUpdate" id="edition" style="display: none;"><input type="text" class="form-control" name="hiddenEdition" value="{{ singleDrucksachen.edition }}" /></div>
                                          </td>
                                          <td id="{{ singleDrucksachen.id }}">
-                                             <div class="drucksacheToChange" id="format">{% if singleDrucksachen.format %}{{ singleDrucksachen.format }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                             <div class="drucksacheToChange" id="format">{% if singleDrucksachen.format %}{{ singleDrucksachen.format }}{% else %}<i>Keine Daten</i>{% endif %}</div>
                                              <div class="drucksacheToUpdate" id="format" style="display: none;"><input type="text" class="form-control" name="hiddenFormat" value="{{ singleDrucksachen.format }}" /></div>
                                          </td>
                                          <td id="{{ singleDrucksachen.id }}">
-                                             <div class="drucksacheToChange" id="size">{% if singleDrucksachen.size %}{{ singleDrucksachen.size }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                             <div class="drucksacheToChange" id="size">{% if singleDrucksachen.size %}{{ singleDrucksachen.size }}{% else %}<i>Keine Daten</i>{% endif %}</div>
                                              <div class="drucksacheToUpdate" id="size" style="display: none;"><input type="text" class="form-control" name="hiddenSize" value="{{ singleDrucksachen.size }}" /></div>
                                          </td>
                                          <td id="{{ singleDrucksachen.id }}">
-                                             <div class="drucksacheToChange" id="color">{% if singleDrucksachen.color %}{{ singleDrucksachen.color }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                             <div class="drucksacheToChange" id="color">{% if singleDrucksachen.color %}{{ singleDrucksachen.color }}{% else %}<i>Keine Daten</i>{% endif %}</div>
                                              <div class="drucksacheToUpdate" id="color" style="display: none;"><input type="text" class="form-control" name="hiddenColor" value="{{ singleDrucksachen.color }}" /></div>
                                          </td>
                                          <td id="{{ singleDrucksachen.id }}">
-                                             <div class="drucksacheToChange" id="paper">{% if singleDrucksachen.paper %}{{ singleDrucksachen.paper }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                             <div class="drucksacheToChange" id="paper">{% if singleDrucksachen.paper %}{{ singleDrucksachen.paper }}{% else %}<i>Keine Daten</i>{% endif %}</div>
                                              <div class="drucksacheToUpdate" id="paper" style="display: none;"><input type="text" class="form-control" name="hiddenPaper" value="{{ singleDrucksachen.paper }}" /></div>
                                          </td>
                                          <td id="{{ singleDrucksachen.id }}">
-                                             <div class="drucksacheToChange" id="remodelling">{% if singleDrucksachen.remodelling %}{{ singleDrucksachen.remodelling }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                                             <div class="drucksacheToChange" id="remodelling">{% if singleDrucksachen.remodelling %}{{ singleDrucksachen.remodelling }}{% else %}<i>Keine Daten</i>{% endif %}</div>
                                              <div class="drucksacheToUpdate" id="remodelling" style="display: none;"><input type="text" class="form-control" name="hiddenRemodelling" value="{{ singleDrucksachen.remodelling }}" /></div>
                                          </td>
                                          <td class="v-center" id="{{ singleDrucksachen.id }}">
@@ -158,7 +158,7 @@
                         <button type="button" class="btn btn-primary mrr-8" id="saveButtonDrucksache" style="display: none;" >Speichern</button>
                         <button type="button" class="btn btn-primary mrr-8" id="hideButtonDrucksache" style="display: none;" >Verstecken</button>                                          
                         <button type="button" class="btn btn-primary deleteButtonDrucksachen" id="deleteButtonDrucksachen" style="margin-left:-8px;" disabled >Löschen</button>         
-                        <button type="button" class="btn btn-primary mrr-8 cloneButton" id="" disabled >Duplizieren</button> 
+                        <button type="button" class="btn btn-primary mrr-8 cloneDruckButton" id="" disabled >Duplizieren</button> 
                         <div class="checkbox buttons-line">
                             <input id="showIndPrice<>{{ dates.projectId }}" name="intPriceShow1" type="checkbox" {% if drucksachen.2 == 1 %} checked="checked" {% endif %}>
                             <label for="bemerkung_an">
@@ -217,7 +217,7 @@
                         <textarea class="form-control mrt-10 descIntern" id="desc7" rows="6" placeholder="Freitext für interne Bemerkungen">{% if dates.bemerkung.fifth %}{{ dates.bemerkung.fifth }}{% endif %}</textarea>
                     </div>                           
                 </div>                                 
-
+	   </form>
         </div>                       
     </div>
 </div>

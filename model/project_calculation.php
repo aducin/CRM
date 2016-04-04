@@ -10,6 +10,17 @@ class Project_Calculation
 	$this->dbHandler = $dbHandler;
 
     }
+    
+    public function createEmptyList($id) {
+    	$sql = "INSERT INTO Project_Calculation (projectId) VALUES (:id)";
+    	$result=$this->dbHandler->prepare($sql);
+	  	$result->bindValue(':id', $id);
+	  	if ( $result->execute()) {
+			return true;
+		} else {
+			return false;
+		}
+    }
 
     public function getDates($id) {
 

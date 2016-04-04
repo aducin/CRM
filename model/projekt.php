@@ -290,23 +290,104 @@ class Projekt
 	}
 	
 	public function insertNewProject() {
-	      $sql = 'INSERT INTO Projekt (name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner) VALUES
-	      (:name, :kundenauftragsnummer, :auftraggeber, :rechnungsadresse, :ansprechpartner)';
-	      $result=$this->dbHandler->prepare($sql);
-	      $result->bindValue(':name', $_POST['projektname']);
-	      $result->bindValue(':kundenauftragsnummer', $_POST['kundenauftragsnummer']);
-	      $result->bindValue(':auftraggeber', $_POST['clientId']);
-	      $result->bindValue(':rechnungsadresse', $_POST['personId']);
-	      $result->bindValue(':ansprechpartner', $_POST['addressId']);
-	      if ($result->execute()) {
+		if(!isset($_POST['mandant'])) {
+			$_POST['mandant'] = null;
+		}
+		if(isset($_POST['projectStatus']) && $_POST['projectStatus'] == 'none') {
+			$_POST['projectStatus'] = 1;
+		}
+		if($_POST['lieferterminInput'] == '') {
+			$_POST['lieferterminInput'] = null;
+		} else {
+		    $temp = explode('/', $_POST['lieferterminInput']);
+		    $_POST['lieferterminInput'] = $temp[2].'-'.$temp[1].'-'.$temp[0];
+		}
+		if(!isset($_POST['individual_payment'])) {
+			$_POST['individual_payment'] = null;
+		}
+		if(!isset($_POST['individual_skonto'])) {
+			$_POST['individual_skonto'] = null;
+		}
+		if(!isset($_POST['pattern'])) {
+			$_POST['pattern'] = null;
+		}
+		if(!isset($_POST['pattern_to'])) {
+			$_POST['pattern_to'] = null;
+		}
+		if(!isset($_POST['lieferant_id'])) {
+			$_POST['lieferant_id'] = null;
+		}
+		if(!isset($_POST['desc1_an'])) {
+			$_POST['desc1_an'] = 0;
+		} elseif ($_POST['desc1_an'] == 'on') {
+			$_POST['desc1_an'] = 1;
+		}
+		if(!isset($_POST['desc1_au'])) {
+			$_POST['desc1_au'] = 0;
+		} elseif ($_POST['desc1_au'] == 'on') {
+			$_POST['desc1_au'] = 1;
+		}
+		if(!isset($_POST['desc1_pm'])) {
+			$_POST['desc1_pm'] = 0;
+		} elseif ($_POST['desc1_pm'] == 'on') {
+			$_POST['desc1_pm'] = 1;
+		}
+		if(!isset($_POST['desc1_re'])) {
+			$_POST['desc1_re'] = 0;
+		} elseif ($_POST['desc1_re'] == 'on') {
+			$_POST['desc1_re'] = 1;
+		}
+		if(!isset($_POST['desc1_li'])) {
+			$_POST['desc1_li'] = 0;
+		} elseif ($_POST['desc1_li'] == 'on') {
+			$_POST['desc1_li'] = 1;
+		}
+		if(!isset($_POST['desc1'])) {
+			$_POST['desc1'] = null;
+		}
+		if(!isset($_POST['desc1'])) {
+			$_POST['desc5'] = null;
+		}
+	    $sql = 'INSERT INTO Projekt (name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant_select, status, deliveryTime, individual_payment, individual_skonto, pattern, pattern_to, lieferant_id) 
+			VALUES
+	      	(:name, :kundenauftragsnummer, :auftraggeber, :rechnungsadresse, :ansprechpartner, :mandant, :projectStatus, :lieferterminInput, :individual_payment, :individual_skonto, :pattern, :pattern_to, :lieferant_id)';
+	    $result=$this->dbHandler->prepare($sql);
+	    $result->bindValue(':name', $_POST['projektname']);
+	    $result->bindValue(':kundenauftragsnummer', $_POST['kundenauftragsnummer']);
+	    $result->bindValue(':auftraggeber', $_POST['clientId']);
+	    $result->bindValue(':rechnungsadresse', $_POST['personId']);
+	    $result->bindValue(':ansprechpartner', $_POST['addressId']);
+	    $result->bindValue(':mandant', $_POST['mandant']);
+	    $result->bindValue(':projectStatus', $_POST['projectStatus']);
+	    $result->bindValue(':lieferterminInput', $_POST['lieferterminInput']);
+	    $result->bindValue(':individual_payment', $_POST['individual_payment']);
+	    $result->bindValue(':individual_skonto', $_POST['individual_skonto']);
+	    $result->bindValue(':pattern', $_POST['pattern']);
+	    $result->bindValue(':pattern_to', $_POST['pattern_to']);
+	    $result->bindValue(':lieferant_id', $_POST['lieferant_id']);
+	    if ($result->execute()) {
 			$this->id = $this->getLastIdValue();
+			$array = array($this->id, $_POST['desc1'], $_POST['desc5'], $_POST['desc1_an'], $_POST['desc1_au'], $_POST['desc1_pm'], $_POST['desc1_li'], $_POST['desc1_re']);
+			$bemerkung = $this->creator->createProduct('bemerkung');
+			$result = $bemerkung->createNewList($array);
+			if ($result == false) {
+				$this->error = 'project created but bemerkung list is unavailable';
+				return $this->error; exit();
+			} else {
+				$calculation = $this->creator->createProduct('calculation');
+				$result = $calculation->createEmptyList($this->id);
+				if ($result == false) {
+					$this->error = 'project created but no calculation list available';
+					return $this->error; exit();
+				}
+			}
 			$path = explode('/',$_SERVER["REQUEST_URI"]);
 			$finalPath = '/'.$path[1].'/Erfassung/'.$this->id;
 			$_SESSION['projectId'] = $this->id;
 			header( 'Location:'.$finalPath );
 		} else {
 			$this->error = 'no project created';
-			return error;
+			return $this->error;
 		}
 	}
 
@@ -470,6 +551,14 @@ class Projekt
 	}
 
 	public function searchByDates($params) {
+		$benutzer = $this->creator->createProduct('benutzer');
+		$benutzer->saveLastSearch($params[0]);
+		$conditions = $benutzer->getLastSearch($params[0]['status']);
+		//if ($conditions["status"] != 0) {
+		//    $helper = $this->creator->createProduct('helpers');
+		//    $status = $helper->getSingleStatus($conditions["status"]);
+		//}
+		//var_dump($status); exit();
 		$begin = explode('/', $params[0]['begin']);
 		if ($begin[0] != '') {
 			$begin = array_reverse($begin);
@@ -725,5 +814,12 @@ class Projekt
 	    } else {
 		return 'failure';
 	    }
+	}
+	
+	public function updateDateChange($id) {
+		$sql = "UPDATE Projekt SET change_date = NOW() WHERE id = :id";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		$result->execute();
 	}
 }

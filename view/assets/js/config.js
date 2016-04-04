@@ -19,10 +19,40 @@ $( document ).ready(function() {
         var value = object.attr('id');
         var rowId = object.parent().attr('id');
         var next = object.next();
-        object.hide();
-        next.show();
-        next.find('input:first').focus();
-        next.find('input:first').select();
+	var column = object.attr('id');
+	var value = object.text();
+        object.text('');
+	object.append('<input type="text" name="sth" class="form-control configToUpdate" id="' + column + '" value="' + value +'" />');
+	$( '.configUserToChange' ).focus();
+	$( '.configUserToChange' ).select();
+	var value = next.find('input:first').attr('id');
+	if (value == 'name') {
+	    next.find('input:first').focus();
+	    next.find('input:first').select();
+	}
+	$('.configToUpdate').change(function() {
+	    var value = $(this).val();
+	    var column = $(this).attr('id');
+	    var previous = $(this).prev();
+	    var rowId = $(this).parent().parent().attr('id');
+	    var data = 'Zahlungsziel<>' + column + '<>' + rowId;
+	    var single = 'configUpdate';
+	    changeDate(single, data, value);
+	    var timerId = setInterval(function() {
+	      if(finalResult !== null) {
+		if(finalResult == 'success') {
+		  if (value == 0) {
+		      value = '--';
+		  }
+		  $( '.configToUpdate' ).hide();
+		  object.text(value);
+		}
+	     clearInterval(timerId);
+	     } else {
+		console.log(finalResult);
+	     }
+	 }, 1500);
+	});
     }
     
     function changeUserRow(object) {
@@ -144,10 +174,6 @@ $( document ).ready(function() {
     
     $( ".configUserToChange" ).dblclick(function() {
 	changeUserRow($( this ));
-    });
-    
-    $('.configToUpdate').change(function() {
-	 columnChange($( this ));
     });
     
     $('.configUserToUpdate').change(function() {

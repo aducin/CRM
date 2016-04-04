@@ -18,11 +18,12 @@
 <div id="lieferscheinTable" style="display: none">
 	<div class="row">
 		<div class="col-sm-12 form-horizontal gray-form mrb-20">
+			 <form class="col-sm-12 form-horizontal search-form" id="newProjectForm" action="NewProject" method="post">
 				<div class="form-group mrt">
 					<label for="status" class="col-sm-3 control-label">Lieferung an</label>
 					<div class="col-sm-6 form-inline">
 						<div class="radio">
-							<input id="abweichend" class="dateToUpdate" name="lieferung" value="0" type="radio" {% if dates.delivery.ifOtherAddress == 0 %} checked="checked" {% endif %}>
+							<input id="adresse_auftragsgeber" class="dateToUpdate" name="lieferung" value="0" type="radio" {% if dates.delivery.ifOtherAddress == 0 %} checked="checked" {% endif %}>
 							<label for="abweichend">
 								Adresse Auftragsgeber
 							</label>

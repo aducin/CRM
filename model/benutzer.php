@@ -142,6 +142,26 @@ class Benutzer
 		}
 	}
 	
+	public function getLastSearch() {
+	      $sql = 'SELECT beginDate, end, projectName, clientSearch, eventNumber, clientOrderNumber, mandant, status FROM Benutzer WHERE id = :id';
+	      $result=$this->dbHandler->prepare($sql);
+	      $result->bindValue(':id', $_SESSION['user']);
+	      $result->execute();
+	      $values = $result->fetch();
+	      $conditions = array(
+				'begin' => $values['beginDate'], 
+				'endDate' => $values['end'], 
+				'projectName' => $values['projectName'], 
+				'clientName' => $values['clientSearch'], 
+				'eventNumber' => $values['eventNumber'], 
+				'clientOrderNumber' => $values['clientOrderNumber'],
+				'mandant' => $values['mandant'],
+				'status' => $values['status'],
+				'ifPrevious' => true
+	      );
+	      return $conditions;
+	}
+	
 	public function getLastSql() {
 		$sql = $this->lastSql;
 		if ($sql !='') {
@@ -170,6 +190,35 @@ class Benutzer
 		$sql = "UPDATE Benutzer SET last_login = NOW() WHERE id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
+		$result->execute();
+	}
+	
+	public function saveLastSearch($array) {
+		$begin = explode('/', $array['begin']);
+		if ($begin[0] != '') {
+			$begin = $begin[2].'-'.$begin[1].'-'.$begin[0];
+		} else {
+			$begin = null;
+		}
+		$end = explode('/', $array['endDate']);
+		if ($end[0] != '') {
+		$end = $end[2].'-'.$end[1].'-'.$end[0];
+		} else {
+			$end = null;
+		}
+		
+		$sql = 'UPDATE Benutzer SET beginDate = :beginDate, end = :end, projectName = :projectName, clientSearch = :clientName, eventNumber = :eventNumber, clientOrderNumber = :clientOrderNumber,
+		 	mandant = :mandant, status = :status WHERE id = :id';
+		$result = $this->dbHandler->prepare($sql);
+		$result->bindValue(':beginDate', $begin);
+		$result->bindValue(':end', $end); 	
+		$result->bindValue(':projectName', $array['projectName']); 
+		$result->bindValue(':clientName', $array['clientName']); 
+		$result->bindValue(':eventNumber', $array['eventNumber']); 
+		$result->bindValue(':clientOrderNumber', $array['clientOrderNumber']); 
+		$result->bindValue(':mandant', $array['mandant']); 
+		$result->bindValue(':status', $array['status']); 
+		$result->bindValue(':id', $_SESSION['user']); 
 		$result->execute();
 	}
 

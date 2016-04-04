@@ -87,6 +87,12 @@ class Vorstufe extends formBasics
 	
 	public function insertSql($value) {
 	      $data = explode('<>', $value);
+	      if ($data[1] == 'none') {
+		  $data[1] = null;
+	      }
+	      if ($data[3] == 'none') {
+		  $data[3] = null;
+	      }
 	      $projectId = $_SESSION['projectId'];
 	      $performanceTime = str_replace('/', '-', $data[2]);
 	      $settlement = intval($data[9]);

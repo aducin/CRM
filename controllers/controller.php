@@ -148,6 +148,24 @@ class Controller
             $helper = $this->creator->createProduct('helpers');
             if (isset($this->params['status'])) {
                 $this->params['status'] = $helper->getSingleStatus($this->params['status']);
+            } else {	
+		$benutzer = $this->creator->createProduct('benutzer');
+		$conditions = $benutzer->getLastSearch();
+		if ($conditions["status"] != 0) {
+		    $helper = $this->creator->createProduct('helpers');
+		    $status = $helper->getSingleStatus($conditions["status"]);
+		    unset($conditions[status]);
+		}
+		    $conditions[status] = array('id' => $status['id'], 'name' => $status['name']);
+		    if ($conditions['begin'] != '') {
+			$temp = explode('-', $conditions['begin']);
+			$conditions['begin'] = $temp[2].'/'.$temp[1].'/'.$temp[0];
+		    }
+		    if ($conditions['endDate'] != '') {
+			$temp = explode('-', $conditions['endDate']);
+			$conditions['endDate'] = $temp[2].'/'.$temp[1].'/'.$temp[0];
+		    }
+		    $this->params = $conditions;
             }
             $this->output->renderListe($this->benutzer, $result, $this->params);
             break;

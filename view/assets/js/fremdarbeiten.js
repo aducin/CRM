@@ -66,6 +66,7 @@ $( document ).ready(function() {
   }
 
   function columnChange(variable) {
+    variable.children().css('border-color', '');
     var name = variable.children().val();
     var value = variable.attr('id');
     var previous = variable.prev();
@@ -74,8 +75,10 @@ $( document ).ready(function() {
       function isNumber(n) { return /^-?[\d.]+(?:e-?\d+)?$/.test(n); }
       var check = isNumber(name);
       if (check == false) {
-        variable.children().val(previous.text());
-        alert('Inkorrektes format!');
+        //variable.children().val(previous.text());
+	variable.children().css('border-color', 'red');
+	variable.children().focus();
+	variable.children().select();
         return false;
       }
       var name2 = name.split(".");
@@ -146,13 +149,12 @@ $( document ).ready(function() {
   }
 
   $( '#saveButtonFremdarbeiten' ).click(function() {
+    $( '.fremdClassDiv' ).removeClass('form-group has-error').addClass('form-group');
     function isNumber(n) {
       return !isNaN(parseFloat(n)) && isFinite(n);
     } 
     $( '#hiddenFirstAmountDiv' ).removeClass('form-group has-error').addClass('form-group');
     $( '#hiddenSecondAmountDiv' ).removeClass('form-group has-error').addClass('form-group');
-    $( '#hiddenFirstAmountSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
-    $( '#hiddenSecondAmountSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
     var textDate = $( '#hiddenDateFremdarbeiten' ).val();
     var deliverer = $( '#hiddenCarrier' ).val();
     var description = $( '#hiddenDesc' ).val();
@@ -160,17 +162,19 @@ $( document ).ready(function() {
     var sellPrice = $( '#hiddenSecondAmount' ).val();
     var firstCheck = isNumber(purchasePrice);
     var secondCheck = isNumber(sellPrice);
+    if (textDate.length == 0) {
+      var error = true;
+      $( '#hiddenDateErrorDiv' ).removeClass('form-group').addClass('form-group has-error');
+    }
     if (firstCheck == false) {
       if (purchasePrice.length != 0) {
         var error = true;
-        $( '#hiddenFirstAmountSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
         $( '#hiddenFirstAmountDiv' ).removeClass('form-group').addClass('form-group has-error');
       }
     }
     if (secondCheck == false) {
       if (sellPrice.length != 0) {
         var error = true;
-        $( '#hiddenSecondAmountSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
         $( '#hiddenSecondAmountDiv' ).removeClass('form-group').addClass('form-group has-error');
       }
     }
@@ -260,10 +264,13 @@ $( document ).ready(function() {
   });
 
   $( "#newButtonFremdarbeiten" ).click(function() {
+    $("tr.rowsFremdarbeiten").css('background-color', "#f9f9f9");
     $( '#hiddenTrFremdarbeiten' ).fadeIn( 'slow' );
     $( '#newButtonFremdarbeiten' ).hide();
     $( '#saveButtonFremdarbeiten' ).show();
     $( '#hideButtonFremdarbeiten' ).show();
+    $('.deleteButtonFremdarbeiten').prop('disabled', true);
+    $('.deleteButtonFremdarbeiten').attr('id', '');
   });
 
   $("tr.rowsFremdarbeiten").click(function(){

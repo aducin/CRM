@@ -138,30 +138,35 @@ $( document ).ready(function() {
   }
 
     function getRowId(variable) {
-    $("tr.rowsDrucksachen").css('background-color', "#f9f9f9");
+       $("tr.rowsDrucksachen").css('background-color', "#f9f9f9");
        var idVal = variable.attr('id');
        variable.css('background-color', "rgb(238, 193, 213)");
        $('.deleteButtonDrucksachen').attr('id', idVal);
        $('.deleteButtonDrucksachen').prop('disabled', false);
-       $('.cloneButton').attr('id', idVal);
-       $('.cloneButton').prop('disabled', false);
+       $('.cloneDruckButton').attr('id', idVal);
+       $('.cloneDruckButton').prop('disabled', false);
     }
   
     $( "#newDrucksache" ).click(function() {
         $( '#hiddenTrDrucksachen' ).fadeIn( 'slow' );
         $( '#newDrucksache' ).hide();
         $( '.deleteButtonDrucksachen' ).hide();
+	$( '.deleteButtonDrucksachen' ).prop('disabled', true);
+	$( '.deleteButtonDrucksachen' ).attr('id', '');
         $( '#saveButtonDrucksache' ).show();
         $( '#hideButtonDrucksache' ).show();
+	$("tr.rowsDrucksachen").css('background-color', "#f9f9f9");
+	$('.cloneDruckButton').prop('disabled', true);
+	$('.cloneDruckButton').attr('id', '');
     });
 
     $("tr.rowsDrucksachen").click(function(){
             getRowId($(this));
     });
     
-    $( ".cloneButton" ).click(function() {
+    $( ".cloneDruckButton" ).click(function() {
         $("tr.rowsDrucksachen").css('background-color', "#f9f9f9");
-        var idValue = $('.cloneButton').attr('id');
+        var idValue = $('.cloneDruckButton').attr('id');
         var clone = $(".rowsDrucksachen[name=" + idValue + "]").clone(true, true);
         if (window.location.href == "http://kluby.local/CRM/Erfassung") {
             path = "Api/Clone/";
@@ -174,7 +179,7 @@ $( document ).ready(function() {
             success: function(result)
             {
                 if(result != 'false') {
-                    $( ".cloneButton" ).attr('id','');
+                    $( ".cloneDruckButton" ).attr('id','');
                     $( ".deleteButtonDrucksachen" ).attr('id','');
                     clone.attr('id', result);
                     clone.attr("name", result);
@@ -206,6 +211,8 @@ $( document ).ready(function() {
                         var toDelete = $('.rowsDrucksachen[name=' + idValue + ']');
                         toDelete.remove();
                         $('.deleteButtonDrucksachen').prop('disabled', true);
+			$('.cloneDruckButton').prop('disabled', true);
+			$('.cloneDruckButton').attr('id', '');
                         $('.deleteButtonDrucksachen').attr('id', '');
                         var projectId = $( '#hiddenProjectId' ).val();
                         getAmount(projectId);
@@ -443,6 +450,7 @@ $( document ).ready(function() {
     });
     
     $('.drucksacheToUpdate').change(function() {
+	$( this ).children().css('border-color', '');
     	var name = $( this ).children().val();
     	var value = $( this ).attr('id');
     	var previous = $( this ).prev();
@@ -467,8 +475,10 @@ $( document ).ready(function() {
     	if (value == 'edition' || value == 'amount') {
     		var check = isNumber(name);
     		if (check == false) {
-    			$( this ).children().val(previous.text());
-    			alert('Inkorrektes format!');
+    			//$( this ).children().val(previous.text());
+			$( this ).children().css('border-color', 'red');
+			$( this ).children().focus();
+			$( this ).children().select();
     			return false;
     		}
     	}

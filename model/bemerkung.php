@@ -9,6 +9,25 @@ class Bemerkung
 		$this->dbHandler = $dbHandler;
 		
 	}
+	
+	public function createNewList($array) {
+		$sql = "INSERT INTO Bemerkung (projectId, desc1, desc5, desc1_an, desc1_au, desc1_pm, desc1_li, desc1_re) 
+		VALUES (:projectId, :desc1, :desc5, :desc1_an, :desc1_au, :desc1_pm, :desc1_li, :desc1_re)";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':projectId', $array[0]);
+		$result->bindValue(':desc1', $array[1]);
+		$result->bindValue(':desc5', $array[2]);
+		$result->bindValue(':desc1_an', $array[3]);
+		$result->bindValue(':desc1_au', $array[4]);
+		$result->bindValue(':desc1_pm', $array[5]);
+		$result->bindValue(':desc1_li', $array[6]);
+		$result->bindValue(':desc1_re', $array[7]);
+		if ( $result->execute()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	public function getBemerkungList($id) {
 		$sql = 'SELECT * FROM Bemerkung WHERE projectId = :id';

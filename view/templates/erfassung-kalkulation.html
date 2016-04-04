@@ -1,6 +1,7 @@
 <div id="kalkulationTable" style="display: none">
 	<div class="row">
 		<div class="col-sm-12 form-horizontal gray-form mrb-20">
+			<form class="col-sm-12 form-horizontal search-form" id="newProjectForm" action="NewProject" method="post">
 				<div class="form-group mrt2">
 					<div class="col-sm-4 calculation-margin-top">
 					        {% for singleField in calculationFields %}
@@ -157,32 +158,33 @@
 					<div class="col-sm-2">
 						<div class="row">
 							<div class="col-sm-12 v-right">
-								<h4 id="total1">{% if calcCount.1 %}{{ calcCount.1 }} EURO{% endif %}</h4>
+								<h5 id="total1">{% if calcCount.1 %}{{ calcCount.1 }} EURO{% endif %}</h5>
 							</div>
 						</div>
 					</div>
 					<div class="col-sm-2">
 						<div class="row">
 							<div class="col-sm-12 v-right">
-								<h4 id="total2">{% if calcCount.1 %}{{ calcCount.2 }} EURO{% endif %}</h4>
+								<h5 id="total2">{% if calcCount.1 %}{{ calcCount.2 }} EURO{% endif %}</h5>
 							</div>
 						</div>
 					</div>
 					<div class="col-sm-2">
 						<div class="row">
 							<div class="col-sm-12 v-right">
-								<h4 id="total3">{% if calcCount.1 %}{{ calcCount.3 }} EURO{% endif %}</h4>
+								<h5 id="total3">{% if calcCount.1 %}{{ calcCount.3 }} EURO{% endif %}</h5>
 							</div>
 						</div>
 					</div>
 					<div class="col-sm-2">
 						<div class="row">
 							<div class="col-sm-12 v-right">
-								<h4 id="total4">{% if calcCount.1 %}{{ calcCount.4 }} EURO{% endif %}</h4>
+								<h5 id="total4">{% if calcCount.1 %}{{ calcCount.4 }} EURO{% endif %}</h5>
 							</div>
 						</div>
 					</div>                                    
-				</div>                                
+				</div> 
+			</form>
 		</div>                       
 	</div>  
 </div>

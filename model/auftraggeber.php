@@ -48,6 +48,19 @@ class Auftraggeber implements TvsatzInterface
 		unset($this->reg_date);
 		unset($this->zahlungsziel);
 	}
+	
+	public function getClientDetails($id) {
+		$sql = 'SELECT Auftraggeber.skonto, Zahlungsziel.name FROM Auftraggeber INNER JOIN Zahlungsziel ON Auftraggeber.zahlungsziel_id = Zahlungsziel.id WHERE Auftraggeber.id = :id';
+		$result = $this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		if ($result->execute()) {
+			$names = $result->fetch();
+			$result = array( 'skonto' => $names['skonto'], 'paymentOpt' => $names['name']);
+			echo json_encode($result);
+		} else {
+			return 'false';
+		}
+	}
 
 	public function getDates() {
 		$result = array(  'id' => $this->id, 'name' => $this->name, 'abteilung' => $this->abteilung, 'anschrift' => $this->anschrift, 'anschrift2' => $this->anschrift2, 'plz' => $this->plz,

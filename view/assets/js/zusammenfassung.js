@@ -494,6 +494,9 @@ $( document ).ready(function() {
     $( '.dateToUpdate' ).change(function() {
     	var curDate = $(this).val();
     	var project = $(this).attr('id');
+	if (project == 'adresse_auftragsgeber') {
+	    project = 'abweichend';
+	}
 	var projectId = $( '#hiddenProjectId' ).val();
 	var array = [project, projectId];
     	changeDate(curDate, array);
@@ -574,9 +577,9 @@ $( document ).ready(function() {
 
     $('input[type=radio][name=lieferung]').change(function() {
         if ($(this).attr('id') == 'adresse_auftragsgeber') {
-            $( '#lieferadresse_abweichend' ).prop('disabled', true);
+            $( '#lieferadresse_ab' ).prop('disabled', true);
         } else if ($(this).attr('id') == 'abweichend') {
-            $( '#lieferadresse_abweichend' ).prop('disabled', false);
+            $( '#lieferadresse_ab' ).prop('disabled', false);
         }
     });
     
