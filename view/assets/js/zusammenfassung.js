@@ -147,8 +147,52 @@ $( document ).ready(function() {
         $('.deleteBearbeitenButtonPerson').attr('id', idVal);
         $('.deleteBearbeitenButtonPerson').prop('disabled', false);
     }
+
+$( '#pattern' ).keyup(function() {
+    function isInteger(value)      
+        {       
+            num = value.trim();         
+            return !(value.match(/\s/g)||num==""||isNaN(num)||(typeof(value)=='number'));        
+        }
+    var value = $( this ).val();
+    if (value == '') {
+        $( '#pattern' ).removeAttr( 'style' );
+        $( '#musterSpan' ).text('');
+        return false;
+    }
+    var check = isInteger(value);
+    if (check == false) {
+        $( '#pattern' ).css('border-color', '#a94442');
+        $( '#musterSpan' ).text('Bitte eine Anzahl einschreiben');
+    } else {
+        $( '#pattern' ).removeAttr( 'style' );
+        $( '#musterSpan' ).text('');
+    }
+});
+
+$( '#individual_skonto' ).keyup(function() {
+    function isInteger(value)      
+        {       
+            num = value.trim();         
+            return !(value.match(/\s/g)||num==""||isNaN(num)||(typeof(value)=='number'));        
+        }
+    var value = $( this ).val();
+    if (value == '') {
+        $( '#individual_skonto' ).removeAttr( 'style' );
+        $( '#skontoSpan' ).text('');
+        return false;
+    }
+    var check = isInteger(value);
+    if (check == false) {
+        $( '#individual_skonto' ).css('border-color', '#a94442');
+        $( '#skontoSpan' ).text('Nur Anzahl');
+    } else {
+        $( '#individual_skonto' ).removeAttr( 'style' );
+        $( '#skontoSpan' ).text('');
+    }
+});
     
-    $( "#saveProjectButton" ).click(function() {
+$( "#saveProjectButton" ).click(function() {
 	$( '.errorNewProjectDiv' ).removeClass('form-group has-error').addClass('form-group');
 	var name = $( 'input[name=projektname]' ).val();
 	var clientId = $( 'input[name=auftraggeber]' ).attr('id');
@@ -158,29 +202,111 @@ $( document ).ready(function() {
 	var person = $( 'input[name=ansprechpartnerBasic]' ).val();
 	var address = $( 'input[name=rechnungsadresseBasic]' ).val();
 	var kundenauftragsnummer = $( 'input[name=kundenauftragsnummer]' ).val();
-	var error = false;
+    var pattern = $( '#pattern' ).val();
+    var error = false;
+    if (pattern != '') {
+        var patternCheck = isInteger(pattern);
+        if (patternCheck == false) {
+            $( '#pattern' ).focus();
+            $( '#pattern' ).select();
+            return false;
+        }
+    }
+    var skonto = $( '#individual_skonto' ).val();
+    if (skonto != '') {
+        var skontoCheck = isInteger(pattern);
+        if (skontoCheck == false) {
+            $( '#individual_skonto' ).focus();
+            $( '#individual_skonto' ).select();
+            return false;
+        }
+    }
 	if (name == '') {
-	     $( '.projectDiv' ).removeClass('form-group').addClass('form-group has-error');
-	     error = true;
-	}
+         $( '.projectDiv' ).removeClass('form-group').addClass('form-group has-error');
+         $( '#projektnameSpan' ).text('Geben Sie bitte die Projektname ein');
+         error = true;
+    } else if (name.length < 4) {
+        $( '.projectDiv' ).removeClass('form-group').addClass('form-group has-error');
+        $( '#projektnameSpan' ).text('Projektname ist zu kurz');
+         error = true;
+    } else {
+        $( '#projektnameSpan' ).text('');
+    }
 	if (client == '') {
 	     $( '.clientDiv' ).removeClass('form-group').addClass('form-group has-error');
+         $( '#auftraggeberSpan' ).text('Suchen Sie den Auftraggeber aus');
 	     error = true;
-	}
+	} else {
+        $( '#auftraggeberSpan' ).text('');
+    }
 	if (person == '') {
 	     $( '.personDiv' ).removeClass('form-group').addClass('form-group has-error');
+         $( '#ansprechpartnerSpan' ).text('Suchen Sie den Ansprechpartner aus');
 	     error = true;
-	}
+	} else {
+        $( '#ansprechpartnerSpan' ).text('');
+    }
 	if (address == '') {
 	     $( '.addressDiv' ).removeClass('form-group').addClass('form-group has-error');
+         $( '#rechnungsadresseSpan' ).text('Suchen Sie die Rechnungsadresse aus');
 	     error = true;
-	}
+	} else {
+        $( '#rechnungsadresseSpan' ).text('');
+    }
 	if (kundenauftragsnummer == '') {
-	     $( '#numberDiv' ).removeClass('form-group').addClass('form-group has-error');
-	     error = true;
-	}
+         $( '#numberDiv' ).removeClass('form-group').addClass('form-group has-error');
+         $( '#kundenauftragsnummerSpan' ).text('Geben Sie bitte die Auftragsnummer ein');
+         error = true;
+    } else if (kundenauftragsnummer.length < 4) {
+        $( '.numberDiv' ).removeClass('form-group').addClass('form-group has-error');
+        $( '#kundenauftragsnummerSpan' ).text('Nummer ist zu kurz');
+         error = true;
+    } else {
+        $( '#kundenauftragsnummerSpan' ).text('');
+    }
 	if (error == true) {
-	     return false;
+        $( 'input[name=projektname]' ).keyup(function() {
+            var value = $( this ).val();
+            if (value.length > 3) {
+                $( '.projectDiv' ).removeClass('form-group has-error').addClass('form-group');
+                $( '#projektnameSpan' ).text('');
+            } else {
+                $( '.projectDiv' ).removeClass('form-group').addClass('form-group has-error');
+                $( '#projektnameSpan' ).text('Projektname ist zu kurz');
+            }
+        });
+        $( 'input[name=kundenauftragsnummer]' ).keyup(function() {
+            var value = $( this ).val();
+            if (value.length > 2) {
+                $( '#numberDiv' ).removeClass('form-group has-error').addClass('form-group');
+                $( '#kundenauftragsnummerSpan' ).text('');
+            } else {
+                $( '#numberDiv' ).removeClass('form-group').addClass('form-group has-error');
+                $( '#kundenauftragsnummerSpan' ).text('Auftragsnummer ist zu kurz');
+            }
+        });
+        $('input[name=auftraggeber]').keyup(function() {
+            var value = $('input[name=auftraggeber]').val();
+            if (value == '') {
+                $( '.clientDiv' ).removeClass('form-group').addClass('form-group has-error');
+                $( '#auftraggeberSpan' ).text('Suchen Sie den Auftraggeber aus');
+            }
+        });
+        $('input[name=ansprechpartnerBasic]').keyup(function() {
+            var value = $('input[name=ansprechpartnerBasic]').val();
+            if (value == '') {
+                $( '.personDiv' ).removeClass('form-group').addClass('form-group has-error');
+                $( '#ansprechpartnerSpan' ).text('Suchen Sie den Ansprechpartner aus');
+            }
+        });
+        $('input[name=rechnungsadresseBasic]').keyup(function() {
+            var value = $('input[name=rechnungsadresseBasic]').val();
+            if (value == '') {
+                $( '.addressDiv' ).removeClass('form-group').addClass('form-group has-error');
+                $( '#rechnungsadresseSpan' ).text('Suchen Sie die Rechnungsadresse aus');
+            }
+        });
+	   return false;
 	}
 	$( '#newProjectClient' ).val(clientId);
 	$( '#newProjectPerson' ).val(personId);
@@ -213,7 +339,7 @@ $( document ).ready(function() {
         $( '#auftraggeberLabel' ).html('Auftraggeber');
 	    var clientName = $('input[name=auftraggeber]').val();
 	    if (clientName == '') {
-		return false;
+		    return false;
 	    }
 	    if (window.location.href == urlPath) {
 	        path = "Api/Project/";
@@ -244,42 +370,60 @@ $( document ).ready(function() {
 									    type: "get",
 						      			success: function(result)
 							    		{
-											$('input[name=ansprechpartnerBasic]').prop('disabled', false);
-											$('input[name=rechnungsadresseBasic]').prop('disabled', false);
-											$( 'input[name=auftraggeber]' ).attr('id', result);
-											var currentVal = $('#hiddenCustomerName').val();
-											if (currentVal == name) {
-												console.log('The same');
-												return false;
-											} else {
-											    $('#hiddenCustomerName').val(name);
-											    if (concrete == true) {
-												var projectId = 'auftraggeber<>' + $( '#hiddenProjectId' ).val();
-												changeDate(result, projectId);
-											    }
-											    var current = null;
-											    $('input[name=ansprechpartnerBasic]').val('');
-											    $('input[name=rechnungsadresseBasic]').val('');
-											    if (concrete == true) {
-												var projectId = 'ansprechpartner<>' + $( '#hiddenProjectId' ).val();
-												changeDate(current, projectId);
-											    }
-											    if (concrete == true) {
-												var projectId = 'rechnungsadresse<>' + $( '#hiddenProjectId' ).val();
-												changeDate(current, projectId);
-												var timerId = setInterval(function() {
-												  if(finalResult !== null) {
-												      if(finalResult == 'success') {
-													location.reload();
-												      }
-												    clearInterval(timerId);
-												    } else {
-													console.log(finalResult);
-												    }
-												}, 1500);
-											    }
-											} 
-										}
+                            				$( 'input[name=auftraggeber]' ).attr('id', result);
+                            				var currentVal = $('#hiddenCustomerName').val();
+                            				if (currentVal == name) {
+                            					console.log('The same');
+                            					return false;
+                            				} else {
+                            					if (window.location.href == urlPath) {
+                            						var detailPath = 'Api/ClientDetails/';
+                            						$.ajax({url: detailPath + result,  
+										                type: "get",
+										                success: function(data)
+										                {
+										                	var jsonData = JSON.parse(data);
+										                	var paymentOpt = data[1];
+										                	$( '#zahlungszielDisplay' ).text(jsonData.paymentOpt);
+										                	var skonto = data[0];
+										                	$( '#skontoDisplay' ).text(jsonData.skonto);
+                                                            $( '#auftraggeberSpan' ).text('');
+                                                            $('input[name=invidivuell_1]').prop('disabled', false);
+                                                            $('input[name=invidivuell_2]').prop('disabled', false);
+										                	$('input[name=ansprechpartnerBasic]').prop('disabled', false);
+                            								$('input[name=rechnungsadresseBasic]').prop('disabled', false);
+										                }
+										            });
+                            					} else {
+                            						$('#hiddenCustomerName').val(name);
+                            						if (concrete == true) {
+                            							var projectId = 'auftraggeber<>' + $( '#hiddenProjectId' ).val();
+                            							changeDate(result, projectId);
+                            						}
+                            						var current = null;
+                            						$('input[name=ansprechpartnerBasic]').val('');
+                            						$('input[name=rechnungsadresseBasic]').val('');
+                            						if (concrete == true) {
+                            							var projectId = 'ansprechpartner<>' + $( '#hiddenProjectId' ).val();
+                            							changeDate(current, projectId);
+                            						}
+                            						if (concrete == true) {
+                            							var projectId = 'rechnungsadresse<>' + $( '#hiddenProjectId' ).val();
+                            							changeDate(current, projectId);
+                            							var timerId = setInterval(function() {
+                            								if(finalResult !== null) {
+                            									if(finalResult == 'success') {
+                            										location.reload();
+                            									}
+                            									clearInterval(timerId);
+                            								} else {
+                            									console.log(finalResult);
+                            								}
+                            							}, 1500);
+                            						}
+                            					}
+                            				} 
+                            			}
 								    }); 
                                 }
                             });
@@ -323,6 +467,7 @@ $( document ).ready(function() {
 								type: "get",
 								success: function(result)
 								{
+                                    $( '#ansprechpartnerSpan' ).text('');
 									$('input[name=ansprechpartnerBasic]').attr('id', result);
 									if (concrete == true) {
 										var projectId = 'ansprechpartner<>' + $( '#hiddenProjectId' ).val();
@@ -371,6 +516,7 @@ $( document ).ready(function() {
 								type: "get",
 								success: function(result)
 								{
+                                    $( '#rechnungsadresseSpan' ).text('');
 									$('input[name=rechnungsadresseBasic]').attr('id', result);
 									if (concrete == true) {
 										var projectId = 'rechnungsadresse<>' + $( '#hiddenProjectId' ).val();
@@ -385,32 +531,11 @@ $( document ).ready(function() {
 		}); 
 	});
 
-    $('input[name=individual_skonto]').keyup(function() {
-        $( '#skontoLabel' ).html('Skonto');
-        $( '#skontoDiv' ).removeClass('form-group has-error').addClass('form-group');
-        var currentSkonto = $(this).val();
-        if ($.isNumeric( currentSkonto )) {
-            var error = false;
-        } else {
-            $( '#skontoDiv' ).removeClass('form-group').addClass('form-group has-error');
-            $( '#skontoLabel' ).html('Das ist keine Anzahl');
-            return false;
-        }
-        if (currentSkonto < 0) {
-            var error = true;
-        } 
-        if (currentSkonto > 100) {
-            var error = true;
-        }
-        if ( error == true ) {
-            $( '#skontoDiv' ).removeClass('form-group').addClass('form-group has-error');
-            $( '#skontoLabel' ).html('Anzahl 0-100');
-        }
-    });
-
     $('input[name=auftraggeber]').blur(function() {
         var currentClient = $(this).val();
         if (currentClient == '') {
+        $('input[name=invidivuell_1]').prop('disabled', 'disabled');
+        $('input[name=invidivuell_2]').prop('disabled', 'disabled');    
 	    $('input[name=ansprechpartnerBasic]').val('');
 	    $('input[name=ansprechpartnerBasic]').prop('disabled', 'disabled');
 	    $('input[name=rechnungsadresseBasic]').val('');
@@ -503,7 +628,6 @@ $( document ).ready(function() {
     });
 
     $( '.singleDateToChange' ).blur(function() {
-	$( this ).parent().removeClass('form-group has-error').addClass('form-group');
         function isInteger(value)      
         {       
             num = value.trim();         
@@ -513,10 +637,26 @@ $( document ).ready(function() {
         var curDate = $( this ).val();
         var variable = $( this ).attr('id');
         if ( variable == 'pattern' ) {
-            
+            $( '#pattern' ).removeAttr( 'style' );
+            var check = isInteger(curDate);
+            if (curDate == '') {
+                $( '#pattern' ).css('border-color', '');
+                return false;
+            }
+            if (check == false) {
+                $( '#pattern' ).css('border-color', '#a94442');
+                return false;
+            }
+        } else if (variable == 'individual_skonto') {
+            $( '#individual_skonto' ).removeAttr( 'style' );
+            $( '#skontoLabel' ).html('Skonto');
+            if (curDate == '') {
+                return false;
+            }
             var check = isInteger(curDate);
             if (check == false) {
-                $( '#patternDiv' ).removeClass('form-group').addClass('form-group has-error');
+                $( '#skontoLabel' ).html('Das ist keine Anzahl');
+                $( '#individual_skonto' ).css('border-color', '#a94442');
                 return false;
             }
         }
@@ -639,11 +779,14 @@ $( document ).ready(function() {
 	    newValue = newValue.replace(',' , '.');
 	    var valueCheck = isInteger(newValue);
 	    if (newValue  != '') {
-		if (valueCheck == false) {
-		      $( this ).css('border-color', 'red');
-		      return false;
-		}
-	    }
+            if (valueCheck == false) {
+                $( this ).css('border-color', '#a94442');
+                return false;
+            }
+        }
+        $( this ).css('background-color', '#eee');
+	$( this ).css('cursor', 'not-allowed');
+	$( this).blur();
 	    var array = ['Project_Calculation', projectId, column, newValue];
 	    changeDate('update', array);
 	    var timerId = setInterval(function() {
@@ -677,11 +820,19 @@ $( document ).ready(function() {
 	});
     });
     
-    $( "#topNewButton" ).mouseover(function() {
+    $( ".notAvailable" ).mouseover(function() {
         $(this).css('cursor', 'not-allowed');
     });
     
-    $( "#topNewButton" ).click(function() {
+    $( ".notAvailable" ).click(function() {
+        event.preventDefault();
+    });
+    
+    $( "#kalkulationNotAllowed" ).mouseover(function() {
+        $(this).css('cursor', 'not-allowed');
+    });
+    
+    $( "#kalkulationNotAllowed" ).click(function() {
         event.preventDefault();
     });
     

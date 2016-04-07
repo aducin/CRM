@@ -65,13 +65,16 @@
         <div class="form-group projectDiv errorNewProjectDiv">
             <label for="status" class="col-sm-2 control-label">Projektname</label>
             <div class="col-sm-6 mrb-20 errorNewProjectDiv">
-                <input type="text" name="projektname" id="name" class="form-control singleDateToChange" placeholder="Geben Sie die Projektname ein" value="{% if dates %}{{ dates.name }}{% endif %}">                                        
+                <input type="text" name="projektname" id="name" class="form-control singleDateToChange" placeholder="Geben Sie die Projektname ein" value="{% if dates %}{{ dates.name }}{% endif %}">  
+                <span id="projektnameSpan" style="text-align: center; color: #a94442;" aria-hidden="true"></span>                                      
             </div>  
             {% if user == 3 %}
             {% else %}
+            {% if dates.projectId %}
                 <div class="col-sm-4">
                     <button type="button" class="btn btn-success fl-right btn-print" data-toggle="modal" data-target="#exampleModal" data-head="@mdo"><i class="fa fa-print"></i></button>
                 </div>
+            {% endif %}
             {% endif %}
         </div>                                     
     </div>

@@ -41,6 +41,11 @@ class Projekt
 	private $auflage2;
 	private $auflage3;
 	private $auflage4;
+	private $descToPrint1;
+	private $descToPrint2;
+	private $descToPrint3;
+	private $descToPrint4;
+	private $descToPrint5;
 	public $error;
 
 	private $creator;
@@ -262,6 +267,17 @@ class Projekt
 	public function getPatterns() {
 		$patterns = array('pattern' => $this->pattern, 'patternTo' => $this->patternTo);
 		return $patterns;
+	}
+	
+	public function getPrintDesc() {
+	    $array = array(
+		$this->descToPrint1, 
+		$this->descToPrint2, 
+		$this->descToPrint3, 
+		$this->descToPrint4, 
+		$this->descToPrint1
+	    );
+	    return $array;
 	}
 
 	public function getRechnungsadresse() {
@@ -726,7 +742,8 @@ class Projekt
 	}
 
 	public function setDates() {
-		$sql='SELECT name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant, reg_date, mandant_select, liefertermin, vorgangsnummer, auftragsnummer, lieferant_id, lieferant_bemerkung, change_date, pattern, pattern_to, amendmentTime, dateTime, proofTime, printTime, showIndPrice, status, deliveryTime, individual_payment, individual_skonto, lieferschein_text, lieferadresse_ab, lieferanweisung, abweichend, auflage1, auflage2, auflage3, auflage4 FROM Projekt WHERE id= :id';
+		$sql='SELECT name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant, 		reg_date, mandant_select, liefertermin, vorgangsnummer, auftragsnummer, lieferant_id, lieferant_bemerkung, change_date, pattern, pattern_to, amendmentTime, dateTime, proofTime, printTime, showIndPrice, status, deliveryTime, individual_payment, individual_skonto, lieferschein_text, lieferadresse_ab, lieferanweisung, abweichend, auflage1, auflage2, auflage3, auflage4, descToPrint1, descToPrint2, descToPrint3, 
+		descToPrint4, descToPrint5 FROM Projekt WHERE id= :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
 		$result->execute();
@@ -776,6 +793,11 @@ class Projekt
 		$this->auflage2 = $dates['auflage2'];
 		$this->auflage3 = $dates['auflage3'];
 		$this->auflage4 = $dates['auflage4'];
+		$this->descToPrint1 = $dates['descToPrint1'];
+		$this->descToPrint2 = $dates['descToPrint2'];
+		$this->descToPrint3 = $dates['descToPrint3'];
+		$this->descToPrint4 = $dates['descToPrint4'];
+		$this->descToPrint5 = $dates['descToPrint5'];
 	}
 
 	public function setLieferant($id, $bemerkung = null) {

@@ -8,7 +8,9 @@
                         <div class="input-group">
                             <div class="input-group-addon"><i class="fa fa-search"></i></div>                                            
                             <input type="text" name="auftraggeber" id="{{ customer.id }}" class="form-control" placeholder="Suchen Sie einen Auftraggeber aus" value="{% if customer %}{{ customer.name }}{% endif %}" />
+                            
                         </div>
+                        <span id="auftraggeberSpan" style="text-align: center; color: #a94442;" aria-hidden="true"></span>
                         <div>
 			  {% if dates.projectId %}
 			    <input type="hidden" id="hiddenProjectId" value="{{ dates.projectId }}" >
@@ -21,7 +23,11 @@
                         </div>
                     </div>    
                     <div class="col-sm-3">
-                        <button type="button" class="btn btn-primary fl-right" data-toggle="modal" data-target="#changeClientPopup" data-head="@mdo" style="margin-left: 5px;">Bearbeiten</button>                                             
+			         {% if dates.projectId %}
+			             <button type="button" class="btn btn-primary fl-right" data-toggle="modal" data-target="#changeClientPopup" data-head="@mdo" style="margin-left: 5px;">Bearbeiten</button>         
+                     {% else %}
+                        <button type="button" class="btn btn-primary fl-right" data-toggle="modal" data-target="#changeClientPopup" data-head="@mdo" style="margin-left: 5px;" disabled="disabled">Bearbeiten</button>
+                     {% endif %}
                         <button type="button" class="btn btn-primary fl-right" data-toggle="modal" data-target="#newClientPopup" data-head="@mdo">Neu</button>
                     </div>                                        
                 </div>
@@ -31,7 +37,9 @@
                         <div class="input-group">
                             <div class="input-group-addon"><i class="fa fa-search"></i></div>                                            
                             <input type="text" name="ansprechpartnerBasic" id="{{ seller.id }}" class="form-control" placeholder="Suchen Sie einen Ansprechpartner aus" value="{% if seller.name %}{{ seller.name }} {{ seller.vorname }}{% endif %}" {% if customer.name %}{% else %} disabled="disabled" {% endif %} />
+                            
                         </div>
+                        <span id="ansprechpartnerSpan" style="text-align: center; color: #a94442;" aria-hidden="true"></span>
                     </div>                                      
                 </div>  
                 <div class="form-group addressDiv errorNewProjectDiv" id="rechnungsadresseDiv">
@@ -40,13 +48,16 @@
                         <div class="input-group">
                             <div class="input-group-addon"><i class="fa fa-search"></i></div>                                            
                             <input type="text" name="rechnungsadresseBasic" id="{{ address.id }}" class="form-control" placeholder="Suchen Sie eine Rechnungsadresse aus" value="{% if address.name %}{{ address.name }}: {{ address.abteilung }}{% endif %}" {% if customer.name %}{% else %} disabled="disabled" {% endif %} >
+                            
                         </div>
+                        <span id="rechnungsadresseSpan" style="text-align: center; color: #a94442;" aria-hidden="true"></span>
                     </div>                                      
                 </div>   
                 <div class="form-group errorNewProjectDiv" id="numberDiv">
                     <label for="kundenauftragsnummer" class="col-sm-3 control-label ">Kundenauftragsnummer</label>
                     <div class="col-sm-6">                                      
                         <input type="text" name="kundenauftragsnummer" id="kundenauftragsnummer" class="form-control singleDateToChange" placeholder="" value="{% if dates %}{{ dates.kundenNummer }}{% endif %}">
+                        <span id="kundenauftragsnummerSpan" style="text-align: center; color: #a94442;" aria-hidden="true"></span>
                     </div>                                      
                 </div>        
                 <div class="form-group">
@@ -56,7 +67,7 @@
                     </div> 
                     <div class="col-sm-3 gray-font">                                        
                         <div class="checkbox">
-                            <input id="invidivuell_1" name="invidivuell_1" type="checkbox" {% if dates.payment %} checked="checked" {% endif %}>
+                            <input id="invidivuell_1" name="invidivuell_1" type="checkbox" {% if dates.payment %} checked="checked" {% endif %} {% if dates.projectId %}{% else %} disabled="disabled" {% endif %}>
                             <label for="invidivuell_1">
                                 invidivuell
                             </label>
@@ -80,7 +91,7 @@
                     </div> 
                     <div class="col-sm-3 gray-font">                                        
                         <div class="checkbox">
-                            <input id="invidivuell_2" name="invidivuell_2" type="checkbox" {% if dates.skonto %} checked="checked" {% endif %}>
+                            <input id="invidivuell_2" name="invidivuell_2" type="checkbox" {% if dates.skonto %} checked="checked" {% endif %} {% if dates.projectId %}{% else %} disabled="disabled" {% endif %}>
                             <label for="invidivuell_2">
                                 invidivuell
                             </label>
@@ -88,12 +99,13 @@
                     </div> 
                     <div class="col-sm-3 form-inline" id="skontoDiv"> 
                         <input type="text" name="individual_skonto" id="individual_skonto" class="form-control singleDateToChange" placeholder="Prozent" value="{% if dates.skonto %}{{ dates.skonto }}{% endif %}" size="3" {% if dates.skonto %}{% else %} disabled="disabled" {% endif %} >
+                        <span id="skontoSpan" style="text-align: center; color: #a94442;" aria-hidden="true"></span>
                     </div>                                   
                 </div> 
                 <div class="form-group">
                     <label for="muster" class="col-sm-3 control-label">Muster in Tasche</label>
                     <div class="col-sm-6 form-inline" id="patternDiv">                                   
-                        <input type="text" name="pattern" id="pattern" class="form-control singleDateToChange" placeholder="" value="{% if patterns %}{{ patterns.pattern }}{% endif %}" size="3" style="text-align: center;">
+                        <input type="text" name="pattern" id="pattern" class="form-control singleDateToChange" placeholder="" value="{% if patterns %}{{ patterns.pattern }}{% endif %}" size="3" style="text-align: center;"><br><span id="musterSpan" style="text-align: center; color: #a94442;" aria-hidden="true"></span>
                     </div>                                      
                 </div>
                 <div class="form-group">

@@ -39,6 +39,10 @@ class OutputController
         include ('view/templates/error.html');
     }
 
+    public function render404() {
+        include ('view/templates/404.html');
+    }
+
     public function renderConfigSite($paymentOptions, $role, $users) {
         $text = Helpers::getSettings('standardText');
         $output = $this->twig->render('/config.html', array(
@@ -82,6 +86,7 @@ class OutputController
             $customer = $project->auftraggeber->getDates();
             $sellerList = $project->ansprechpartner->getAllAnsprechpartner($customer['id']);
             $addressList = $project->rechnungsadresse->getAllRechnungsadressen($customer['id']);
+            $printDesc = $project->getPrintDesc();
             $seller = $project->ansprechpartner->getDates();
             $address = $project->rechnungsadresse->getDates();
             $patterns = $project->getPatterns();

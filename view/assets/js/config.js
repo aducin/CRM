@@ -14,62 +14,75 @@ $( document ).ready(function() {
     }
     
     function changeRow(object) {
-	$('.configToUpdate').hide();
-        $('.configToChange').show();
-        var value = object.attr('id');
-        var rowId = object.parent().attr('id');
-        var next = object.next();
-	var column = object.attr('id');
-	var value = object.text();
-        object.text('');
-	object.append('<input type="text" name="sth" class="form-control configToUpdate" id="' + column + '" value="' + value +'" />');
-	$( '.configUserToChange' ).focus();
-	$( '.configUserToChange' ).select();
-	var value = next.find('input:first').attr('id');
-	if (value == 'name') {
-	    next.find('input:first').focus();
-	    next.find('input:first').select();
-	}
-	$('.configToUpdate').change(function() {
-	    var value = $(this).val();
-	    var column = $(this).attr('id');
-	    var previous = $(this).prev();
-	    var rowId = $(this).parent().parent().attr('id');
-	    var data = 'Zahlungsziel<>' + column + '<>' + rowId;
-	    var single = 'configUpdate';
-	    changeDate(single, data, value);
-	    var timerId = setInterval(function() {
-	      if(finalResult !== null) {
-		if(finalResult == 'success') {
-		  if (value == 0) {
-		      value = '--';
-		  }
-		  $( '.configToUpdate' ).hide();
-		  object.text(value);
-		}
-	     clearInterval(timerId);
-	     } else {
-		console.log(finalResult);
-	     }
-	 }, 1500);
-	});
+    	var sth = $('.configToUpdate').val();
+    	$('.configToUpdate').parent().text(sth);
+    	$('.configToUpdate').hide();
+    	$('.configToChange').show();
+    	var value = object.attr('id');
+    	var rowId = object.parent().attr('id');
+    	var next = object.next();
+    	var column = object.attr('id');
+    	var value = object.text();
+    	object.text('');
+    	object.append('<input type="text" name="sth" class="form-control configToUpdate" id="' + column + '" value="' + value +'" />');
+    	$( '.configUserToChange' ).focus();
+    	var value = next.find('input:first').attr('id');
+    	if (value == 'name') {
+    		next.find('input:first').focus();
+    	}
+    	$('.configToUpdate').change(function() {
+    		$( this ).removeAttr( 'style' );
+    		var value = $(this).val();
+    		if (value == '') {
+    			$(this).css('border-color', '#a94442');
+	 			$(this).focus();
+	 			return false;
+    		}
+    		var column = $(this).attr('id');
+    		var previous = $(this).prev();
+    		var rowId = $(this).parent().parent().attr('id');
+    		var data = 'Zahlungsziel<>' + column + '<>' + rowId;
+    		var single = 'configUpdate';
+    		$(this).prop('disabled', true);
+    		changeDate(single, data, value);
+    		var timerId = setInterval(function() {
+    			if(finalResult !== null) {
+    				if(finalResult == 'success') {
+    					if (value == 0) {
+    						value = '--';
+    					}
+    					$( '.configToUpdate' ).hide();
+    					$(this).prop('disabled', false);
+    					object.text(value);
+    				}
+    				clearInterval(timerId);
+    			} else {
+    				console.log(finalResult);
+    			}
+    		}, 1500);
+    	});
     }
     
     function changeUserRow(object) {
-	$('.configUserToUpdate').hide();
-        $('.configUserToChange').show();
-        var next = object.next();
-        object.hide();
-	next.show();
-	var value = next.find('input:first').attr('id');
-	if (value == 'name') {
-	    next.find('input:first').focus();
-	    next.find('input:first').select();
-	}
+    	$('.configUserToUpdate').hide();
+    	$('.configUserToChange').show();
+    	var next = object.next();
+    	object.hide();
+    	next.show();
+    	var value = next.find('input:first').attr('id');
+    	if (value == 'name') {
+    		next.find('input:first').focus();
+    	}
     }
     
     function columnChange(object) {
+     object.children().removeAttr( 'style' );
 	 var value = object.children().val();
+	 if (value == '') {
+	 	object.children().css('border-color', '#a94442');
+	 	object.children().focus();
+	 	return false;
+	 }
 	 var rowId = object.parent().attr('id');
 	 var column = object.children().attr('id');
 	 var previous = object.prev();
@@ -84,6 +97,7 @@ $( document ).ready(function() {
 	      var data = 'Zahlungsziel<>' + column + '<>' + rowId;
 	 }
 	 var single = 'configUpdate';
+	 object.children().prop('disabled', true);
 	 changeDate(single, data, value);
 	 var timerId = setInterval(function() {
 	     if(finalResult !== null) {
@@ -99,6 +113,7 @@ $( document ).ready(function() {
 		  } else {
 		      $( '.configToUpdate' ).hide();
 		  }
+		  object.children().prop('disabled', false);
 		  previous.show();
 		}
 	     clearInterval(timerId);
@@ -111,7 +126,7 @@ $( document ).ready(function() {
     function getRowId(object) {
 	$("tr.rowsConfigPaymentOpt").css('background-color', "#f9f9f9");
 	var idVal = object.attr('id');
-	object.css('background-color', "rgb(238, 193, 213)");
+	object.css('background-color', "#e9e9e9");
 	$('.deletePaymentOpt').attr('id', idVal);
 	$('.deletePaymentOpt').prop('disabled', false);
     }
@@ -119,7 +134,7 @@ $( document ).ready(function() {
     function getUserRowId(object) {
 	$("tr.rowsConfigUser").css('background-color', "#f9f9f9");
 	var idVal = object.attr('id');
-	object.css('background-color', "rgb(238, 193, 213)");
+	object.css('background-color', "#e9e9e9");
 	$('.deleteUser').attr('id', idVal);
 	$('.deleteUser').prop('disabled', false);
     }

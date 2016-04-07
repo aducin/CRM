@@ -73,13 +73,14 @@ $( document ).ready(function() {
     if (value == 'purchasePrice' || value == 'sellPrice') {
       name = name.replace(",", ".");
       function isNumber(n) { return /^-?[\d.]+(?:e-?\d+)?$/.test(n); }
-      var check = isNumber(name);
-      if (check == false) {
-        //variable.children().val(previous.text());
-	variable.children().css('border-color', 'red');
-	variable.children().focus();
-	variable.children().select();
-        return false;
+      if (name != '') {
+        var check = isNumber(name);
+        if (check == false) {
+        	variable.children().css('border-color', '#a94442');
+        	variable.children().focus();
+        	variable.children().select();
+          return false;
+        }
       }
       var name2 = name.split(".");
       if (name2[1] == null) {
@@ -95,22 +96,30 @@ $( document ).ready(function() {
     }
     var rowId = variable.parent().attr('id');
     var date = value + '-' + name;
+    variable.children().prop('disabled', true);
     changeDate(date, rowId);
     var timerId = setInterval(function() {
 	     if(finalResult !== null) {
 		if(finalResult == 'done') {
+      if (name == '') {
+        name = '<i>keine Daten</i>';
+      }
 		  if (value == 'purchasePrice' || value == 'sellPrice') {
-		    previous.text( name );
+        if (name == '.00') {
+          name = '<i>keine Daten</>';
+        }
+		    previous.html( name );
 		    var projectId = $( '#hiddenProjectId').val();
 		    getAmount(projectId);
 		  } else if (value == 'textDate') {
 		    var exploded = name.split("/");
 		    name = exploded[2] + '/' + exploded[1] + '/' + exploded[0];
-		    previous.text( name );
+		    previous.html( name );
 		  }else {
-		    previous.text( name );
+		    previous.html( name );
 		  }
 		  variable.hide();
+      variable.children().prop('disabled', false);
 		  previous.show();
 		  }
 		  clearInterval(timerId);
@@ -123,7 +132,7 @@ $( document ).ready(function() {
 
   function getAmount(projectId) {
     if (window.location.href == "http://kluby.local/CRM/Erfassung") {
-      alert('No project at this time');
+      console.log('No project at this time');
     } else {
       var path = "../Api/Amount/";
     }      
@@ -134,7 +143,7 @@ $( document ).ready(function() {
         if(result != 'false') {
           $( '#totalFremdarbeiten' ).text(result + ' EURO');
         } else {
-          alert('No description currently available');
+          console.log('No description currently available');
         }
       }
     });
@@ -143,7 +152,7 @@ $( document ).ready(function() {
   function getRowId(variable) {
     $("tr.rowsFremdarbeiten").removeAttr( 'style' );
     var idVal = variable.attr('id');
-    variable.css('background-color', "rgb(238, 193, 213)");
+    variable.css('background-color', "#e9e9e9");
     $('.deleteButtonFremdarbeiten').attr('id', idVal);
     $('.deleteButtonFremdarbeiten').prop('disabled', false);
   }

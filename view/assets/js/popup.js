@@ -1,10 +1,22 @@
 $( document ).ready(function() {
   
+    function isInteger(value)      
+        {       
+            num = value.trim();         
+            return !(value.match(/\s/g)||num==""||isNaN(num)||(typeof(value)=='number'));        
+        }
+        
+    function validateEmail(email) 
+        {
+            var re = /\S+@\S+\.\S+/;
+            return re.test(email);
+        }
+  
     var finalResult;
-    var urlPath = "http://kluby.local/CRM/Erfassung";
+    var urlPath = "http://ad9bis.vot.pl/CRM/Erfassung";
 
     function changeClientOption(dates, value) {
-	if (window.location.href == "http://kluby.local/CRM/Erfassung") {
+	if (window.location.href == urlPath) {
            console.log('No project at this time');
         } else {
            var path = "../Api/ClientOption/";
@@ -21,7 +33,7 @@ $( document ).ready(function() {
     }
     
     function changeDate(curDate, project) {
-        if (window.location.href == "http://kluby.local/CRM/Erfassung") {
+        if (window.location.href == urlPath) {
             console.log('No project at this time');
         } else {
             var path = "../Api/Dates/";
@@ -57,18 +69,51 @@ $( document ).ready(function() {
     function columnChange(variable) {
     	var name = variable.children().val();
     	var value = variable.attr('id');
-    	var previous = variable.prev();
+        if (value == 'plz') {
+            name = name.replace('-', '');
+            var check = isInteger(name);
+            if (check == false) {
+                variable.children().css('border-color', '#a94442');
+                return false;
+            } else if (name.length < 5 || name.length > 5) {
+                variable.children().css('border-color', '#a94442');
+                return false;
+            } else {
+                variable.children().css('border-color', '');
+            }
+        } else if (value == 'telefon' || value == 'telefon2') {
+            var phoneNum = name.replace(/[^\d]/g, '');
+            if(phoneNum.length < 8 || phoneNum.length > 11) { 
+                variable.children().css('border-color', '#a94442');
+                return false;
+            } else {
+                variable.children().css('border-color', '');
+            }
+        } else if (value == 'mail') {
+            var emailCheck = validateEmail(name);
+            if (emailCheck == false) {
+                variable.children().css('border-color', '#a94442');
+                return false;
+            } else {
+                variable.children().css('border-color', '');
+            }
+        }
+     	var previous = variable.prev();
     	var table = variable.children().attr("name");
     	var rowId = variable.parent().attr('id');
     	var date = table + '<>' + value + '<>' + rowId;
+        variable.children().prop('disabled', true);
     	changeClientOption(date, name);
     	var timerId = setInterval(function() {
-    		if(finalResult !== null) {
-    		    if(finalResult == 'success') {
-    		      
-    			previous.text( name );
-    			variable.hide();
-    			previous.show();
+    		if (finalResult !== null) {
+    		    if (finalResult == 'success') {
+    		        if (name == '') {
+                        name = '<i>keine Daten</i>';
+                    }
+        			previous.html( name );
+        			variable.hide();
+                    variable.children().prop('disabled', false);
+        			previous.show();
     		    }
     		clearInterval(timerId);
     		} else {
@@ -94,23 +139,31 @@ $( document ).ready(function() {
     function rowClick(object) {
         $("tr.rowsBearbeitenAddress").removeAttr( 'style' );
         var idVal = object.attr('id');
-        object.css('background-color', "rgb(238, 193, 213)");
+        object.css('background-color', "#e9e9e9");
         $('.deleteBearbeitenButtonAddress').attr('id', idVal);
         $('.deleteBearbeitenButtonAddress').prop('disabled', false);
     }
 
     function rowNewClick(object) {
-        $("tr.rowsNewPerson").removeAttr( 'style' );
-	var idVal = object.attr('id');
-	object.css('background-color', "rgb(238, 193, 213)");
-	$('.deleteButtonContact').attr('id', idVal);
-	$('.deleteButtonContact').prop('disabled', false);
+        $("tr.rowsNewPerson2").removeAttr( 'style' );
+    	var idVal = object.attr('id');
+    	object.css('background-color', "#e9e9e9");
+    	$('.deleteButtonContact').attr('id', idVal);
+    	$('.deleteButtonContact').prop('disabled', false);
+    }
+
+    function rowNewAddressClick(object) {
+        $("tr.rowsNewAddress2").removeAttr( 'style' );
+        var idVal = object.attr('id');
+        object.css('background-color', "#e9e9e9");
+        $('.deleteButtonAddress').attr('id', idVal);
+        $('.deleteButtonAddress').prop('disabled', false);
     }
 
     function rowPersonClick(object) {
         $("tr.rowsBearbeitenPerson").removeAttr( 'style' );
         var idVal = object.attr('id');
-        object.css('background-color', "rgb(238, 193, 213)");
+        object.css('background-color', "#e9e9e9");
         $('.deleteBearbeitenButtonPerson').attr('id', idVal);
         $('.deleteBearbeitenButtonPerson').prop('disabled', false);
     }
@@ -124,8 +177,8 @@ $( document ).ready(function() {
     });
     
     $( "#newBearbeitenButtonPerson" ).click(function() {
-        $("tr.rowsBearbeitenAddress").removeAttr( 'style' );
-        $('.deleteBearbeitenButtonAddress').prop('disabled', true);
+        $("tr.rowsBearbeitenPerson").removeAttr( 'style' );
+        $('.deleteBearbeitenButtonPerson').prop('disabled', true);
     	$( '#hiddenBearbeitenTrPerson' ).fadeIn( 'slow' );
     	$( '#hideBearbeitenButtonPerson' ).show();
         $( this ).prop('disabled', true);
@@ -156,7 +209,7 @@ $( document ).ready(function() {
     $("tr.rowsNewAddress").click(function(){
     	$("tr.rowsNewAddress").removeAttr( 'style' );
     	var idVal = $(this).attr('id');
-    	$(this).css('background-color', "rgb(238, 193, 213)");
+    	$(this).css('background-color', "#e9e9e9");
     	$('.deleteNewButtonAddress').attr('id', idVal);
     	$('.deleteNewButtonAddress').prop('disabled', false);
     });
@@ -226,8 +279,21 @@ $( document ).ready(function() {
         if (plz == '') {
             error = true;
             $( '#hiddenAddressPlzDiv' ).addClass('form-group has-error').addClass('form-group');
+        } else {
+            name = plz.replace('-', '');
+            var check = isInteger(name);
+            if (check == false) {
+                error = true;
+                $( '#hiddenAddressPlzDiv' ).addClass('form-group has-error').addClass('form-group');
+            } else if (name.length < 5 || name.length > 5) {
+                error = true;
+                $( '#hiddenAddressPlzDiv' ).addClass('form-group has-error').addClass('form-group');
+            }        
         }
         if (ort == '') {
+            error = true;
+            $( '#hiddenAddressOrtDiv' ).addClass('form-group has-error').addClass('form-group');
+        } else if (ort.length < 3) {
             error = true;
             $( '#hiddenAddressOrtDiv' ).addClass('form-group has-error').addClass('form-group');
         }
@@ -329,22 +395,156 @@ $( document ).ready(function() {
     });
     
     $('.hiddenNewAddressTr').change(function() {
-	var addressName = $('input[name=hiddenAddressName]').val();
+        var error = false;
+        $( '.hiddenNewAddressTr' ).removeClass('form-group has-error').addClass('form-group');
+        var addressName = $('input[name=hiddenAddressName]').val();
         var abteilung = $('input[name=hiddenAddressAbteilung]').val();
         var anschrift = $('input[name=hiddenAddressAnschrift]').val();
         var anschrift2 = $('input[name=hiddenAddressAnschrift2]').val();
         var plz = $('input[name=hiddenAddressPlz]').val();
         var ort = $('input[name=hiddenAddressOrt]').val();
         var clientId = $( '#hiddenClientId' ).val();
-	alert(addressName + abteilung + anschrift + anschrift2 + plz + ort); return false;
+        if (addressName == '') {
+            error = true;
+            $( '#newAddressNameDiv' ).addClass('form-group has-error').addClass('form-group');
+        } 
+        if (abteilung == '') {
+            error = true;
+            $( '#newAddressAbteilungDiv' ).addClass('form-group has-error').addClass('form-group');
+        } 
+        if (anschrift == '') {
+            error = true;
+            $( '#newAddressAnschriftDiv' ).addClass('form-group has-error').addClass('form-group');
+        } 
+        if (plz == '') {
+            error = true;
+            $( '#newAddressPlzDiv' ).addClass('form-group has-error').addClass('form-group');
+        } else {
+            name = plz.replace('-', '');
+            var check = isInteger(name);
+            if (check == false) {
+                error = true;
+                $( '#newAddressPlzDiv' ).addClass('form-group has-error').addClass('form-group');
+            } else if (name.length < 5 || name.length > 5) {
+                error = true;
+                $( '#newAddressPlzDiv' ).addClass('form-group has-error').addClass('form-group');
+            }        
+        }
+        if (ort == '') {
+            error = true;
+            $( '#newAddressOrtDiv' ).addClass('form-group has-error').addClass('form-group');
+        } else if (ort.length < 3) {
+            error = true;
+            $( '#newAddressOrtDiv' ).addClass('form-group has-error').addClass('form-group');
+        }
+
+        if (error == true) {
+            return false;
+        } else {
+            var singleAction = 'clientInsert';
+            var project = 'Rechnungsadressen<>' + addressName + '<>' +abteilung + '<>' + anschrift + '<>' + anschrift2 + '<>' + plz + '<>' + ort + '<>' + clientId;
+            if (window.location.href == urlPath) {
+               var path = "Api/Dates/";
+            } else {
+                var path = "../Api/Dates/";
+            }
+            $.ajax({url: path,
+                type: "post",
+                data: { 'action' : 'ajax', 'concrete' : 'dates', 'value' : project, 'singleAction' :  singleAction},
+                success: function(result)
+                {   
+                    if(result !== 'false') {
+                        var rowId = result;
+                        var tableRow = '<tr class="clickable-row rowsNewAddress2"  name="' + rowId + '" id="' + rowId + '">';
+                        tableRow += '<td id="' + rowId + '"><div class="newAddressToChange" id="name">';
+                        if (name.length == 0) {
+                            tableRow += '<i>keine Daten</i>';
+                        } else {
+                            tableRow += name; 
+                        }
+                        tableRow += '</div>';
+                        tableRow += '<div class="newAddressToUpdate" id="name" style="display: none;"><input type="text" class="form-control" name="rechnungsadresse" value="' + addressName + '" /></div></td>';
+                        tableRow += '<td id="' + rowId + '"><div class="newAddressToChange" id="abteilung">';
+                        if (abteilung.length == 0) {
+                            tableRow += '<i>keine Daten</i>';
+                        } else {
+                            tableRow += abteilung; 
+                        }
+                        tableRow += '</div>';
+                        tableRow += '<div class="newAddressToUpdate" id="abteilung" style="display: none;"><input type="text" class="form-control" name="rechnungsadresse" value="' + abteilung + '" /></div></td>';
+                        tableRow += '<td id="' + rowId + '"><div class="newAddressToChange" id="anschrift">';
+                        if (anschrift.length == 0) {
+                            tableRow += '<i>keine Daten</i>';
+                        } else {
+                            tableRow += anschrift;
+                        }
+                        tableRow += '</div>';
+                        tableRow += '<div class="newAddressToUpdate" id="anschrift" style="display: none;"><input type="text" class="form-control" name="rechnungsadresse" value="' + anschrift + '" /></div></td>';
+                        tableRow += '<td id="' + rowId + '"><div class="newAddressToChange" id="anschrift2">';
+                        if (anschrift2.length == 0) {
+                            tableRow += '<i>keine Daten</i>';
+                        } else {
+                            tableRow += anschrift2;
+                        }
+                        tableRow += '</div>';
+                        tableRow += '<div class="newAddressToUpdate" id="anschrift2" style="display: none;"><input type="text" class="form-control" name="rechnungsadresse" value="' + anschrift2 + '" /></div></td>';
+                        tableRow += '<td id="' + rowId + '"><div class="newAddressToChange" id="plz">';
+                        if (plz.length == 0) {
+                            tableRow += '<i>keine Daten</i>';
+                        } else {
+                            tableRow += plz;
+                        }
+                        tableRow += '</div>';
+                        tableRow += '<div class="newAddressToUpdate" id="plz" style="display: none;"><input type="text" class="form-control" name="rechnungsadresse" value="' + plz + '" /></div></td>';
+                        tableRow += '<td id="' + rowId + '"><div class="newAddressToChange" id="ort">';
+                        if (ort.length == 0) {
+                            tableRow += '<i>keine Daten</i>';
+                        } else {
+                            tableRow += ort;
+                        }
+                        tableRow += '</div>';
+                        tableRow += '<div class="newAddressToUpdate" id="ort" style="display: none;"><input type="text" class="form-control" name="rechnungsadresse" value="' + ort + '" /></div></td>';
+                        tableRow += '</tr>';
+                        $( '#hideButtonAddress' ).hide();
+                        $('input[name=hiddenAddressName]').val('');
+                        $('input[name=hiddenAddressAbteilung]').val('');
+                        $('input[name=hiddenAddressAnschrift]').val('');
+                        $('input[name=hiddenAddressAnschrift2]').val('');
+                        $('input[name=hiddenAddressPlz]').val('');
+                        $('input[name=hiddenAddressOrt]').val('');
+                        $( '#newButtonAddress' ).prop('disabled', false);
+
+                        var rows = $('.newAddressTable >tbody >tr').length;
+                        if (rows == 1) {
+                             $('.newAddressTable').prepend(tableRow);
+                        } else {
+                             var number = rows - 1;
+                             $( '.newAddressTable > tbody > tr:nth-child(' + number + ')' ).after(tableRow);
+                        }
+                        $( '#hiddenNewTrAddress' ).hide(); 
+                        $(".newAddressTable").on("click", "tr", function(){
+                            rowPersonClick($(this));
+                        });
+                        $( ".newAddressToChange" ).dblclick(function() {
+			  alert('here');
+                           changeRow($(this), 'Person');
+                        });
+                        $('.newAddressToUpdate').change(function() {
+                            columnChange($(this));
+                        });
+                        $("tr.rowsNewAddress2").click(function(){
+                            rowNewAddressClick( $(this) );
+                        });
+                    } else {
+                        console.log(finalResult);
+                    }
+                }
+            });
+        }
     });
 
     $('.hiddenNewContactTr').change(function() {
-        function validateEmail(email) 
-        {
-            var re = /\S+@\S+\.\S+/;
-            return re.test(email);
-        }
+
         $( '.hiddenNewContactTr' ).removeClass('form-group has-error').addClass('form-group');
         var personName = $('input[name=hiddenContactName]').val();
         var vorname = $('input[name=hiddenContactVorname]').val();
@@ -366,7 +566,13 @@ $( document ).ready(function() {
         if (telefon == '') {
             error = true;
             $( '#newContactTelefonDiv' ).addClass('form-group has-error').addClass('form-group');
-        } 
+        } else {
+            var phoneNum = telefon.replace(/[^\d]/g, '');
+            if(phoneNum.length < 8 || phoneNum.length > 11) { 
+                error = true;
+                $( '#newContactTelefonDiv' ).addClass('form-group has-error').addClass('form-group');
+            }
+        }
         if (mail == '') {
             error = true;
             $( '#newContactMailDiv' ).addClass('form-group has-error').addClass('form-group');
@@ -391,7 +597,7 @@ $( document ).ready(function() {
                 {   
                     if(result !== 'false') {
                         var rowId = result;
-                        var tableRow = '<tr class="clickable-row rowsNewPerson"  name="' + rowId + '" id="' + rowId + '">';
+                        var tableRow = '<tr class="clickable-row rowsNewPerson2"  name="' + rowId + '" id="' + rowId + '">';
                         tableRow += '<td id="' + rowId + '"><div class="newPersonToChange" id="name">';
                         if (personName.length == 0) {
                             tableRow += '<i>keine Daten</i>';
@@ -451,10 +657,10 @@ $( document ).ready(function() {
                         $( '#newButtonContact' ).prop('disabled', false);
                         var rows = $('.newPersonTable >tbody >tr').length;
                         if (rows == 1) {
-			  $('.newPersonTable').prepend(tableRow);
+			                 $('.newPersonTable').prepend(tableRow);
                         } else {
                              var number = rows - 1;
-			     $( '.newPersonTable > tbody > tr:nth-child(' + number + ')' ).after(tableRow);
+			                 $( '.newPersonTable > tbody > tr:nth-child(' + number + ')' ).after(tableRow);
                         }
                         $( '#hiddenNewTrContact' ).hide(); 
                         
@@ -467,7 +673,7 @@ $( document ).ready(function() {
                         $('.newPersonToUpdate').change(function() {
                             columnChange($(this));
                         });
-                        $("tr.rowsNewPerson").click(function(){
+                        $("tr.rowsNewPerson2").click(function(){
                             rowNewClick( $(this) );
                         });
                     } else {
@@ -481,11 +687,6 @@ $( document ).ready(function() {
 
     $('.hiddenBearbeitenPerson').change(function() {
 
-        function validateEmail(email) 
-        {
-            var re = /\S+@\S+\.\S+/;
-            return re.test(email);
-        }
         $( '.hiddenBearbeitenPersonTr' ).removeClass('form-group has-error').addClass('form-group');
         var personName = $('input[name=hiddenPersonName]').val();
         var vorname = $('input[name=hiddenPersonVorname]').val();
@@ -503,11 +704,17 @@ $( document ).ready(function() {
         if (vorname == '') {
             error = true;
             $( '#hiddenPersonVornameDiv' ).addClass('form-group has-error').addClass('form-group');
-        } 
+        }  
         if (telefon == '') {
             error = true;
             $( '#hiddenPersonTelefonDiv' ).addClass('form-group has-error').addClass('form-group');
-        } 
+        } else {
+            var phoneNum = telefon.replace(/[^\d]/g, '');
+            if(phoneNum.length < 8 || phoneNum.length > 11) { 
+                error = true;
+                $( '#hiddenPersonTelefonDiv' ).addClass('form-group has-error').addClass('form-group');
+            }
+        }
         if (mail == '') {
             error = true;
             $( '#hiddenPersonMailDiv' ).addClass('form-group has-error').addClass('form-group');
@@ -611,6 +818,30 @@ $( document ).ready(function() {
 
         }
     });
+
+    $( ".deleteButtonAddress" ).click(function() {
+        var idValue = $(this).attr('id');
+        var values = 'delete-rechnungsadresse-' + idValue;
+        if (window.location.href == urlPath) {
+            var path = "Api/Dates/";
+        } else {
+            var path = "../Api/Dates/";
+        }
+        $.ajax({url: path,
+            type: "post",
+            data: { 'action' : 'ajax', 'concrete' : 'row', 'value' : values },
+            success: function(result)
+            {
+                if (result == 'success') {
+                    var toDelete = $('.rowsNewAddress2[name=' + idValue + ']');
+                    toDelete.remove();
+                    $('.deleteButtonAddress').prop('disabled', true);
+                    $('.deleteButtonAddress').attr('id', '');
+                }
+            }
+        }); 
+
+    });
     
     $( ".deleteButtonContact" ).click(function() {
         var idValue = $(this).attr('id');
@@ -626,7 +857,7 @@ $( document ).ready(function() {
             success: function(result)
             {
                 if (result == 'success') {
-                    var toDelete = $('.rowsNewPerson[name=' + idValue + ']');
+                    var toDelete = $('.rowsNewPerson2[name=' + idValue + ']');
                     toDelete.remove();
                     $('.deleteButtonContact').prop('disabled', true);
                     $('.deleteButtonContact').attr('id', '');
@@ -683,7 +914,10 @@ $( document ).ready(function() {
     });
     
     $('.bearbeitenDate').change(function() {
+
+	var error = false;
 	var value = $( this ).attr('id');
+	var input = $( this ).children().attr('id');
 	if (value == 'zahlungsziel_id') {
 	  var column = value;
 	  var value = $('select[name=zahlungszielClient]').attr('id');
@@ -692,6 +926,55 @@ $( document ).ready(function() {
 	} else {
 	    var name = $( this ).children().val();
 	    var column = $( this ).children().attr("name");
+	}
+	if (input == 'name' || input == 'abteilung' || input == 'anschrift' || 
+	    input == 'ort' || input == 'plz' || input == 'telefon' || input == 'mail') {
+	    $( this ).children().css('border-color', '');
+	    if (name.length == 0) {
+		error = true;
+	    }
+	} 
+	if (input == 'ort') {
+	    if (name.length < 3) {
+		error = true;
+	    }
+	}
+	if (input == 'plz') {
+	    $( this ).children().css('border-color', '');
+	    name = name.replace('-', '');
+	    var check = isInteger(name);
+            if (check == false) {
+		error = true;
+            }
+	    if (name.length < 5 || name.length > 5) {
+	        error = true;  
+	    }
+	}
+	if (input == 'telefon') {
+	    $( this ).children().css('border-color', '');
+	    var phoneNum = name.replace(/[^\d]/g, '');
+	    if(phoneNum.length < 6 || phoneNum.length > 11) { 
+		error = true;
+	    }
+	}
+	if (input == 'skonto') {
+	     $( this ).children().css('border-color', '');
+	     skonto = name.replace(',', '.');
+	     var check = isInteger(skonto);
+	     if (check == false) {
+		error = true;
+	    }
+	}
+	if (input == 'mail') {
+	    var check = validateEmail(name);
+	    if (check == false) {
+		error = true;
+	    }
+	}
+	if (error == true) {
+	      $( this ).children().css('border-color', '#a94442');
+          $( this ).children().focus();
+	      return false; 
 	}
 	var previous = $( this ).prev();
 	var table = $( this ).parent().attr('id');
@@ -720,18 +1003,8 @@ $( document ).ready(function() {
 
 	$('#newPopupSave').click(function() {
         var error = false;
-		function validateEmail(email) 
-        {
-            var re = /\S+@\S+\.\S+/;
-            return re.test(email);
-        }
-        function isInteger(value)      
-        {       
-            num = value.trim();         
-            return !(value.match(/\s/g)||num==""||isNaN(num)||(typeof(value)=='number'));        
-        }
-        $( '.newNameError' ).removeClass('form-group has-error').addClass('form-group');
-		var name = $('input[name=newPopupName]').val();
+
+		var name = $('#newPopupName').val();
 		var departement = $( '#newPopupDepartement' ).val();
 		var address = $( '#newPopupAddress' ).val();
 		var address2 = $( '#newPopupAddress2' ).val();
@@ -742,48 +1015,245 @@ $( document ).ready(function() {
 		var mail = $( '#newPopupMail' ).val();
 		var emailCheck = validateEmail(mail);
 		var skonto = $( '#newPopupSkonto' ).val();
-		var paymentOpt = $('select[name=newPopupPaymentOpt] option:selected').val();
+		var paymentOpt = $('select[name=zahlungsziel] option:selected').val();
 		if (name == '') {
             error = true;
-            $( '#newNameDiv' ).removeClass('form-group').addClass('form-group has-error');
-        }
+            $( '#newPopupName' ).css('border-color', '#a94442');
+	       $( '#newNameErrorSpan' ).text('Geben Sie bitte die Name ein');
+        } else {
+    	    $( '#newPopupName' ).css('border-color', '');
+    	    $( '#newNameErrorSpan' ).text('');
+	   }
         if (departement == '') {
         	error = true;
-            $( '#newDepartementDiv' ).removeClass('form-group').addClass('form-group has-error');
-        }
+            $( '#newPopupDepartement' ).css('border-color', '#a94442');
+	       $( '#newDepartementErrorSpan' ).text('Geben Sie bitte die Abteilung ein');
+        } else {
+    	    $( '#newPopupDepartement' ).css('border-color', '');
+    	    $( '#newDepartementErrorSpan' ).text('');
+	   }
         if (address == '') {
         	error = true;
-            $( '#newAddressDiv' ).removeClass('form-group').addClass('form-group has-error');
-        }
+            $( '#newPopupAddress' ).css('border-color', '#a94442');
+	    $( '#newAddressErrorSpan' ).text('Geben Sie bitte die Anschrift ein');
+        } else {
+    	    $( '#newPopupAddress' ).css('border-color', '');
+    	    $( '#newAddressErrorSpan' ).text('');
+	   }
         if (place == '') {
         	error = true;
-            $( '#newPlaceDiv' ).removeClass('form-group').addClass('form-group has-error');
-        }
+    		$( '#newPopupPlace' ).css('border-color', '#a94442');
+    		$( '#newPlaceErrorSpan' ).text('Geben Sie bitte den Ort');
+        } else {
+            var placeCheck = isInteger(place);
+	        if (place.length < 3) {
+        		error = true;
+        		$( '#newPopupPlace' ).css('border-color', '#a94442');
+        		$( '#newPlaceErrorSpan' ).text('Mindestens 3 Buchstaben');
+	        } else if (placeCheck == true) {
+                error = true;
+                $( '#newPopupPlace' ).css('border-color', '#a94442');
+                $( '#newPlaceErrorSpan' ).text('Anzahl gilt nicht als Ort');
+            } else {
+        		$( '#newPopupPlace' ).css('border-color', '');
+        		$( '#newPlaceErrorSpan' ).text('');
+	        }
+	    }
         if (code == '') {
         	error = true;
-            $( '#newCodeDiv' ).removeClass('form-group').addClass('form-group has-error');
-        }
+		$( '#newPopupCode' ).css('border-color', '#a94442');
+		$( '#newCodeErrorSpan' ).text('Geben Sie bitte die Postleitzahl ein');
+        } else {
+    	    name = code.replace('-', '');
+    	    var check = isInteger(name);
+            if (check == false) {
+        		 error = true;
+        		 $( '#newPopupCode' ).css('border-color', '#a94442');
+        		 $( '#newCodeErrorSpan' ).text('Postleitzahl nicht gültig');
+            } else if (name.length < 5 || name.length > 5) {
+        	        error = true;
+        		$( '#newPopupCode' ).css('border-color', '#a94442');
+        		$( '#newCodeErrorSpan' ).text('Postleitzahl nicht gültig');
+        	} else {
+        		$( '#newPopupCode' ).css('border-color', '');
+        		$( '#newCodeErrorSpan' ).text('');
+        	}
+	    }
         if (phone == '') {
         	error = true;
-            $( '#newPhoneDiv' ).removeClass('form-group').addClass('form-group has-error');
-        }
+            $( '#newPopupPhone' ).css('border-color', '#a94442');
+	        $( '#newPhoneErrorSpan' ).text('Geben Sie bitte das Telefon');
+        } else {
+	        var phoneNum = phone.replace(/[^\d]/g, '');
+	        if(phoneNum.length < 8 || phoneNum.length > 11) { 
+		        error = true;
+        		$( '#newPopupPhone' ).css('border-color', '#a94442');
+        		$( '#newPhoneErrorSpan' ).text('Telefonnummer nicht gültig');
+	        } else {
+        		$( '#newPopupPhone' ).css('border-color', '');
+        		$( '#newPhoneErrorSpan' ).text('');
+	        }
+	    }
         if (mail == '') {
         	error = true;
-            $( '#newMailDiv' ).removeClass('form-group').addClass('form-group has-error');
+		$( '#newPopupMail' ).css('border-color', '#a94442');
+		$( '#newMailErrorSpan' ).text('Geben Sie bitte E-Mail-Adresse ein');
         } else if (emailCheck == false) {
             error = true;
-            $( '#newMailDiv' ).removeClass('form-group').addClass('form-group has-error');
-        }
+            $( '#newPopupMail' ).css('border-color', '#a94442');
+	    $( '#newMailErrorSpan' ).text('Email-Adresse nicht gültig');
+        } else {
+    	    $( '#newPopupMail' ).css('border-color', '');
+    	    $( '#newMailErrorSpan' ).text('');
+    	}
         if (skonto != '') {
             skonto = skonto.replace(',', '.');
             var skontoCheck = isInteger(skonto);
             if (skontoCheck == false) {
-                error = true;
-                $( '#newSkontoDiv' ).removeClass('form-group').addClass('form-group has-error');
+		        error = true;
+                $( '#newPopupSkonto' ).css('border-color', '#a94442');
+		        $( '#newSkontoErrorSpan' ).text('Anzahl im Zahlzeichen');
+            } else {
+        		$( '#newPopupSkonto' ).css('border-color', '');
+        		$( '#newSkontoErrorSpan' ).text('');
+        	    }
             }
-        }
-        if (error == true) {
-            return false;
+            if (error == true) {
+        	    $( "#newPopupName" ).keyup(function() {
+            	      var name = $(this).val();
+            	      if (name == '') {
+                		  $( '#newPopupName' ).css('border-color', '#a94442');
+                		  $( '#newNameErrorSpan' ).text('Geben Sie bitte die Name ein');
+            	      }
+            	      var check = isInteger(name);
+            	      if (check == true) {
+                		  $( '#newPopupName' ).css('border-color', '#a94442');
+                		  $( '#newNameErrorSpan' ).text('Geben Sie nicht nur Anzahl ein');
+            	      } else {
+                		  $( '#newPopupName' ).css('border-color', '');
+                		  $( '#newNameErrorSpan' ).text('');
+            	      }
+        	    });
+	  
+        	    $( "#newPopupDepartement" ).keyup(function() {
+        	        var department = $(this).val();
+        	        if (department == '') {
+            		  $( '#newPopupDepartement' ).css('border-color', '#a94442');
+            		  $( '#newDepartementErrorSpan' ).text('Geben Sie bitte die Abteilung ein');
+        	        } 
+        	        var check = isInteger(department);
+        	        if (check == true) {
+            		  $( '#newPopupDepartement' ).css('border-color', '#a94442');
+            		  $( '#newDepartementErrorSpan' ).text('Geben Sie nicht nur Anzahl ein');
+        	        } else {
+            		  $( '#newPopupDepartement' ).css('border-color', '');
+            		  $( '#newDepartementErrorSpan' ).text('');
+        	        }
+        	    });
+
+                $( '#newPopupPlace' ).keyup(function() {
+                    var place = $( this ).val();
+                    if (place == '') {
+                        $( '#newPopupPlace' ).css('border-color', '#a94442');
+                        $( '#newPlaceErrorSpan' ).text('Geben Sie bitte den Ort');
+                        return false;
+                    }
+                    var placeCheck = isInteger(place);
+                    if (place.length < 3) {
+                        $( '#newPopupPlace' ).css('border-color', '#a94442');
+                        $( '#newPlaceErrorSpan' ).text('Mindestens 3 Buchstaben');
+                        return false;
+                    } else if (placeCheck == true) {
+                        $( '#newPopupPlace' ).css('border-color', '#a94442');
+                        $( '#newPlaceErrorSpan' ).text('Anzahl gilt nicht als Ort');
+                        return false;
+                    } else {
+                        $( '#newPopupPlace' ).css('border-color', '');
+                        $( '#newPlaceErrorSpan' ).text('');
+                    }
+                });   
+	  
+	    $( "#newPopupAddress" ).keyup(function() {
+	      var address = $(this).val();
+	      if (address == '') {
+		$( '#newPopupAddress' ).css('border-color', '#a94442');
+		$( '#newAddressErrorSpan' ).text('Geben Sie bitte die Anschrift ein');
+	      } 
+	      var check = isInteger(address);
+	      if (check == true) {
+		$( '#newPopupAddress' ).css('border-color', '#a94442');
+		$( '#newAddressErrorSpan' ).text('Geben Sie nicht nur Anzahl ein');
+	      } else {
+		$( '#newPopupAddress' ).css('border-color', '');
+		$( '#newAddressErrorSpan' ).text('');
+	      }
+	    });
+
+	    $( "#newPopupSkonto" ).keyup(function() {
+	      var skonto = $(this).val();
+		if (skonto == '') {
+		  $( '#newPopupSkonto' ).css('border-color', '');
+		   $( '#newSkontoErrorSpan' ).text('');
+		} else {
+		skonto = skonto.replace(',', '.');
+		var skontoCheck = isInteger(skonto);
+		if (skontoCheck == false) {
+		    $( '#newPopupSkonto' ).css('border-color', '#a94442');
+		    $( '#newSkontoErrorSpan' ).text('Anzahl im Zahlzeichen');
+		} else {
+		    $( '#newPopupSkonto' ).css('border-color', '');
+		    $( '#newSkontoErrorSpan' ).text('');
+		}
+		}
+	    });
+	  
+	    $( "#newPopupCode" ).keyup(function() {
+	    var name = $(this).val();
+	      name = name.replace('-', '');
+	      var check = isInteger(name);
+	      if (check == false) {
+		  $( '#newPopupCode' ).css('border-color', '#a94442');
+		  $( '#newCodeErrorSpan' ).text('Postleitzahl nicht gültig');
+	      } else if (name.length < 5 || name.length > 5) {
+		  $( '#newPopupCode' ).css('border-color', '#a94442');
+		  $( '#newCodeErrorSpan' ).text('Postleitzahl nicht gültig');
+	      } else {
+		  $( '#newPopupCode' ).css('border-color', '');
+		  $( '#newCodeErrorSpan' ).text('');
+	      }
+	    });
+	  
+	    $( "#newPopupPhone" ).keyup(function() {
+	      var phone = $(this).val();
+	      if (phone == '') {
+		$( '#newPopupPhone' ).css('border-color', '#a94442');
+		$( '#newPhoneErrorSpan' ).text('Geben sie bitte das Telefon ein');
+	      } else {
+		var phoneNum = phone.replace(/[^\d]/g, '');
+		if(phoneNum.length < 8 || phoneNum.length > 11) { 
+		    $( '#newPopupPhone' ).css('border-color', '#a94442');
+		    $( '#newPhoneErrorSpan' ).text('Telefonnummer nicht gültig');
+		} else {
+		    $( '#newPopupPhone' ).css('border-color', '');
+		    $( '#newPhoneErrorSpan' ).text('');
+		}
+	      }
+	    });
+	    
+	    $( "#newPopupMail" ).keyup(function() {
+	      var mail = $(this).val();
+	      var emailCheck = validateEmail(mail);
+	      if (mail == '') {
+		$( '#newPopupMail' ).css('border-color', '#a94442');
+		$( '#newMailErrorSpan' ).text('Geben sie bitte E-Mail-Adresse ein');
+		} else if (emailCheck == false) {
+		    $( '#newPopupMail' ).css('border-color', '#a94442');
+		    $( '#newMailErrorSpan' ).text('Email-Adresse nicht gültig');
+		} else {
+		    $( '#newPopupMail' ).css('border-color', '');
+		    $( '#newMailErrorSpan' ).text('');
+		}
+	     });
         } else {
             if (window.location.href == urlPath) {
                 var path = "Api/NewClient/";
@@ -799,7 +1269,10 @@ $( document ).ready(function() {
                     var timerId = setInterval(function() {
                     if(finalResult !== null) {
                         if(finalResult != 'false') {
-                            alert(finalResult);
+                            console.log(finalResult);
+                            $( '#newPopupSave' ).hide();
+                            $( '#popupClean' ).show();
+                            $( '#kundennummer' ).val(finalResult);
                             $( '#hiddenClientId' ).val(finalResult);
                             $( '#newButtonAddress' ).attr('disabled', false);
                             $( '#newButtonContact' ).attr('disabled', false);
@@ -813,4 +1286,47 @@ $( document ).ready(function() {
             });
         }
 	});
+
+    $( "#popupClean" ).click(function() {
+        $('#newPopupName').val('');
+        $( '#newPopupDepartement' ).val('');
+        $( '#newPopupAddress' ).val('');
+        $( '#newPopupAddress2' ).val('');
+        $( '#newPopupPlace' ).val('');
+        $( '#newPopupCode' ).val('');
+        $( '#newPopupPhone' ).val('');
+        $( '#newPopupFax' ).val('');
+        $( '#newPopupMail' ).val('');
+        $( '#newPopupSkonto' ).val('');
+	$( '#kundennummer' ).val('');
+        $( '.rowsNewAddress2' ).remove();
+        $( '.rowsNewPerson2' ).remove();
+        $( this ).hide();
+        $( '#newPopupSave' ).show();
+
+    });
+
+    $( "#druckButton" ).click(function() {
+	var document = $('select[name=formToPrint] option:selected').val();
+	var field = $( '#descToPrint' ).attr('id');
+	var column = field + document;
+	var projId = $( '#hiddenProj' ).val();
+	var text = $( '#descToPrint' ).val();
+	var array = [column, projId];
+	changeDate(text, array);
+	var timerId = setInterval(function() {
+		if(finalResult !== null) {
+		    if(finalResult == 'success') {
+			$("input[name='descToPrint']").remove();
+			$( '#druckButton' ).text('in Vorbereitung');
+			return false;
+			$( '#printId').submit();
+		    }
+    		clearInterval(timerId);
+    		} else {
+    		    console.log(finalResult);
+    		}
+    	}, 1500);
+	return false;
+    });
 });

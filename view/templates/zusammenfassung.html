@@ -23,16 +23,46 @@
                         <div class="col-sm-12">
                             <ul class="nav nav-tabs">
                                 <li role="presentation" class="active liTable" id="zusammenfassungId"><a href="#" id="zusammenfassungHref">Zusammenfassung</a></li>
-                                <li role="presentation" class="liTable" id="vorstufeId"><a href="#" id="vorstufeHref">Vorstufe</a></li>
-                                <li role="presentation" class="liTable" id="drucksachenId"><a href="#" id="drucksachenHref">Drucksachen</a></li>
-                                <li role="presentation" class="liTable" id="fremdarbeitenId"><a href="#" id="fremdarbeitenHref">Fremdarbeiten</a></li>
-                                <li role="presentation" class="liTable" id="kalkulationId" >{% if user == 1 %}
+                                <li role="presentation" class="liTable" id="vorstufeId">
+                                {% if dates.projectId %}
+                                <a href="#" id="vorstufeHref">Vorstufe</a></li>
+                                {% else %}
+                                <a href="#" class="notAvailable">Vorstufe</a></li>
+                                {% endif %}
+                                <li role="presentation" class="liTable" id="drucksachenId">
+                                {% if dates.projectId %}
+                                <a href="#" id="drucksachenHref">Drucksachen</a></li>
+                                {% else %}
+                                <a href="#" class="notAvailable">Drucksachen</a></li>
+                                {% endif %}
+                                <li role="presentation" class="liTable" id="fremdarbeitenId">
+                                {% if dates.projectId %}
+                                <a href="#" id="fremdarbeitenHref">Fremdarbeiten</a></li>
+                                {% else %}
+                                <a href="#" class="notAvailable">Fremdarbeiten</a></li>
+                                {% endif %}
+                                <li role="presentation" class="liTable" id="kalkulationId" >
+                                {% if dates.projectId %}
+                                {% if user == 1 %}
                                 <a href="#"  id="kalkulationHref" >Kalkulation</a>
                                 {% else %}
-                                <a href="#"  id="kalkulationNotAllowed">Kalkulation</a>
+                                <a href="#"  class="notAvailable">Kalkulation</a>
                                 {% endif %}</li>
-                                <li role="presentation" class="liTable" id="lieferscheinId"><a href="#" id="lieferscheinHref">Lieferschein</a></li>
-                                <li role="presentation" class="liTable" id="akteId"><a href="#" id="akteHref">Akte</a></li>
+                                {% else %}
+                                <a href="#"  class="notAvailable">Kalkulation</a>
+                                {% endif %}
+                                <li role="presentation" class="liTable" id="lieferscheinId">
+                                {% if dates.projectId %}
+                                <a href="#" id="lieferscheinHref">Lieferschein</a></li>
+                                {% else %}
+                                <a href="#" class="notAvailable">Lieferschein</a></li>
+                                {% endif %}
+                                <li role="presentation" class="liTable" id="akteId">
+                                {% if dates.projectId %}
+                                <a href="#" id="akteHref">Akte</a></li>
+                                {% else %}
+                                <a href="#" class="notAvailable">Akte</a></li>
+                                {% endif %}
                             </ul>  
                         </div>                       
                     </div>

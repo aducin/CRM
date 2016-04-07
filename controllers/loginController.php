@@ -29,6 +29,9 @@ class LoginController
     }
 
     private function postLogin($array) {
+        if ($_POST['rememberPassword'] == 'true') {
+            $_SESSION['stayLogged'] = 1;
+        }
     	$mail = trim($array['mail']);
         $password = md5(trim($array['password']));
         $sql = 'SELECT id FROM Benutzer WHERE mail = :mail AND passwort = :password';

@@ -143,6 +143,7 @@ class Ajax
         }
         $column = $values[0];
         $projectId = $values[1];
+        $project = $this->creator->createProduct('projekt');
         if ($column == 'Rechnungsadressen') {
             $object = $this->creator->createProduct('rechnungsadresse');
             $success = $object->$date($values);
@@ -153,7 +154,6 @@ class Ajax
             $object = $this->creator->createProduct('calculation');
             $success = $object->$date($values);
         } else {
-           $project = $this->creator->createProduct('projekt');
            $success = $project->updateDate($projectId, $column, $date);
         }
         if ($success == 'success') {

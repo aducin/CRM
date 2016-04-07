@@ -16,7 +16,9 @@ class Controller
 		$this->dbHandler = $dbHandler;
 		$this->creator = new TvsatzCreator($dbHandler);
 		$this->output = new OutputController($dbHandler);
-		if (isset($_GET['token'])) {
+        if (isset($_SESSION['stayLogged']) && $_SESSION['stayLogged'] == 1) {
+            $this->$action();
+        } elseif (isset($_GET['token'])) {
 		    $this->getLoginPage();
 		} elseif (!isset($_SESSION['log']) OR !isset($_COOKIE['crm_logged'])) {
 		    if ($action == 'renderLogin') {
@@ -27,8 +29,7 @@ class Controller
 			  setcookie('crm_logged', '1', time()+3600);
 			  $this->$action();
 		    }
-		}
-		 elseif (!isset($_SESSION['log']) && !isset($_POST['action']) && !isset($_COOKIE['crm_logged'])) {
+		} elseif (!isset($_SESSION['log']) && !isset($_POST['action']) && !isset($_COOKIE['crm_logged'])) {
 		    $this->getLoginPage();
 		} else {
 		    if (isset ($_GET['single'])) {
@@ -94,6 +95,10 @@ class Controller
 	$this->project = $this->creator->createProduct('projekt');
 	$success = $this->project->insertNewProject();
 	var_dump($success); exit();
+    }
+
+    private function notFound() {
+        $this->output->render404();
     }
 
     private function postLogin() { 

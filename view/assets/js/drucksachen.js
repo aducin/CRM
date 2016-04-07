@@ -19,7 +19,7 @@ $( document ).ready(function() {
 	function changeDate(curDate, drucksache) {
 		var values = 'Drucksache-' + drucksache + '-' + curDate;
 		if (window.location.href == urlPath) {
-			alert('No project at this time');
+			console.log('No project at this time');
 		} else {
 			var path = "../Api/Row/";
 			$.ajax({url: path,
@@ -48,7 +48,7 @@ $( document ).ready(function() {
     function checkMachineName(name, previous) {
         var projectId = $( '#hiddenProjectId').val();
         if (window.location.href == urlPath) {
-            alert('No project at this time');
+            console.log('No project at this time');
         } else {
             var path = "../Api/Select/";
             $.ajax({url: path + 'Maschine-' + name,
@@ -59,7 +59,7 @@ $( document ).ready(function() {
                         name = result;
                         previous.text( name );
                     } else {
-                        alert('No machine name available');
+                        console.log('No machine name available');
                     }
                 }
             }); 
@@ -67,60 +67,65 @@ $( document ).ready(function() {
     }
 
     function columnChange(variable) {
-    var name = variable.children().val();
-    var value = variable.attr('id');
-    var previous = variable.prev();
-    if (value == 'amount') {
-      name = name.replace(",", ".");
-      function isNumber(n) { return /^-?[\d.]+(?:e-?\d+)?$/.test(n); }
-      var check = isNumber(name);
-      if (check == false) {
-        variable.children().val(previous.text());
-        alert('Inkorrektes format!');
-        return false;
-      }
-      var name2 = name.split(".");
-      if (name2[1] == null) {
-        name = name + '.00';
-      } else if (name2[1].length == 1) {
-        name = name + '0';
-      } else if (name2[1].length == 0) {
-        name = name + '00';
-      }
-    } else if( value == 'machine' ) {
+      var name = variable.children().val();
+      var value = variable.attr('id');
+      var previous = variable.prev();
+      if (value == 'amount') {
+        name = name.replace(",", ".");
+        function isNumber(n) { return /^-?[\d.]+(?:e-?\d+)?$/.test(n); }
+        var check = isNumber(name);
+        if (check == false) {
+          variable.children().val(previous.text());
+          console.log('Inkorrektes format!');
+          return false;
+        }
+        var name2 = name.split(".");
+        if (name2[1] == null) {
+          name = name + '.00';
+        } else if (name2[1].length == 1) {
+          name = name + '0';
+        } else if (name2[1].length == 0) {
+          name = name + '00';
+        }
+      } else if( value == 'machine' ) {
         var name = variable.find(":selected").attr("id");
         if (name == "none") {
-            return false;
+          return false;
         }
+      }
+      var rowId = variable.parent().attr('id');
+      var date = value + '-' + name;
+      variable.children().prop('disabled', true);
+      changeDate(date, rowId);
+      var timerId = setInterval(function() {
+        if(finalResult !== null) {
+          if(finalResult == 'done') {
+            if (name == '') {
+              name = '<i>keine Daten</i>';
+            }
+            if (value == 'amount') {
+              previous.html( name );
+              var projectId = $( '#hiddenProjectId').val();
+              getAmount(projectId);
+            } else if (value == 'machine') {
+              checkMachineName(name, previous);
+            }else {
+              previous.html( name );
+            }
+            variable.hide();
+            variable.prop('disabled', false);
+            previous.show();
+          }
+          clearInterval(timerId);
+        } else {
+          console.log(finalResult);
+        }
+      }, 1500);
     }
-    var rowId = variable.parent().attr('id');
-    var date = value + '-' + name;
-    changeDate(date, rowId);
-    var timerId = setInterval(function() {
-	     if(finalResult !== null) {
-		if(finalResult == 'done') {
-		    if (value == 'amount') {
-		      previous.text( name );
-		      var projectId = $( '#hiddenProjectId').val();
-		      getAmount(projectId);
-		    } else if (value == 'machine') {
-		      checkMachineName(name, previous);
-		    }else {
-		      previous.text( name );
-		    }
-		    variable.hide();
-		    previous.show();
-		}
-		clearInterval(timerId);
-	     } else {
-		console.log(finalResult);
-	     }
-	 }, 1500);
-  }
 
     function getAmount(projectId) {
     if (window.location.href == "http://kluby.local/CRM/Erfassung") {
-      alert('No project at this time');
+      console.log('No project at this time');
     } else {
       var path = "../Api/Amount/";
     }      
@@ -131,7 +136,7 @@ $( document ).ready(function() {
         if(result != 'false') {
           $( '#totalDrucksache' ).text(result + ' EURO');
         } else {
-          alert('No description currently available');
+          console.log('No description currently available');
         }
       }
     });
@@ -140,7 +145,7 @@ $( document ).ready(function() {
     function getRowId(variable) {
        $("tr.rowsDrucksachen").css('background-color', "#f9f9f9");
        var idVal = variable.attr('id');
-       variable.css('background-color', "rgb(238, 193, 213)");
+       variable.css('background-color', "#e9e9e9");
        $('.deleteButtonDrucksachen').attr('id', idVal);
        $('.deleteButtonDrucksachen').prop('disabled', false);
        $('.cloneDruckButton').attr('id', idVal);
@@ -189,7 +194,7 @@ $( document ).ready(function() {
                     var number = rows -2;
                     $( '#drucksacheTable > tbody > tr:nth-child(' + number + ')' ).after(clone);
                 } else {
-                    alert('Impossible to create a new row');
+                    console.log('Impossible to create a new row');
                 }
             }
         }); 
@@ -287,7 +292,7 @@ $( document ).ready(function() {
                 success: function(result)
                 {
                   if (result == 'false') {
-                    alert('false');
+                    console.log('false');
                 } else {
                     var tableRow = '<tr class="clickable-row rowsDrucksachen" name="' + result + '" id="' + result + '">';
                     tableRow += '<td id="' + result + '"><div class="drucksacheToChange" id="print">';
@@ -442,6 +447,7 @@ $( document ).ready(function() {
 });
     
     $( ".drucksacheToChange" ).dblclick(function() {
+        $( this ).next().children().prop('disabled', false);
         changeRow($(this));
     });
     
@@ -450,7 +456,7 @@ $( document ).ready(function() {
     });
     
     $('.drucksacheToUpdate').change(function() {
-	$( this ).children().css('border-color', '');
+	    $( this ).children().css('border-color', '');
     	var name = $( this ).children().val();
     	var value = $( this ).attr('id');
     	var previous = $( this ).prev();
@@ -461,38 +467,49 @@ $( document ).ready(function() {
     			return false;
     		}
     	} else if (value == 'amount') {
-    		name = name.replace(",", ".");
-    		var check = isNumber(name);
-    		var name2 = name.split(".");
-    		if (name2[1] == null) {
-    			name = name + '.00';
-    		} else if (name2[1].length == 1) {
-    			name = name + '0';
-    		} else if (name2[1].length == 0) {
-    			name = name + '00';
-    		}
+        if (name != '') {
+      		name = name.replace(",", ".");
+      		var check = isNumber(name);
+      		var name2 = name.split(".");
+      		if (name2[1] == null) {
+      			name = name + '.00';
+      		} else if (name2[1].length == 1) {
+      			name = name + '0';
+      		} else if (name2[1].length == 0) {
+      			name = name + '00';
+      		}
+        }
     	} 
     	if (value == 'edition' || value == 'amount') {
-    		var check = isNumber(name);
-    		if (check == false) {
-    			//$( this ).children().val(previous.text());
-			$( this ).children().css('border-color', 'red');
-			$( this ).children().focus();
-			$( this ).children().select();
-    			return false;
-    		}
+        if (name != '') {
+      		var check = isNumber(name);
+      		if (check == false) {
+      			$( this ).children().css('border-color', '#a94442');
+      			$( this ).children().focus();
+      			$( this ).children().select();
+      			return false;
+      		}
+        }
     	}
     	var rowId = $( this ).parent().attr('id');
     	var date = value + '-' + name;
+      $( this ).children().prop('disabled', true);
     	changeDate(date, rowId);
-	var timerId = setInterval(function() {
+	    var timerId = setInterval(function() {
 	     if(finalResult !== null) {
-		if(finalResult == 'done') {
-    	if( value == 'amount') {
-    		previous.text( name + ' EURO' );
-    		var projectId = $( '#hiddenProjectId').val();
-    		if (window.location.href == urlPath) {
-    			alert('No project at this time');
+		    if(finalResult == 'done') {
+          if (name == '') {
+            name = '<i>keine Daten</i>';
+          }
+    	    if( value == 'amount') {
+      		  if (name != '<i>keine Daten</i>') {
+              previous.text( name + ' EURO' );
+            } else {
+              previous.text( '0.00 EURO' );
+            }
+    		    var projectId = $( '#hiddenProjectId').val();
+    		    if (window.location.href == urlPath) {
+    			   console.log('No project at this time');
     		} else {
     			var path = "../Api/Amount/";
     			$.ajax({url: path + 'Drucksache-' + projectId,
@@ -502,7 +519,7 @@ $( document ).ready(function() {
     					if(result != 'false') {
     						$( '#totalDrucksache' ).text(result + ' EURO');
     					} else {
-    						alert('No total amount available');
+    						console.log('No total amount available');
     					}
     				}
     			}); 
@@ -510,15 +527,21 @@ $( document ).ready(function() {
     	} else if( value == 'machine' ) {
     		checkMachineName(name, previous);
     	} else {
-    		previous.text( name );
+        if (name == '<i>keine Daten</i>') {
+          if (value == 'edition') {
+            name = 0;
+          }
+        }
+    		previous.html( name );
     	}
     	$('.drucksacheToUpdate').hide();
+      $( this ).children().prop('disabled', false);
     	previous.show();
-	}
+	    }
 	     clearInterval(timerId);
-	     } else {
-		console.log(finalResult);
-	     }
+	    } else {
+		    console.log(finalResult);
+	    }
 	 }, 1500);
     });
 });

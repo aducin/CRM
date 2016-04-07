@@ -7,32 +7,32 @@
                 <h4 class="modal-title" id="exampleModalLabel">Drucken</h4>
             </div>
             <div class="modal-body">
-                <form class="form-horizontal">
+                <form class="form-horizontal" id="printId" action="{{ root }}/Print" method="get" >
                     <div class="form-group">
                         <label for="formular" class="control-label col-sm-4">Formular:</label>
+                        <input type="hidden" name="projId" id="hiddenProj" value="{{ dates.projectId }}">
                         <div class="col-sm-8">
-                            <select name="formular" id="formular" class="form-control selectpicker">
-                                <option value="Oferta">Angebot</option>
-                                <option value="Potwierdzenie zamówienia">Angebotsbestätigung</option>
-                                <option value="Wycena">Schätzung</option>
-                                <option value="Faktura">Rechnung</option>
-                                <option value="List przewozowy">Lieferschein</option>
-                                <option value="Okolnik">Rundschreiben</option>
+                            <select name="formToPrint" id="formToPrint" class="form-control selectpicker">
+                                <option value="1">Angebot</option>
+                                <option value="2">Auftragsbestätigung</option>
+                                <option value="3">Preismitteilung</option>
+                                <option value="4">Rechnung</option>
+                                <option value="5">Lieferschein</option>
                             </select> 
                         </div>
                     </div>            
                     <div class="form-group">
                         <div class="col-sm-4">
-                            <label for="bezeichnung" class="control-label">Bezeichnung für Akte</label>
+                            <label for="descToPrint" class="control-label">Bezeichnung für Akte</label>
                         </div>
                         <div class="col-sm-8">
-                            <input type="text" name="bezeichnung" id="bezeichnung" class="form-control" placeholder="" value="">
+                            <input type="text" name="descToPrint" id="descToPrint" class="form-control" placeholder="" value="">
                         </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary">Drucken</button>
+                <button type="button" id="druckButton" class="btn btn-primary">Drucken</button>
             </div>
         </div>
     </div>
@@ -52,6 +52,7 @@
                 <div class="form-group">              
                     <div class="col-sm-12">
                         <button type="button" class="btn btn-primary fl-right" id="newPopupSave">Speichern</button> 
+                        <button type="button" class="btn btn-primary fl-right" id="popupClean" style="display: none;">Reinigen</button> 
                     </div>
                 </div>
                 <div class="form-group">                    
@@ -61,6 +62,7 @@
                                 <label for="name" class="col-sm-4 control-label" >Name</label>
                                 <div class="col-sm-8 newNameError" id="newNameDiv">
                                     <input type="text" name="name" class="form-control" id="newPopupName" placeholder="Name">
+                                    <span id="newNameErrorSpan" style="text-align: center; color: #a94442;"></span>
                                 </div>    
                             </div>    
                         </div>
@@ -69,6 +71,7 @@
                                 <label for="abteilung" class="col-sm-4 control-label" >Abteilung</label>
                                 <div class="col-sm-8 newNameError" id="newDepartementDiv">
                                     <input type="text" name="abteilung" class="form-control" id="newPopupDepartement" placeholder="Abteilung">
+                                    <span id="newDepartementErrorSpan" style="text-align: center; color: #a94442;"></span>
                                 </div>    
                             </div>    
                         </div>
@@ -77,6 +80,7 @@
                                 <label for="anschrift" class="col-sm-4 control-label" >Anschrift</label>
                                 <div class="col-sm-8 newNameError" id="newAddressDiv">
                                     <input type="text" name="anschrift" class="form-control" id="newPopupAddress" placeholder="Straße">
+                                    <span id="newAddressErrorSpan" style="text-align: center; color: #a94442;"></span>
                                 </div>    
                             </div>    
                         </div>   
@@ -85,6 +89,7 @@
                                 <label for="anschrift_2" class="col-sm-4 control-label" >Anschrift 2</label>
                                 <div class="col-sm-8 newNameError" id="newAddressDiv2">
                                     <input type="text" name="anschrift2" class="form-control" id="newPopupAddress2" placeholder="Straße, Zusatz">
+                                    <span id="newNameErrorSpan" style="text-align: center; color: #a94442;"></span>
                                 </div>    
                             </div>    
                         </div>    
@@ -93,6 +98,7 @@
                                 <label for="ort" class="col-sm-4 control-label" >Ort</label>
                                 <div class="col-sm-8 newNameError" id="newPlaceDiv">
                                     <input type="text" name="ort" class="form-control" id="newPopupPlace" placeholder="Ort">
+                                    <span id="newPlaceErrorSpan" style="text-align: center; color: #a94442;"></span>
                                 </div>    
                             </div>    
                         </div>    
@@ -101,6 +107,7 @@
                                 <label for="plz" class="col-sm-4 control-label" >PLZ</label>
                                 <div class="col-sm-8 newNameError" id="newCodeDiv">
                                     <input type="text" name="plz" class="form-control" id="newPopupCode" placeholder="PLZ">
+                                    <span id="newCodeErrorSpan" style="text-align: center; color: #a94442;"></span>
                                 </div>    
                             </div>    
                         </div>    
@@ -109,6 +116,7 @@
                                 <label for="telefon" class="col-sm-4 control-label" >Telefon</label>
                                 <div class="col-sm-8 newNameError" id="newPhoneDiv">
                                     <input type="text" name="telefon" class="form-control" id="newPopupPhone" placeholder="Telefon">
+                                    <span id="newPhoneErrorSpan" style="text-align: center; color: #a94442;"></span>
                                 </div>    
                             </div>    
                         </div>    
@@ -117,14 +125,16 @@
                                 <label for="fax" class="col-sm-4 control-label" >Fax</label>
                                 <div class="col-sm-8 newNameError" id="newFaxDiv">
                                     <input type="text" name="fax" class="form-control" id="newPopupFax" placeholder="Fax">
+				    <span id="newNameErrorSpan" style="text-align: center; color: #a94442;"></span>
                                 </div>    
                             </div>    
                         </div>     
                         <div class="row mrt-10">
-                            <div class="sol-sm-12" id="newMailDiv">
+                            <div class="sol-sm-12">
                                 <label for="mail" class="col-sm-4 control-label" >Mail</label>
-                                <div class="col-sm-8 newNameError" id="newClientMailDiv">
+                                <div class="col-sm-8 newNameError" id="newMailDiv">
                                     <input type="text" name="mail" class="form-control" id="newPopupMail" placeholder="E-mail">
+                                    <span id="newMailErrorSpan" style="text-align: center; color: #a94442;"></span>
                                 </div>    
                             </div>    
                         </div>                         
@@ -135,6 +145,7 @@
                                 <label for="skonto_in" class="col-sm-4 control-label">Skonto (in %):</label>
                                 <div class="col-sm-8 newNameError" id="newSkontoDiv">
                                     <input type="text" name="skonto" class="form-control" id="newPopupSkonto" size="3">
+				    <span id="newSkontoErrorSpan" style="text-align: center; color: #a94442;"></span>
                                 </div>    
                             </div>    
                         </div>
@@ -154,7 +165,7 @@
                             <div class="sol-sm-12">
                                 <label for="skonto_in" class="col-sm-4 control-label">Kundennummer:</label>
                                 <div class="col-sm-8">
-                                    <input type="text" name="kundennummer" class="form-control" id="kundennummer" value="" size="3" disabled="disabled">
+                                    <input type="text" name="kundennummer" class="form-control newNameError" id="kundennummer" value="" size="3" disabled="disabled">
                                 </div>    
                             </div>    
                         </div>

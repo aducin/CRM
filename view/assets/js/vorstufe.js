@@ -116,9 +116,9 @@ $( document ).ready(function() {
       var check = isNumber(name);
       if (check == false) {
         //variable.children().val(previous.text());
-        variable.children().css('border-color', 'red');
-	variable.children().focus();
-	variable.children().select();
+        variable.children().css('border-color', '#a94442');
+	      variable.children().focus();
+	      variable.children().select();
         return false;
       }
       var name2 = name.split(".");
@@ -140,12 +140,16 @@ $( document ).ready(function() {
     }
     var rowId = variable.parent().attr('id');
     var date = value + '-' + name;
+    variable.children().prop('disabled', true);
     changeDate(date, rowId);
     var timerId = setInterval(function() {
 	     if(finalResult !== null) {
 		if(finalResult == 'done') {
     if (value == 'amount') {
-      previous.text( name );
+      if (name == '') {
+        name = '<i>keine Daten</i>';
+      }
+      previous.html( name );
       var projectId = $( '#hiddenProjectId').val();
       getAmount(projectId);
     } else if (value == 'type') {
@@ -157,9 +161,13 @@ $( document ).ready(function() {
     } else if (value == 'employee') {
        previous.text( employeeName );
     } else {
-      previous.text( name );
+      if (name == '') {
+        name = '<i>keine Daten</i>';
+      }
+      previous.html( name );
     }
     variable.hide();
+    variable.children().prop('disabled', false);
     previous.show();
     }
 	     clearInterval(timerId);
@@ -191,7 +199,7 @@ $( document ).ready(function() {
   function getRowId(variable) {
        $("tr.rowsVorstufe").css('background-color', "#f9f9f9");
        var idVal = variable.attr('id');
-       variable.css('background-color', "rgb(238, 193, 213)");
+       variable.css('background-color', "#e9e9e9");
        $('.deleteButtonVorstufe').attr('id', idVal);
        $('.deleteButtonVorstufe').prop('disabled', false);
     }
@@ -474,7 +482,7 @@ $( document ).ready(function() {
      $("tr.rowsVorstufe").click(function(){
        $("tr.rowsVorstufe").css('background-color', "#f9f9f9");
        var idVal = $(this).attr('id');
-       $(this).css('background-color', "rgb(238, 193, 213)");
+       $(this).css('background-color', "#e9e9e9");
        $('.deleteButtonVorstufe').attr('id', idVal);
        $('.deleteButtonVorstufe').prop('disabled', false);
     });
@@ -512,6 +520,7 @@ $( document ).ready(function() {
     });
 
     $( ".vorstufeToChange" ).dblclick(function() {
+      $( this ).next().children().prop('disabled', false);
       changeRow($(this));
     });
 
@@ -543,7 +552,7 @@ $( document ).ready(function() {
         name = name.replace(",", ".");
         var check = isNumber(name);
 	if (check == false) {
-          $( this ).children().css('border-color', 'red');
+          $( this ).children().css('border-color', '#a94442');
 	  $( this ).children().focus();
 	  $( this ).children().select();
           return false;
@@ -558,13 +567,14 @@ $( document ).ready(function() {
         }
       } 
       if (value == 'timeProposal' || value == 'timeReal' || value == 'timeSettlement') {
-        var check = isNumber(name);
-        if (check == false) {
-          //$( this ).children().val(previous.text());
-          $( this ).children().css('border-color', 'red');
-	  $( this ).children().focus();
-	  $( this ).children().select();
-          return false;
+        if (name != '') {
+          var check = isNumber(name);
+          if (check == false) {
+            $( this ).children().css('border-color', '#a94442');
+        	  $( this ).children().focus();
+        	  $( this ).children().select();
+            return false;
+          }
         }
       }
       if (value == 'performanceTime') {
@@ -573,6 +583,7 @@ $( document ).ready(function() {
       }
       var rowId = $( this ).parent().attr('id');
       var date = value + '-' + name;
+      $( this ).children().prop('disabled', true);
       changeDate(date, rowId);
       var timerId = setInterval(function() {
 	if(finalResult !== null) {
@@ -617,7 +628,10 @@ $( document ).ready(function() {
             {
               if(result != 'false') {
                 name = result;
-                previous.text( name );
+                if (name == '') {
+                  name = '<i>keine Daten</i>';
+                }
+                previous.html( name );
               } else {
                 console.log('No description currently available');
               }
@@ -625,7 +639,10 @@ $( document ).ready(function() {
           }); 
         }
       } else {
-        previous.text( name );
+        if (name == '') {
+          name = '<i>keine Daten</i>';
+        }
+        previous.html( name );
       }
       $('.vorstufeToUpdate').hide();
       previous.show();
