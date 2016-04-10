@@ -836,4 +836,47 @@ $( "#saveProjectButton" ).click(function() {
         event.preventDefault();
     });
     
+    $('input[name=mitarbeiter]').click(function() {
+        var projectId = $( '#hiddenProjectId' ).val();
+        var idNumber = $( this ).attr('id');
+        var ifCheck = $('input[name=mitarbeiter]').is(":checked");
+        if (ifCheck == true) {
+            ifCheck = 1;
+        } else {
+            ifCheck = 0;
+        }
+        var array = ['user', projectId, idNumber];
+        changeDate(ifCheck, array);
+    });
+    
+    $('.documentList').click(function() {
+	$("tr.documentList").css('background-color', "#f9f9f9");
+	var id = $( this ).attr('id');
+	$( this ).css('background-color', "#e9e9e9");
+	$( '.documentDelete').attr('id', id);
+	$( '.documentDelete').prop('disabled', false);
+    }); 
+    
+    $('.documentDelete').click(function() {
+	var idValue = $( this ).attr('id');
+	var values = 'delete-document-' + idValue;
+        if (window.location.href == urlPath) {
+            var path = "/Api/Row/";
+        } else {
+            var path = "../Api/Row/";
+            $.ajax({url: path,
+                type: "post",
+                data: { 'action' : 'ajax', 'concrete' : 'row', 'value' : values },
+                success: function(result)
+                {
+                    if (result == 'success') {
+                        var toDelete = $('.documentList[name=' + idValue + ']');
+                        toDelete.remove();
+                        $('.documentDelete').prop('disabled', true);
+			$('.documentDelete').attr('id', '');
+                    }
+                }
+            }); 
+        }
+    }); 
 });

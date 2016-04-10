@@ -141,6 +141,30 @@ class Helpers
 		return $this->machine;
 	}
 	
+	public function getProjectUser($projectId) {
+		$sql = 'SELECT benutzerId FROM Benutzer_Projekt WHERE projektId = :projectId ORDER BY benutzerId';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':projectId', $projectId);
+		$result->execute();
+		$userList = array();
+		foreach ($result as $single) {
+			$userList[] = array( 'userId' => $single['benutzerId']);
+		}
+		return $userList;
+	}
+
+	public function getProjectUserName($projectId) {
+		$sql = 'SELECT Benutzer.name, Benutzer.id FROM Benutzer INNER JOIN Benutzer_Projekt ON Benutzer.id = Benutzer_Projekt.benutzerId WHERE Benutzer_Projekt.projektId = :projectId ORDER BY Benutzer_Projekt.benutzerId';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':projectId', $projectId);
+		$result->execute();
+		$userList = array();
+		foreach ($result as $single) {
+			$userList[] = array( 'name' => $single['name'], 'id' => $single['id']);
+		}
+		return $userList;
+	}
+	
 	public function getSingleArt($id) {
 		$sql='SELECT name FROM Art WHERE id = :id';
 		$result=$this->dbHandler->prepare($sql);
@@ -224,6 +248,51 @@ class Helpers
 		return $ziel;
 	}
 	
+	public function ifUserActive($projectId, $userId) {
+		$sql = 'SELECT id FROM Benutzer_Projekt WHERE projektId = :projectId AND benutzerId = :userId';
+		$result = $this->dbHandler->prepare($sql);
+		$result->bindValue(':projectId', $projectId);
+		$result->bindValue(':userId', $userId);
+		$result->execute();
+		$final = $result->fetch();
+		return $final;
+	}
+	
+	public function manageProjectUser($date, $projectId, $userId) {
+		$insertOrDelete = $this->ifUserActive($projectId, $userId);
+
+		if (is_array($insertOrDelete)) {
+			$success = $this->projectUserDelete($projectId, $userId);
+		} elseif ($insertOrDelete == false) {
+			$success = $this->projectUserInsert($projectId, $userId);
+		}
+		return $success;
+	}
+
+	private function projectUserDelete($projectId, $userId) {
+		$sql = "DELETE FROM Benutzer_Projekt WHERE projektId = :projectId AND benutzerId = :userId";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':projectId', $projectId);
+		$result->bindValue(':userId', $userId);
+		if ($result->execute()) {
+			return 'deleted successfully';
+		} else {
+			return 'false';
+		}
+	}
+
+	private function projectUserInsert($projectId, $userId) {
+		$sql = "INSERT INTO Benutzer_Projekt (projektId, benutzerId) VALUES (:projectId, :userId)";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':projectId', $projectId);
+		$result->bindValue(':userId', $userId);
+		if ($result->execute()) {
+			return 'success';
+		} else {
+			return 'false';
+		}
+	}
+	
 	public function setArt() {
 		$sql='SELECT id, name FROM Art';
 		$result=$this->dbHandler->prepare($sql);
@@ -240,8 +309,10 @@ class Helpers
 		$result=$this->dbHandler->prepare($sql);
 		$result->execute();
 		$list = array();
+		$counter = 0;
 		foreach ($result as $singleResult) {
-			$list[] = array('id'=>$singleResult['id'], 'name'=>$singleResult["name"]);
+			$list[] = array('id'=>$singleResult['id'], 'name'=>$singleResult["name"], 'counter' => $counter );
+			$counter++;
 		}
 		$this->benutzerList = $list;
 	}

@@ -61,12 +61,32 @@ class Auftraggeber implements TvsatzInterface
 			return 'false';
 		}
 	}
+	
+	public function getCurrentId() {
+		return $this->id;
+	}
 
 	public function getDates() {
 		$result = array(  'id' => $this->id, 'name' => $this->name, 'abteilung' => $this->abteilung, 'anschrift' => $this->anschrift, 'anschrift2' => $this->anschrift2, 'plz' => $this->plz,
 			'ort' => $this->ort, 'telefon' => $this->telefon, 'fax' => $this->fax, 'mail' => $this->mail, 'skonto' => $this->skonto, 
 			'zahlungsziel' => $this->zahlungsziel, 'reg_date' => $this->reg_date);
 		return $result;
+	}
+	
+	public function getDeliveryAddress($id) {
+		$sql = 'SELECT name, anschrift, anschrift2, ort, plz FROM Auftraggeber WHERE id = :id';
+		$result = $this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		$result->execute();
+		$array = $result->fetch();
+		$final = array(
+			'name' => $array['name'],
+			'address' => $array['anschrift'],
+			'address2' => $array['anschrift2'],
+			'place' => $array['ort'],
+			'code' => $array['plz']
+		);
+		return $final;
 	}
 
 	public function getId() {
@@ -80,6 +100,10 @@ class Auftraggeber implements TvsatzInterface
 		$array = $result->fetch();
 		$this->id = $array['id'];
 		$this->reg_date = $array['reg_date'];
+	}
+	
+	public function getName() {
+		return $this->name;
 	}
 
 	private function getSql() {

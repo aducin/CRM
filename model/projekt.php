@@ -176,6 +176,13 @@ class Projekt
 		unset($this->auflage3);
 		unset($this->auflage4);
 	}
+	
+	public function deleteDescToPrint($id, $column) {
+		$sql = "UPDATE Projekt SET ".$column." = '' WHERE id = :id";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		$result->execute();
+	}
 
 	public function getAnsprechpartner() {
 		return $this->ansprechpartner;
@@ -201,6 +208,34 @@ class Projekt
 	public function getChangeDate() {
 		return $this->changeDate;
 	}
+	
+	public function getDatesProject() {
+		$array = array(
+		'amendmentTime' => $this->amendmentTime,
+		'dateTime' => $this->dateTime,
+		'proofTime' => $this->proofTime,
+		'printTime' => $this->printTime
+		);
+		return $array;
+	}
+	
+	public function getDeliverySql($id) {
+		$sql = 'SELECT abweichend, lieferschein_text, lieferadresse_ab, lieferanweisung, auftraggeber, kundenauftragsnummer, name FROM Projekt WHERE id = :id';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		$result->execute();
+		$array = $result->fetch();
+		$final = array(
+			'ifCustom' => $array['abweichend'], 
+			'deliveryText' => $array['lieferschein_text'], 
+			'customAddress' => $array['lieferadresse_ab'], 
+			'deliveryDesc' => $array['lieferanweisung'], 
+			'customerId' => $array['auftraggeber'],
+			'clientNumber' => $array['kundenauftragsnummer'],
+			'name' => $array['name']
+		);
+		return $final;
+	}
 
 	public function getDeliveryTime() {
 		return $this->deliveryTime;
@@ -214,6 +249,18 @@ class Projekt
 			'notes' => $this->lieferanweisung
 		);
 		return $delivery;
+	}
+	
+	public function getDescToPrint($id, $column) {
+		$sql = 'SELECT '.$column.' FROM Projekt WHERE id = :id';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		if ($result->execute()) {
+		     $final = $result->fetch();
+		     return $final[$column];
+		} else {
+		     return 'false';
+		}
 	}
 
 	public function getDrucksachen() {

@@ -63,6 +63,7 @@ class Drucksache extends formBasics
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
 		$result->execute();
+		$printingData = array();
 		foreach ($result as $singleResult) {
 			$printingData[] = array( 
 				'id' => $singleResult['id'],
@@ -132,7 +133,7 @@ class Drucksache extends formBasics
 
 	public function insertSql( $data ) {
 		$data = explode('<>', $data);
-		if ($data[2] = 'none') {
+		if ($data[2] == 'none') {
 		    $data[2] = null;
 		}
 		$sql = 'INSERT INTO Drucksache (projectId, print, machine, type, edition, format, size, color, paper, remodelling, finished, amount, reg_date) 

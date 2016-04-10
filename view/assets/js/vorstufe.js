@@ -520,6 +520,7 @@ $( document ).ready(function() {
     });
 
     $( ".vorstufeToChange" ).dblclick(function() {
+      $( this ).next().prop('disabled', false);
       $( this ).next().children().prop('disabled', false);
       changeRow($(this));
     });
@@ -551,12 +552,12 @@ $( document ).ready(function() {
       } else if (value == 'amount') {
         name = name.replace(",", ".");
         var check = isNumber(name);
-	if (check == false) {
-          $( this ).children().css('border-color', '#a94442');
-	  $( this ).children().focus();
-	  $( this ).children().select();
-          return false;
-        }
+	        if (check == false) {
+            $( this ).children().css('border-color', '#a94442');
+        	  $( this ).children().focus();
+        	  $( this ).children().select();
+            return false;
+          }
         var name2 = name.split(".");
         if (name2[1] == null) {
           name = name + '.00';
@@ -565,7 +566,15 @@ $( document ).ready(function() {
         } else if (name2[1].length == 0) {
           name = name + '00';
         }
-      } 
+      } else if (value == 'timeSettlement' || value == 'timeReal' || value == 'timeProposal') {
+          name = name.replace(',', '.');
+          var check = name.split('.');
+          if (check[1] == undefined) {
+            name = name + '.00';
+          } else if (check[1].length == 1) {
+            name = name + 0;
+          }
+      }
       if (value == 'timeProposal' || value == 'timeReal' || value == 'timeSettlement') {
         if (name != '') {
           var check = isNumber(name);
@@ -583,7 +592,11 @@ $( document ).ready(function() {
       }
       var rowId = $( this ).parent().attr('id');
       var date = value + '-' + name;
-      $( this ).children().prop('disabled', true);
+      if (value == 'employee' || value == 'type') {
+	  $( this ).prop('disabled', true);
+      } else {
+	  $( this ).children().prop('disabled', true);
+      }
       changeDate(date, rowId);
       var timerId = setInterval(function() {
 	if(finalResult !== null) {

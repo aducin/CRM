@@ -294,6 +294,9 @@ $( document ).ready(function() {
                   if (result == 'false') {
                     console.log('false');
                 } else {
+		  var clonedTable2 = $( '#hiddenDrucksachenMachine').clone();
+		  clonedTable2.attr("id", "drucksachenClonedTable");
+		  clonedTable2.attr("name", "drucksachenClonedTable");
                     var tableRow = '<tr class="clickable-row rowsDrucksachen" name="' + result + '" id="' + result + '">';
                     tableRow += '<td id="' + result + '"><div class="drucksacheToChange" id="print">';
                     if (print.length == 0) {
@@ -313,7 +316,9 @@ $( document ).ready(function() {
                       tableRow += '<i>keine Daten</i>';
                   }
                   tableRow += '</div>';
-                  tableRow += '<div class="drucksacheToUpdate" id="machine" style="display: none;">';
+		  tableRow += '<div class="drucksacheToUpdate toBeClonedDruck'+ result +'" id="machine" style="display: none;">';
+		  tableRow += '</div></td>';
+                  /*tableRow += '<div class="drucksacheToUpdate" id="machine" style="display: none;">';
                   tableRow += '<select class="form-control" id="machine" name="hiddenMachine">';
                   if (machine == 1) {
                         tableRow += '<option id="1">SpeedMaster</option>';
@@ -323,6 +328,7 @@ $( document ).ready(function() {
                         tableRow += '<option id="1">SpeedMaster</option>';
                   }
                   tableRow += '</select></div></td>';
+		  */
                   tableRow += '<td id="' + result + '"><div class="drucksacheToChange" id="type">';
                   if (type.length == 0) {
                       tableRow += '<i>keine Daten</i>';
@@ -413,8 +419,10 @@ $( document ).ready(function() {
                   $( '.deleteButtonDrucksachen' ).show();
                   var rows = document.getElementById("drucksacheTable").rows.length;
                   var number = rows -2;
-                  $( '#hiddenTrDrucksachen' ).hide();               
+                  $( '#hiddenTrDrucksachen' ).hide(); 
                   $( '#drucksacheTable > tbody > tr:nth-child(' + number + ')' ).after(tableRow);
+		  var toBeCloned = $( '.toBeClonedDruck' );
+		  $( '.toBeClonedDruck' + result ).append(clonedTable2);
 
                   $("#drucksacheTable").on("click", "tr", function(){
                       getRowId($(this));
@@ -447,6 +455,7 @@ $( document ).ready(function() {
 });
     
     $( ".drucksacheToChange" ).dblclick(function() {
+	$( this ).next().prop('disabled', false);
         $( this ).next().children().prop('disabled', false);
         changeRow($(this));
     });
@@ -493,7 +502,11 @@ $( document ).ready(function() {
     	}
     	var rowId = $( this ).parent().attr('id');
     	var date = value + '-' + name;
-      $( this ).children().prop('disabled', true);
+	if( value == 'machine') {
+	    $( this ).prop('disabled', true);
+	} else {
+	    $( this ).children().prop('disabled', true);
+	}
     	changeDate(date, rowId);
 	    var timerId = setInterval(function() {
 	     if(finalResult !== null) {
@@ -535,7 +548,7 @@ $( document ).ready(function() {
     		previous.html( name );
     	}
     	$('.drucksacheToUpdate').hide();
-      $( this ).children().prop('disabled', false);
+	$( this ).children().prop('disabled', false);
     	previous.show();
 	    }
 	     clearInterval(timerId);

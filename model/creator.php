@@ -41,7 +41,10 @@ class TvsatzCreator implements creator{
                 break;
             case 'calculation':
                 return new Project_Calculation($this->dbHandler);
-                break;  
+                break; 
+            case 'document':
+                return new Document($this->dbHandler);
+                break; 
             case 'Drucksache':
                 return new Drucksache($this->dbHandler, $item);
                 break;

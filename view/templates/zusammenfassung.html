@@ -94,13 +94,13 @@
                                     {% for employee in employees %}                  
                                         <li class="list-group-item">
                                             <div class="checkbox">
-                                                <input id="<?php echo $employee['id']; ?>" class="employee" name="mitarbeiter" type="checkbox">
-                                                <label for="mitarbeiter_1">
+                                                <input id="{{ employee.id }}" name="mitarbeiter" type="checkbox" {% if employee.checked == 1 %} checked="checked" {% endif %} >
+                                                <label for="mitarbeiter">
                                                     {{ employee.name }}
                                                 </label>
                                             </div> 
                                         </li>
-                                    {% endfor %}                       
+                                    {% endfor %}                        
                                 </ul>
                             </div>
                         </div>

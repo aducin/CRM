@@ -1305,8 +1305,38 @@ $( document ).ready(function() {
         $( '#newPopupSave' ).show();
 
     });
-
+    
     $( "#druckButton" ).click(function() {
+        var curDocument = $('select[name=formToPrint] option:selected').val();
+        var field = $( '#descToPrint' ).attr('id');
+        var column = field + curDocument;
+        var projId = $( '#hiddenProj' ).val();
+        var text = $( '#descToPrint' ).val();
+        var array = [column, projId];
+        changeDate(text, array);
+        var timerId = setInterval(function() {
+        if(finalResult !== null) {
+            if(finalResult == 'success') {
+                var formPath = $( '#printId' ).attr( 'action' );
+                var finalPath = formPath + '/' + curDocument;
+                curDocument = '';
+                $( "#printId" ).attr('action', finalPath);
+                $( "#formToPrint" ).remove();
+                $( '#descToPrint' ).remove();
+                $( '#druckButton' ).text('in Vorbereitung');
+                $( '#printId' ).submit();
+                clearInterval(timerId);
+                $( "#exampleModal" ).dialog('close');
+            }
+            clearInterval(timerId);
+            } else {
+                console.log(finalResult);
+            }
+        }, 1500);
+    return false;
+    });
+
+    /*$( "#druckButton" ).click(function() {
 	var document = $('select[name=formToPrint] option:selected').val();
 	var field = $( '#descToPrint' ).attr('id');
 	var column = field + document;
@@ -1328,5 +1358,5 @@ $( document ).ready(function() {
     		}
     	}, 1500);
 	return false;
-    });
+    });*/
 });

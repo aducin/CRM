@@ -64,6 +64,34 @@ class Bemerkung
 			);
 		return $final;
 	}
+	
+	public function getDeliveryDesc($id) {
+		$sql = 'SELECT desc1, desc2, desc3, desc4, desc1_li, desc2_li, desc3_li, desc4_li FROM Bemerkung WHERE projectId = :id';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		$result->execute();
+		$array = $result->fetch();
+		$final = array(
+				'desc1' => $array['desc1'],
+				'desc2' => $array['desc2'],
+				'desc3' => $array['desc3'],
+				'desc4' => $array['desc4'],
+				'desc1_li' => $array['desc1_li'],
+				'desc2_li' => $array['desc2_li'],
+				'desc3_li' => $array['desc3_li'],
+				'desc4_li' => $array['desc4_li'],
+		);
+		return $final;
+	}
+	
+	public function getInternDesc($id) {
+		$sql = 'SELECT desc5 FROM Bemerkung WHERE projectId = :id';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		$result->execute();
+		$array = $result->fetch();
+		return $array['desc5'];
+	}
 
 	public function insert($self, $projectId){
 		$sql = 'INSERT INTO Bemerkung (projectId, desc1, desc2, desc3, desc4, desc1_an, desc1_au, desc1_pm, desc1_li, desc1_re, desc2_an, 		desc2_au, desc2_pm, desc2_li, desc2_re, desc3_au, desc3_an, desc3_pm, desc3_li, desc3_re, desc4_an,
