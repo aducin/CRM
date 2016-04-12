@@ -12,31 +12,43 @@ class OutputController
     private $employees;
     private $mandant;
 
-	public function __construct($dbHandler) {
-	
-    	$root_dir = $_SERVER['DOCUMENT_ROOT'].'/CRM';
-    	$vendor_dir = $root_dir.'/vendor';
-    	$cache_dir = $root_dir.'/cache';
-    	$templates_dir = $root_dir.'/view/templates';
-    	$twig_lib = $vendor_dir.'/twig/lib/Twig';
-    	require_once $twig_lib . '/Autoloader.php';
-    	Twig_Autoloader::register();
-    	$loader = new Twig_Loader_Filesystem($templates_dir);
-    	$this->twig = new Twig_Environment($loader, array(
-    		'cache' => $cache_dir,
-    	));
+	public function __construct($dbHandler = null) {
+    
+        $root_dir = $_SERVER['DOCUMENT_ROOT'].'/CRM';
+        $vendor_dir = $root_dir.'/vendor';
+        $cache_dir = $root_dir.'/cache';
+        $templates_dir = $root_dir.'/view/templates';
+        $twig_lib = $vendor_dir.'/twig/lib/Twig';
+        require_once $twig_lib . '/Autoloader.php';
+        Twig_Autoloader::register();
+        $loader = new Twig_Loader_Filesystem($templates_dir);
+        $this->twig = new Twig_Environment($loader, array(
+            'cache' => $cache_dir,
+        ));
         $this->path = ('http://'.$_SERVER["HTTP_HOST"]).'/CRM/view/';
         $this->root = ('http://'.$_SERVER["HTTP_HOST"]).'/CRM';
-    	$this->dbHandler = $dbHandler;
-        $this->creator = new TvsatzCreator($dbHandler);
-        $this->helper = $this->creator->createProduct('helpers');
-        $this->helper->setBenutzerList();
-        $this->employees = $this->helper->getBenutzerList();
-        $this->mandant = $this->helper->getMandant();
+        $this->dbHandler = $dbHandler;
+        if (isset($dbHandler)) {
+            $this->creator = new TvsatzCreator($dbHandler);
+            $this->helper = $this->creator->createProduct('helpers');
+            $this->helper->setBenutzerList();
+            $this->employees = $this->helper->getBenutzerList();
+            $this->mandant = $this->helper->getMandant();
+        } else {
+            $this->displayError($this->twig, $this->path, $error = null);
+        }
     }
 
-    public static function displayError($error) {
-        include ('view/templates/error.html');
+    public static function displayError($twig, $path, $error = null) {
+        if (!isset($error)) {
+            $error = $_SESSION['error'];
+        }
+        $output = $twig->render('/error.html', array(
+            'message' => $error,
+            'path' => $path
+        ));
+        echo $output;
+        exit();
     }
 
     public function render404() {
@@ -82,6 +94,14 @@ class OutputController
         if ($project) {
             $projectId = $project->getId();
             $individual = $project->getIndividuals();
+            $userList = $this->helper->getProjectUser($projectId);
+            foreach ($this->employees as $single) {
+                foreach ($userList as $singleUser) {
+                    if ($single['id'] == $singleUser['userId']) {
+                        $this->employees[$single['counter']]['checked'] = 1;
+                    }
+                }
+            }
             $bemerkung = $project->setBemerkung();
             $customer = $project->auftraggeber->getDates();
             $sellerList = $project->ansprechpartner->getAllAnsprechpartner($customer['id']);
@@ -223,6 +243,11 @@ class OutputController
 		    $dates['skonto'] = $individual['skonto'];
 		}
             }
+            $document = $this->creator->createProduct('document');
+            $documentList = $document->getDocumentList($projectId);
+            if (empty($documentList)) {
+		$documentList = null;
+            }
             $output = $this->twig->render('/zusammenfassung.html', array(
                 'root' => $this->root,
                 'path' => $this->path,
@@ -251,6 +276,7 @@ class OutputController
                 'thirdCalc' => $thirdTable,
                 'fourthCalc' => $fourthTable,
                 'calcCount' => $calcCount,
+                'documentList' => $documentList,
             ));
         } else {
             $output = $this->twig->render('/zusammenfassung.html', array(

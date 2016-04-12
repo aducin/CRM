@@ -1307,6 +1307,8 @@ $( document ).ready(function() {
     });
     
     $( "#druckButton" ).click(function() {
+        $( '#druckButton' ).text('in Vorbereitung...');
+        var href = $( '#hiddenHref' ).attr('href');
         var curDocument = $('select[name=formToPrint] option:selected').val();
         var field = $( '#descToPrint' ).attr('id');
         var column = field + curDocument;
@@ -1319,14 +1321,17 @@ $( document ).ready(function() {
             if(finalResult == 'success') {
                 var formPath = $( '#printId' ).attr( 'action' );
                 var finalPath = formPath + '/' + curDocument;
+                var finalhref = href + '/' + curDocument + '?projId=' + projId;
+                $( '#hiddenHref' ).attr('href', finalhref);
                 curDocument = '';
                 $( "#printId" ).attr('action', finalPath);
                 $( "#formToPrint" ).remove();
+                $( "#descLabel" ).remove();
                 $( '#descToPrint' ).remove();
-                $( '#druckButton' ).text('in Vorbereitung');
-                $( '#printId' ).submit();
+                //$( '#printId' ).submit();
                 clearInterval(timerId);
-                $( "#exampleModal" ).dialog('close');
+                window.open( finalhref );
+                //location.reload();
             }
             clearInterval(timerId);
             } else {
@@ -1335,28 +1340,4 @@ $( document ).ready(function() {
         }, 1500);
     return false;
     });
-
-    /*$( "#druckButton" ).click(function() {
-	var document = $('select[name=formToPrint] option:selected').val();
-	var field = $( '#descToPrint' ).attr('id');
-	var column = field + document;
-	var projId = $( '#hiddenProj' ).val();
-	var text = $( '#descToPrint' ).val();
-	var array = [column, projId];
-	changeDate(text, array);
-	var timerId = setInterval(function() {
-		if(finalResult !== null) {
-		    if(finalResult == 'success') {
-			$("input[name='descToPrint']").remove();
-			$( '#druckButton' ).text('in Vorbereitung');
-			return false;
-			$( '#printId').submit();
-		    }
-    		clearInterval(timerId);
-    		} else {
-    		    console.log(finalResult);
-    		}
-    	}, 1500);
-	return false;
-    });*/
 });

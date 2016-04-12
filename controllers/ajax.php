@@ -94,44 +94,10 @@ class Ajax
 	$result = $helper->$single($object, $value);
 	echo $result;
     }
-    /*
-    private function dates($date, $path) {
-        if (is_array($path)) {
-            $values = $path;
-        } else {
-            $values = explode('<>', $path);
-        }
-        $column = $values[0];
-        $projectId = $values[1];
-        if ($column != 'kundenauftragsnummer') {
-            $insert = explode('/', $date);
-            if(isset($insert[1])) {
-                $date = $insert[2].'-'.$insert[1].'-'.$insert[0];
-            } else {
-                $date = $insert[0];
-            }
-        }
-        if ($column == 'Rechnungsadressen') {
-            $object = $this->creator->createProduct('rechnungsadresse');
-            $success = $object->$date($values);
-        } elseif ($column == 'Ansprechpartner') {
-            $object = $this->creator->createProduct('ansprechpartner');
-            $success = $object->$date($values);
-        }else {
-           $project = $this->creator->createProduct('projekt');
-           $success = $project->updateDate($projectId, $column, $date);
-        }
-        echo $success; exit();
-    }
-  */
   
     private function dates($date, $path) {
         if (is_array($path)) {
             $values = $path;
-            if ($values[0] == 'deliveryTime') {
-		$tempDate = explode('/', $date);
-		$date = $tempDate[2].'-'.$tempDate[1].'-'.$tempDate[0];
-            }
         } else {
             $values = explode('<>', $path);
             $insert = explode('/', $date);
@@ -153,6 +119,9 @@ class Ajax
         } elseif ($column == 'Project_Calculation') {
             $object = $this->creator->createProduct('calculation');
             $success = $object->$date($values);
+        } elseif ($column == 'user') {
+            $object = $this->creator->createProduct('helpers');
+            $success = $object->manageProjectUser($date, $projectId, $values[2]);
         } else {
            $success = $project->updateDate($projectId, $column, $date);
         }

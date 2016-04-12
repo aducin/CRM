@@ -125,6 +125,11 @@ class Ansprechpartner implements TvsatzInterface
 		return $this->id;
 	}
 
+	public function getName() {
+		$name = $this->name.' '.$this->vorname;
+		return $name;
+	}
+
 	public function getObjectId() {
 		return $this->id;
 	}

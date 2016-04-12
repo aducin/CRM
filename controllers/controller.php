@@ -16,9 +16,10 @@ class Controller
 		$this->dbHandler = $dbHandler;
 		$this->creator = new TvsatzCreator($dbHandler);
 		$this->output = new OutputController($dbHandler);
-        if (isset($_SESSION['stayLogged']) && $_SESSION['stayLogged'] == 1) {
-            $this->$action();
-        } elseif (isset($_GET['token'])) {
+        //if (isset($_SESSION['stayLogged']) && $_SESSION['stayLogged'] == 1) {
+        //    $this->$action();
+        //} else
+        if (isset($_GET['token'])) {
 		    $this->getLoginPage();
 		} elseif (!isset($_SESSION['log']) OR !isset($_COOKIE['crm_logged'])) {
 		    if ($action == 'renderLogin') {
@@ -116,6 +117,11 @@ class Controller
             OutputController::displayError($error);
             exit();
         }
+    }
+    
+    private function printDocument() {
+        $action = $_GET['singleAction'];
+        $print = new PrintController($this->dbHandler, $action);
     }
 
     private function projectSearch() {

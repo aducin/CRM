@@ -17,13 +17,13 @@
                                 <option value="2">Auftragsbestätigung</option>
                                 <option value="3">Preismitteilung</option>
                                 <option value="4">Rechnung</option>
-                                <option value="5">Formular 2</option>
+                                <option value="5">Auftragszettel</option>
                                 <option value="6">Lieferschein</option>
                             </select> 
                         </div>
                     </div>            
                     <div class="form-group">
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" id="descLabel">
                             <label for="descToPrint" class="control-label">Bezeichnung für Akte</label>
                         </div>
                         <div class="col-sm-8">
@@ -34,6 +34,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" id="druckButton" class="btn btn-primary">Drucken</button>
+            </div>
+            <div style="display: none;">
+                <a id="hiddenHref" href="{{ root }}/Print" target="_blank"></a>
             </div>
         </div>
     </div>

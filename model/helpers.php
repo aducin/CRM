@@ -117,6 +117,19 @@ class Helpers
 		}
 		return $list;
 	}
+
+	public function getInvoiceNumber($projectId, $file) {
+		$sql = 'SELECT id FROM Rechnungsnummer WHERE projectId = :projectId AND file = :file';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':projectId', $projectId);
+		$result->bindValue(':file', $file);
+		if ($result->execute()) {
+			$final = $result->fetch();
+			return $final['id'];
+		} else {
+			return 'false';
+		}
+	}
 	
 	public function getKalkulationsfelder() {
 		return $this->kalkulationsfelder;
@@ -139,6 +152,19 @@ class Helpers
 	
 	public function getMachine() {
 		return $this->machine;
+	}
+
+	public function getOfferNumber($projectId, $file) {
+		$sql = 'SELECT id FROM Angebotsnummer WHERE projectId = :projectId AND file = :file';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':projectId', $projectId);
+		$result->bindValue(':file', $file);
+		if ($result->execute()) {
+			$final = $result->fetch();
+			return $final['id'];
+		} else {
+			return 'false';
+		}
 	}
 	
 	public function getProjectUser($projectId) {
@@ -202,6 +228,15 @@ class Helpers
 		$result->execute();
 		$date = $result->fetch();
 		return $date['name'];
+	}
+
+	public function getSingleZahlungszielDesc($id) {
+		$sql = "SELECT beschreibung FROM Zahlungsziel WHERE id = :id";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		$result->execute();
+		$date = $result->fetch();
+		return $date['beschreibung'];
 	}
 	
 	public function getRolle() {
@@ -302,6 +337,30 @@ class Helpers
 			$artList[] = array("id" => $singleResult['id'], "name" => $singleResult['name']);
 		}
 		$this->art = $artList;
+	}
+
+	public function setInvoiceNumber($projectId, $file) {
+		$sql = 'INSERT INTO Rechnungsnummer (projectId, reg_date, file) VALUES (:id, NOW(), :file)';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $projectId);
+		$result->bindValue(':file', $file);
+		if ($result->execute()) {
+			return 'success';
+		} else {
+			return 'false';
+		}
+	}
+
+	public function setOfferNumber($projectId, $file) {
+		$sql = 'INSERT INTO Angebotsnummer (projectId, reg_date, file) VALUES (:id, NOW(), :file)';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $projectId);
+		$result->bindValue(':file', $file);
+		if ($result->execute()) {
+			return 'success';
+		} else {
+			return 'false';
+		}
 	}
 	
 	public function setBenutzerList() {

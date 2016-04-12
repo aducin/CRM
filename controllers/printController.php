@@ -18,18 +18,227 @@ class PrintController
 		$this->$finalAction();
 	}
 
+	private function render($column, $filename, $title, $offer = null) {
+		$descColumn = $column[0];
+		$vorstufeColumn = $column[1];
+		$drucksachenColumn = $column[2];
+		$fremdarbeitenColumn = $column[3];
+		$dates = array();
+		$this->project = $this->creator->createProduct('projekt', $this->projectId);
+		$this->project->setDates();
+		$filepath = $_SERVER['DOCUMENT_ROOT']."/CRM/akte/".$filename;
+		$dates['name'] = $this->project->ansprechpartner->getName();
+		$clientId = $this->project->auftraggeber->getCurrentId();
+		$address = $this->project->auftraggeber->getDeliveryAddress($clientId);
+		$dates['clientName'] = $address["name"];
+		$dates['clientAddress'] = $address["address"];
+		if ($address["address2"] != '') {
+			$dates['clientAddress2'] = $address["address2"];
+		}
+		date_default_timezone_set('Europe/Berlin');
+		$dates['date'] = date('d/m/Y ', time());
+		$dates['date'] = str_replace('/', '.', $dates['date']);
+		$dates['clientCity'] = $address["place"].' '.$address["code"];
+		$dates['title'] = $title;
+		$dates['upperTitle'] = strtoupper($title);
+		$dates['clientOrderNumber'] = $this->project->getKundenautragsnummer();
+		$dates['projectName'] = $this->project->getName();
+		$helper = $this->creator->createProduct('helpers');
+		if ($title == "Angebot") {
+			$success = $helper->setOfferNumber($this->projectId, $filename);
+			if ($success == 'success') {
+				$success = $helper->getOfferNumber($this->projectId, $filename);
+				if ($success != 'false') {
+					$dates['offerNumber'] = $success;
+				} else {
+					echo 'error = printController  - renderDocument1';
+				}
+			} else {
+				echo 'error = printController  - renderDocument1';
+			}
+		} elseif ($title == "Rechnung") {
+			$success = $helper->setInvoiceNumber($this->projectId, $filename);
+			if ($success == 'success') {
+				$success = $helper->getInvoiceNumber($this->projectId, $filename);
+				if ($success != 'false') {
+					$dates['orderNumber'] = $success;
+				} else {
+					echo 'error = printController  - renderDocument4';
+				}
+			} else {
+				echo 'error = printController  - renderDocument4';
+			}
+		}
+		$payment = $this->project->getIndividuals();
+		if ($payment["skonto"] != '') {
+			$dates['skonto'] = $payment["skonto"];
+		}
+		if ($payment["payment"] != '') {
+			$dates['paymentOpt'] = $helper->getSingleZahlungszielDesc($payment["payment"]);
+		}
+		$description = $this->creator->createProduct('bemerkung');
+		$success = $description->getDescription($descColumn, $this->projectId);
+		if ($success != 'false') {
+			if ($success["ifSet"] == 1) {
+				$dates['description'] = $success["description"];
+			}
+		} else {
+			echo 'error = printController  - renderDocument1';
+		}
+		$vorstufe = $this->project->getVorstufe();
+		if ($vorstufe[0] != null) {
+			$amount = 0;
+            $counter = 0;
+            if (isset($vorstufe[0])) {
+        	    foreach($vorstufe[0] as $singleRow) {
+        		    $amount += $singleRow['amount'];;
+                    $textDate = explode('.', $singleRow["performanceTime"]);
+                    $vorstufe[0][$counter]["performanceTime"] = $textDate[0].'.'.$textDate[1].'.'.$textDate[2];
+                    $vorstufe[0][$counter]["performanceTime2"] = $textDate[1].'.'.$textDate[0].'.'.$textDate[2];
+                    $counter++;
+        	    }
+            }
+            $vorstufe = $vorstufe[0];
+            $dates['amountVorstufe'] = number_format($amount, 2);
+            $success = $description->getDescription($vorstufeColumn, $this->projectId);
+            if ($success != 'false') {
+				if ($success["ifSet"] == 1) {
+					$dates['vorstufeDescription'] = $success["description"];
+				}
+			} else {
+				echo 'error = printController  - renderDocument1';
+			}
+		} else {
+			$vorstufe = null;
+			if ($offer == true) {
+				$dates['offer'] = Helpers::settings($this->dbHandler, 'standardText');
+			}
+		}
+		$drucksachen = $this->project->getDrucksachen();
+		if (!empty($drucksachen)) {
+			$amount = 0;
+			if (isset($drucksachen[0])) {
+				foreach($drucksachen[0] as $singleRow) {
+					$amount += $singleRow['amount'];
+				}
+			}
+			$drucksachen = $drucksachen[0];
+			$dates['amountDrucksachen'] = number_format($amount, 2);
+			$success = $description->getDescription($drucksachenColumn, $this->projectId);
+			if ($success != 'false') {
+				if ($success["ifSet"] == 1) {
+					$dates['druckDescription'] = $success["description"];
+				}
+			} else {
+				echo 'error = printController  - renderDocument1';
+			}
+		} else {
+			$drucksachen = null;
+		}
+		$fremdarbeiten = $this->project->getFremdsache();
+		if (!empty($fremdarbeiten)) {
+			if (isset($fremdarbeiten[0])) {
+				$counter = 0;
+				$amount = 0;
+				foreach($fremdarbeiten[0] as $singleRow) {
+					$amount += $singleRow['sellPrice'];
+					if ($singleRow['textDate'] != '') {
+						$textDate = explode('-', $singleRow['textDate']);
+                        $fremdarbeiten[0][$counter]['textDate'] = $textDate[2].'.'.$textDate[1].'.'.$textDate[0];
+                        $fremdarbeiten[0][$counter]['textDate2'] = $textDate[1].'.'.$textDate[2].'.'.$textDate[0];
+                    }       
+                    $counter++;
+    	        }
+            }
+            $fremdarbeiten = $fremdarbeiten[0];
+            $dates['amountFremdarbeiten'] = number_format($amount, 2);
+            $success = $description->getDescription($fremdarbeitenColumn, $this->projectId);
+			if ($success != 'false') {
+				if ($success["ifSet"] == 1) {
+					$dates['fremdDescription'] = $success["description"];
+				}
+			} else {
+				echo 'error = printController  - renderDocument1';
+			}
+		} else {
+			$fremdarbeiten = null;
+		}	
+		$document = $this->creator->createProduct('document');
+		$path = 'http://ad9bis.vot.pl/CRM/view/assets/images/logo.png';
+		if ($dates["upperTitle"] == 'AUFTRAGSBESTäTIGUNG') {
+			$dates["upperTitle"] = 'AUFTRAGSBESTÄTIGUNG';
+		}
+		$pattern = $document->mainForm($dates, $vorstufe, $drucksachen, $fremdarbeiten, $path);
+		//$this->renderPdf($pattern, $title, $filename, $filepath);
+		//var_dump($title); exit();
+		if ($title == 'Angebot') {
+			$desc = 'descToPrint1';
+		} elseif ($title == 'Preismitteilung') {
+			$desc = 'descToPrint3';
+		} elseif ($title == 'Rechnung') {
+			$desc = 'descToPrint4';
+		} else {
+			$desc = 'descToPrint2';
+		}
+		$success = $this->project->getDescToPrint($this->projectId, $desc);
+		if ($success != 'false') {
+		    $success = $document->insert($title, $_SESSION["user"], $success, $filename, $this->projectId);
+		    if ($success != 'false') {
+			$this->project->deleteDescToPrint($this->projectId, $desc);
+		    }
+		}
+		if ($success == 'success') {
+		    $this->renderPdf($pattern, $title, $filename, $filepath);
+		} else {
+		    echo 'error - printController.php line 359';
+		}
+	}
+
 	private function renderDocument1() {
-		echo 'in Vorbereitung 1'; exit();
+		$offer = true; // to display standarttext when no vorstufe rows
+		$descColumn = array('desc1', 'desc1_an');
+		$vorstufeColumn = array('desc2', 'desc2_an');
+		$drucksachenColumn = array('desc3', 'desc3_an');
+		$fremdarbeitenColumn = array('desc4', 'desc4_an');
+		$title = 'Angebot';
+		$filename = 'angebot-'.$this->projectId.'-'.(date("dmY_Hi")).".pdf";
+		$column = array($descColumn, $vorstufeColumn, $drucksachenColumn, $fremdarbeitenColumn);
+
+		$this->render($column, $filename, $title, $offer);
 	}
 
 	private function renderDocument2() {
-		echo 'in Vorbereitung 2'; exit();
+		$descColumn = array('desc1', 'desc1_au');
+		$vorstufeColumn = array('desc2', 'desc2_au');
+		$drucksachenColumn = array('desc3', 'desc3_au');
+		$fremdarbeitenColumn = array('desc4', 'desc4_au');
+		$title = 'Auftragsbestätigung';
+		$filename = 'auftragsbestatigung-'.$this->projectId.'-'.(date("dmY_Hi")).".pdf";
+		$column = array($descColumn, $vorstufeColumn, $drucksachenColumn, $fremdarbeitenColumn);
+
+		$this->render($column, $filename, $title);
 	}
 	private function renderDocument3() {
-		echo 'in Vorbereitung 3'; exit();
+		$descColumn = array('desc1', 'desc1_pm');
+		$vorstufeColumn = array('desc2', 'desc2_pm');
+		$drucksachenColumn = array('desc3', 'desc3_pm');
+		$fremdarbeitenColumn = array('desc4', 'desc4_pm');
+		$title = 'Preismitteilung';
+		$filename = 'preismitteilung-'.$this->projectId.'-'.(date("dmY_Hi")).".pdf";
+		$column = array($descColumn, $vorstufeColumn, $drucksachenColumn, $fremdarbeitenColumn);
+		
+		$this->render($column, $filename, $title);
 	}
 	private function renderDocument4() {
-		echo 'in Vorbereitung 4'; exit();
+		$descColumn = array('desc1', 'desc1_re');
+		$vorstufeColumn = array('desc2', 'desc2_re');
+		$drucksachenColumn = array('desc3', 'desc3_re');
+		$fremdarbeitenColumn = array('desc4', 'desc4_re');
+		$title = 'Rechnung';
+		$filename = 'rechnung-'.$this->projectId.'-'.(date("dmY_Hi")).".pdf";
+		$column = array($descColumn, $vorstufeColumn, $drucksachenColumn, $fremdarbeitenColumn);
+		
+		$this->render($column, $filename, $title);
 	}
 	private function renderDocument5() {
 		$this->project = $this->creator->createProduct('projekt', $this->projectId);
@@ -61,6 +270,20 @@ class PrintController
 			}
 			$client['deliveryPlace'] = $addressDates['code'].' '.$addressDates['place'];
 		}
+		$description = $this->creator->createProduct('bemerkung');
+		$drucksachen = $this->project->getDrucksachen();
+		if (!empty($drucksachen)) {
+			$amount = 0;
+			if (isset($drucksachen[0])) {
+				foreach($drucksachen[0] as $singleRow) {
+					$amount += $singleRow['amount'];
+				}
+			}
+			$drucksachen = $drucksachen[0];
+			$client['amountDrucksachen'] = number_format($amount, 2);
+		} else {
+			$drucksachen = null;
+		}
 		$deliveryTime = $this->project->getDeliveryTime();
 		$dateChange = explode('-', $deliveryTime);
 		$client['deliveryTime'] = $dateChange[2].'.'.$dateChange[1].'.'.$dateChange[0];
@@ -87,8 +310,9 @@ class PrintController
 		$filepath = $_SERVER['DOCUMENT_ROOT']."/CRM/akte/".$filename;
 		$description = $this->creator->createProduct('bemerkung');
 		$client['internDesc'] = $description->getInternDesc($this->projectId);
-		$pattern = $document->innerForm($client, $userList);
+		$pattern = $document->innerForm($client, $userList, $drucksachen);
 		$success = $this->project->getDescToPrint($this->projectId, 'descToPrint5');
+		$title = 'Auftragszettel';
 		if ($success != 'false') {
 		    $success = $document->insert('Auftragszettel', $_SESSION["user"], $success, $filename, 
 		    $this->projectId);
@@ -154,12 +378,16 @@ class PrintController
 		if ($success == 'success') {
 		    $this->renderPdf($pattern, $title, $filename, $filepath);
 		} else {
-		    echo 'error - printController.php line 157';
+		    echo 'error - printController.php line 359';
 		}
 	}
 
-	private function renderPdf($pattern, $title, $filename, $filepath) {
+	private function renderPdf($pattern, $title, $filename, $filepath, $filepath = null) {
 		include('vendor/mpdf/mpdf.php');
+
+		if (!isset($filepath)) {
+			$filepath = $_SERVER['DOCUMENT_ROOT']."/CRM/akte/".$filename;
+		}
 
 		$mpdf = new mPDF('utf-8'); 
 

@@ -84,6 +84,18 @@ class Bemerkung
 		return $final;
 	}
 	
+	public function getDescription($columnName, $projectId) {
+		$sql = 'SELECT '.$columnName[0].','.$columnName[1].' FROM Bemerkung WHERE projectId = :projectId';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':projectId', $projectId);
+		if ($result->execute()) {
+			$final = $result->fetch();
+			return $final = array('description' => $final[$columnName[0]], 'ifSet' => $final[$columnName[1]]);
+		} else {
+			return 'false';
+		}
+	}
+	
 	public function getInternDesc($id) {
 		$sql = 'SELECT desc5 FROM Bemerkung WHERE projectId = :id';
 		$result=$this->dbHandler->prepare($sql);
