@@ -431,6 +431,17 @@ class Helpers
 		}
 	}
 	
+	public static function settings($dbHandler, $row) {
+		$sql = "SELECT value FROM Settings WHERE name = '".$row."'";
+		$result = $dbHandler->prepare($sql);
+		if ($result->execute()) {
+			$final = $result->fetch();
+			return $final['value'];
+		} else {
+			return 'false';
+		}
+	}
+	
 	public function standardText($text) {
 	      $sql = 'UPDATE Settings SET value = :text WHERE name = "standardText"';
 	      $result=$this->dbHandler->prepare($sql);

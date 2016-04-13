@@ -213,6 +213,9 @@ class Document
 
 	public function innerForm($client, $userList, $drucksachen) {
 		$template = '
+			<head>
+			<title>AUFTRAGSZETTEL</title>
+			</head>
 			<body>
 			<div class="container-name">
 			<div class="div1" style="width: 74%; height: 91.9%; float:left;">
@@ -451,6 +454,7 @@ class Document
 		$template = '
 			<head>
 				<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+				<title>Dokument</title>
 			</head>
 			<body>
 				<div style="width: 100%; height: 100%;">

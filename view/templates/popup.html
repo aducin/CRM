@@ -13,6 +13,7 @@
                         <input type="hidden" name="projId" id="hiddenProj" value="{{ dates.projectId }}">
                         <div class="col-sm-8">
                             <select name="formToPrint" id="formToPrint" class="form-control selectpicker">
+                                <option value="0">Bitte die Art wählen</option>
                                 <option value="1">Angebot</option>
                                 <option value="2">Auftragsbestätigung</option>
                                 <option value="3">Preismitteilung</option>
@@ -27,16 +28,13 @@
                             <label for="descToPrint" class="control-label">Bezeichnung für Akte</label>
                         </div>
                         <div class="col-sm-8">
-                            <input type="text" name="descToPrint" id="descToPrint" class="form-control" placeholder="" value="">
+                            <input type="text" name="descToPrint" id="" class="form-control descToPrint" placeholder="" value="" disabled="disabled">
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" id="druckButton" class="btn btn-primary">Drucken</button>
-            </div>
-            <div style="display: none;">
-                <a id="hiddenHref" href="{{ root }}/Print" target="_blank"></a>
+            <div id="hiddenDruckDiv" style="padding-bottom: 2%;">
+		<a id="hiddenHref" href="" class="btn btn-primary disabled" role="button" target="_blank" style="margin-left: 84.5%;">Drucken</a>
             </div>
         </div>
     </div>

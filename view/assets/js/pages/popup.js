@@ -1306,11 +1306,59 @@ $( document ).ready(function() {
 
     });
     
+    $( '#formToPrint' ).change(function() {
+	var selected = $( this ).val();
+	if (selected != 0) {
+	    var projId = $( '#hiddenProj' ).val();
+	    var column = 'descToPrint' + selected;
+	    var array = [column, projId];
+	    changeDate('', array);
+	    var timerId = setInterval(function() {
+		if(finalResult !== null) {
+		    if(finalResult == 'success') {
+			$( '#hiddenHref' ).attr('href', '../Print/' + selected + '?projId=' + projId );
+			$( '.descToPrint' ).val('');
+			$( '.descToPrint' ).attr('id', selected);
+			$( '.descToPrint' ).attr('disabled', false);
+			$('#hiddenHref').removeClass('disabled');
+			}
+            clearInterval(timerId);
+          } else {
+              console.log(finalResult);
+          }
+        }, 500);
+	} else {
+	    $( '.descToPrint' ).val('');
+	    $( '.descToPrint' ).attr('id', '');
+	    $( '.descToPrint' ).attr('disabled', true);
+	    $('#hiddenHref').addClass('disabled');
+	    $( '#hiddenHref' ).attr('href', '');
+	}
+    });
+    
+    $( '.descToPrint' ).keyup(function() {
+	var curDocument = $( this ).attr('id');
+	var projId = $( '#hiddenProj' ).val();
+	var text = $( '.descToPrint' ).val();
+	var column = 'descToPrint' + curDocument;
+	var array = [column, projId];
+	changeDate(text, array);
+	var timerId = setInterval(function() {
+        if(finalResult !== null) {
+	  if(finalResult == 'success') {
+	  }
+            clearInterval(timerId);
+          } else {
+              console.log(finalResult);
+          }
+        }, 1000);
+    });
+    
     $( "#druckButton" ).click(function() {
         $( '#druckButton' ).text('in Vorbereitung...');
         var href = $( '#hiddenHref' ).attr('href');
         var curDocument = $('select[name=formToPrint] option:selected').val();
-        var field = $( '#descToPrint' ).attr('id');
+        var field = $( '.descToPrint' ).attr('id');
         var column = field + curDocument;
         var projId = $( '#hiddenProj' ).val();
         var text = $( '#descToPrint' ).val();
