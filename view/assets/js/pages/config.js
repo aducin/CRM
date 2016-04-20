@@ -8,7 +8,13 @@ $( document ).ready(function() {
 	    type: "post",
 	    data: { 'action' : 'ajax', 'concrete' : 'config', 'singleAction': singleAction, 'object' : data, 'value' : value },
 	    success: function(result) {
-		finalResult = result;    
+			if (result == 'false') {
+                $('#ajaxErrorConfig3').fadeIn('slow').delay(5000).hide(1);
+                return false;
+            }  else {
+                console.log(result);
+                finalResult = result;
+            } 
 	    }
 	  }); 
     }
@@ -57,7 +63,8 @@ $( document ).ready(function() {
     				}
     				clearInterval(timerId);
     			} else {
-    				console.log(finalResult);
+    				$('#ajaxErrorConfig3').fadeIn('slow').delay(5000).hide(1);
+    				return false;
     			}
     		}, 1500);
     	});
@@ -116,10 +123,11 @@ $( document ).ready(function() {
 		  object.children().prop('disabled', false);
 		  previous.show();
 		}
-	     clearInterval(timerId);
-	     } else {
-		console.log(finalResult);
-	     }
+	    	clearInterval(timerId);
+	    } else {
+			$('#ajaxErrorConfig3').fadeIn('slow').delay(5000).hide(1);
+			return false;
+	    }
 	 }, 1500);
     }
     
@@ -197,11 +205,8 @@ $( document ).ready(function() {
     
     $( "#saveUser" ).click(function() {
 	  $( '#userNameDiv' ).removeClass('form-group has-error').addClass('form-group');
-	  $( '#userNameSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
 	  $( '#userMailDiv' ).removeClass('form-group has-error').addClass('form-group');
-	  $( '#userMailSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
 	  $( '#userPassDiv' ).removeClass('form-group has-error').addClass('form-group');
-	  $( '#userPassSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
 	  function validateEmail(email) 
 		{
 		    var re = /\S+@\S+\.\S+/;
@@ -212,18 +217,15 @@ $( document ).ready(function() {
 	  var mailCheck = validateEmail(mail) ;
 	  if (mailCheck == false) {
 		var error = true;
-		$( '#userMailSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
                 $( '#userMailDiv' ).removeClass('form-group').addClass('form-group has-error');
 	  }
 	  var password = $( '#hiddenConfigUserPassword' ).val();
 	  if (name == '') {
 	      var error = true;
-	      $( '#userNameSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
               $( '#userNameDiv' ).removeClass('form-group').addClass('form-group has-error');
 	  } 
 	  if (password == '') {
 	      var error = true;
-	      $( '#userPassSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
               $( '#userPassDiv' ).removeClass('form-group').addClass('form-group has-error');
 	  }
 	  if (error == true) {
@@ -242,7 +244,8 @@ $( document ).ready(function() {
 	      var timerId = setInterval(function() {
 	      if(finalResult !== null) {
 		if(finalResult == 'false') {
-		    console.log('Data could not be saved');
+		    $('#ajaxErrorConfig3').fadeIn('slow').delay(5000).hide(1);
+		    return false;
 		} else {
 		    var newId = finalResult;
 		    var tableRow = '<tr class="clickable-row rowsVorstufe rowsConfigUser" name="' + newId + '" id="' + newId + '">';
@@ -299,7 +302,8 @@ $( document ).ready(function() {
 		}
 	     clearInterval(timerId);
 	     } else {
-		console.log(finalResult);
+		$('#ajaxErrorConfig3').fadeIn('slow').delay(5000).hide(1);
+		return false;
 	     }
 	 }, 1500);
 	  }
@@ -307,19 +311,15 @@ $( document ).ready(function() {
     
     $( "#savePaymentOpt" ).click(function() {
 	  $( '#paymentNameDiv' ).removeClass('form-group has-error').addClass('form-group');
-	  $( '#paymentNameSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
 	  $( '#paymentDescDiv' ).removeClass('form-group has-error').addClass('form-group');
-	  $( '#paymentDescSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
 	  var name = $( '#hiddenConfigName' ).val();
 	  var description = $( '#hiddenConfigDescription' ).val();
 	  if (name == '') {
 	      var error = true;
-	      $( '#paymentNameSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
               $( '#paymentNameDiv' ).removeClass('form-group').addClass('form-group has-error');
 	  }
 	  if (description == '') {
 	      var error = true;
-	      $( '#paymentDescSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
               $( '#paymentDescDiv' ).removeClass('form-group').addClass('form-group has-error');
 	  }
 	  if (error == true) {
@@ -332,7 +332,8 @@ $( document ).ready(function() {
 	  var timerId = setInterval(function() {
 	     if(finalResult !== null) {
 		if(finalResult == 'false') {
-		    console.log('Data could not be saved');
+		    $('#ajaxErrorConfig3').fadeIn('slow').delay(5000).hide(1);
+		    return false;
 		} else {
 		    var newId = finalResult;
 		    var tableRow = '<tr class="clickable-row rowsVorstufe rowsConfigPaymentOpt" name="' + newId + '" id="' + newId + '">';
@@ -376,7 +377,8 @@ $( document ).ready(function() {
 		}
 	     clearInterval(timerId);
 	     } else {
-		console.log(finalResult);
+		$('#ajaxErrorConfig3').fadeIn('slow').delay(5000).hide(1);
+		return false;
 	     }
 	 }, 1500);
     });
@@ -388,12 +390,13 @@ $( document ).ready(function() {
 	changeDate(single, data, idValue);
 	var timerId = setInterval(function() {
 	     if(finalResult == 'false') {
-		  console.log('Object could not be deleted');
+		  $('#ajaxErrorConfig3').fadeIn('slow').delay(5000).hide(1);
+		  return false;
 	     } else {
 		  var toDelete = $('.rowsConfigPaymentOpt[name=' + idValue + ']');
 		  toDelete.remove();
 		  $('.deletePaymentOpt').prop('disabled', true);
-                  $('.deletePaymentOpt').attr('id', '');
+          $('.deletePaymentOpt').attr('id', '');
 	     }
 	     clearInterval(timerId);
 	 }, 1500);
@@ -406,12 +409,13 @@ $( document ).ready(function() {
 	changeDate(single, data, idValue);
 	var timerId = setInterval(function() {
 	     if(finalResult == 'false') {
-		  console.log('Object could not be deleted');
+		  $('#ajaxErrorConfig3').fadeIn('slow').delay(5000).hide(1);
+		  return false;
 	     } else {
 		  var toDelete = $('.rowsConfigUser[name=' + idValue + ']');
 		  toDelete.remove();
 		  $('.deleteUser').prop('disabled', true);
-                  $('.deleteUser').attr('id', '');
+          $('.deleteUser').attr('id', '');
 	     }
 	     clearInterval(timerId);
 	 }, 1500);
@@ -424,7 +428,12 @@ $( document ).ready(function() {
 	    type: "post",
 	    data: { 'action' : 'ajax', 'concrete' : 'config', 'singleAction': 'standardText', 'object' : text },
 	    success: function(result) {
-		console.log(result);
+		if (result == 'false') {
+            $('#ajaxErrorConfig3').fadeIn('slow').delay(5000).hide(1);
+            return false;
+        }  else {
+            console.log(result);
+        } 
 	    }
 	  }); 
     });  

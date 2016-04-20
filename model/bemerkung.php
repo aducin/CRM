@@ -3,10 +3,12 @@
 class Bemerkung
 {
 	private $dbHandler;
+	private $output;
 
 	function __construct($dbHandler, $id = null) {
 
 		$this->dbHandler = $dbHandler;
+		$this->output = new OutputController($dbHandler);
 		
 	}
 	
@@ -33,55 +35,61 @@ class Bemerkung
 		$sql = 'SELECT * FROM Bemerkung WHERE projectId = :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		$array = $result->fetch();
-		$final = array(
-			'first' => $array['desc1'], 
-			'second' => $array['desc2'], 
-			'third' => $array['desc3'], 
-			'forth' => $array['desc4'], 
-			'fifth' => $array['desc5'],
-			'firstAn' => $array['desc1_an'], 
-			'secondAn' => $array['desc2_an'], 
-			'thirdAn' => $array['desc3_an'], 
-			'forthAn' => $array['desc4_an'], 
-			'firstAu' => $array['desc1_au'],
-			'secondAu' => $array['desc2_au'],
-			'thirdAu' => $array['desc3_au'],
-			'forthAu' => $array['desc4_au'],
-			'firstPm' => $array['desc1_pm'],
-			'secondPm' => $array['desc2_pm'],
-			'thirdPm' => $array['desc3_pm'],
-			'forthPm' => $array['desc4_pm'],
-			'firstLi' => $array['desc1_li'],
-			'secondLi' => $array['desc2_li'],
-			'thirdLi' => $array['desc3_li'],
-			'forthLi' => $array['desc4_li'],
-			'firstRe' => $array['desc1_re'],
-			'secondRe' => $array['desc2_re'],
-			'thirdRe' => $array['desc3_re'],
-			'forthRe' => $array['desc4_re']
-			);
-		return $final;
+		if ($result->execute()) {
+			$array = $result->fetch();
+			$final = array(
+				'first' => $array['desc1'], 
+				'second' => $array['desc2'], 
+				'third' => $array['desc3'], 
+				'forth' => $array['desc4'], 
+				'fifth' => $array['desc5'],
+				'firstAn' => $array['desc1_an'], 
+				'secondAn' => $array['desc2_an'], 
+				'thirdAn' => $array['desc3_an'], 
+				'forthAn' => $array['desc4_an'], 
+				'firstAu' => $array['desc1_au'],
+				'secondAu' => $array['desc2_au'],
+				'thirdAu' => $array['desc3_au'],
+				'forthAu' => $array['desc4_au'],
+				'firstPm' => $array['desc1_pm'],
+				'secondPm' => $array['desc2_pm'],
+				'thirdPm' => $array['desc3_pm'],
+				'forthPm' => $array['desc4_pm'],
+				'firstLi' => $array['desc1_li'],
+				'secondLi' => $array['desc2_li'],
+				'thirdLi' => $array['desc3_li'],
+				'forthLi' => $array['desc4_li'],
+				'firstRe' => $array['desc1_re'],
+				'secondRe' => $array['desc2_re'],
+				'thirdRe' => $array['desc3_re'],
+				'forthRe' => $array['desc4_re']
+				);
+			return $final;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 	
 	public function getDeliveryDesc($id) {
 		$sql = 'SELECT desc1, desc2, desc3, desc4, desc1_li, desc2_li, desc3_li, desc4_li FROM Bemerkung WHERE projectId = :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		$array = $result->fetch();
-		$final = array(
-				'desc1' => $array['desc1'],
-				'desc2' => $array['desc2'],
-				'desc3' => $array['desc3'],
-				'desc4' => $array['desc4'],
-				'desc1_li' => $array['desc1_li'],
-				'desc2_li' => $array['desc2_li'],
-				'desc3_li' => $array['desc3_li'],
-				'desc4_li' => $array['desc4_li'],
-		);
-		return $final;
+		if ($result->execute()) {
+			$array = $result->fetch();
+			$final = array(
+					'desc1' => $array['desc1'],
+					'desc2' => $array['desc2'],
+					'desc3' => $array['desc3'],
+					'desc4' => $array['desc4'],
+					'desc1_li' => $array['desc1_li'],
+					'desc2_li' => $array['desc2_li'],
+					'desc3_li' => $array['desc3_li'],
+					'desc4_li' => $array['desc4_li'],
+			);
+			return $final;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 	
 	public function getDescription($columnName, $projectId) {
@@ -100,9 +108,12 @@ class Bemerkung
 		$sql = 'SELECT desc5 FROM Bemerkung WHERE projectId = :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		$array = $result->fetch();
-		return $array['desc5'];
+		if ($result->execute()) {
+			$array = $result->fetch();
+			return $array['desc5'];
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function insert($self, $projectId){

@@ -24,9 +24,9 @@
                     </div>    
                     <div class="col-sm-3">
 			         {% if dates.projectId %}
-			             <button type="button" class="btn btn-primary fl-right" data-toggle="modal" data-target="#changeClientPopup" data-head="@mdo" style="margin-left: 5px;">Bearbeiten</button>         
+			             <button type="button" class="btn btn-primary fl-right" id="bearbeitenButton" data-toggle="modal" data-target="#changeClientPopup" data-head="@mdo" style="margin-left: 5px;">Bearbeiten</button>         
                      {% else %}
-                        <button type="button" class="btn btn-primary fl-right" data-toggle="modal" data-target="#changeClientPopup" data-head="@mdo" style="margin-left: 5px;" disabled="disabled">Bearbeiten</button>
+                        <button type="button" class="btn btn-primary fl-right" id="bearbeitenButton" data-toggle="modal" data-target="#changeClientPopup" data-head="@mdo" style="margin-left: 5px;" disabled="disabled">Bearbeiten</button>
                      {% endif %}
                         <button type="button" class="btn btn-primary fl-right" data-toggle="modal" data-target="#newClientPopup" data-head="@mdo">Neu</button>
                     </div>                                        
@@ -58,6 +58,7 @@
                     <div class="col-sm-6">                                      
                         <input type="text" name="kundenauftragsnummer" id="kundenauftragsnummer" class="form-control singleDateToChange" placeholder="" value="{% if dates %}{{ dates.kundenNummer }}{% endif %}">
                         <span id="kundenauftragsnummerSpan" style="text-align: center; color: #a94442;" aria-hidden="true"></span>
+                        <input id="individual_paymentOpt" name="individual_paymentOpt" type="hidden" value="">
                     </div>                                      
                 </div>        
                 <div class="form-group">

@@ -32,6 +32,7 @@ class LoginController
         if ($_POST['rememberPassword'] == 'true') {
             //$_SESSION['stayLogged'] = 1;
             setcookie('crm_logged', '1', time()+302400);
+            setcookie('replace_again', '1', time()+302400);
         }
     	$mail = trim($array['mail']);
         $password = md5(trim($array['password']));

@@ -17,7 +17,6 @@ class Projekt
 	private $mandant_select;
 	private $vorgangsnummer;
 	private $auftragsnummer;
-	private $liefertermin;
 	private $drucksache = array();
 	private $fremdsache;
 	private $vorstufe;
@@ -46,6 +45,7 @@ class Projekt
 	private $descToPrint3;
 	private $descToPrint4;
 	private $descToPrint5;
+	private $output;
 	public $error;
 
 	private $creator;
@@ -54,6 +54,7 @@ class Projekt
 
 		$this->dbHandler = $dbHandler;
 		$this->creator = new TvsatzCreator($dbHandler);
+		$this->output = new OutputController($dbHandler);
 
 		if ($id != null) {
 			$this->id = $id;
@@ -108,9 +109,12 @@ class Projekt
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
 		$result->bindValue(':firma_id', $this->auftraggeber->id);
-		$result->execute();
-		$success = $result->fetch();
-		return $success;
+		if ($result->execute()) {
+			$success = $result->fetch();
+			return $success;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function cloneProject() {
@@ -131,10 +135,10 @@ class Projekt
 				$_SESSION['projectId'] = $this->id;
 				header( 'Location:'.$finalPath );
 			} else {
-				return $this->error;
+				$this->output->displayPhpError();
 			}
 		} else {
-			return $this->error;
+			$this->output->displayPhpError();
 		}
 	}
 
@@ -142,46 +146,50 @@ class Projekt
 		$sql = "DELETE FROM Projekt WHERE id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
-		unset($this->id);
-		unset($this->name);
-		unset($this->kundenauftragsnummer);
-		unset($this->auftraggeber);
-		unset($this->rechnungsadresse);
-		unset($this->ansprechpartner);
-		unset($this->benutzer);
-		unset($this->reg_date);
-		unset($this->mandant_select);
-		unset($this->liefertermin);
-		unset($this->vorgangsnummer);
-		unset($this->auftragsnummer);
-		unset($this->changeDate);
-		unset($this->pattern);
-		unset($this->patternTo);
-		unset($this->amendmentTime);
-		unset($this->dateTime);
-		unset($this->proofTime);
-		unset($this->printTime);
-		unset($this->showIndPrice);
-		unset($this->status);
-		unset($this->deliveryTime);
-		unset($this->individual_payment);
-		unset($this->individual_skonto);
-		unset($this->lieferschein_text);
-		unset($this->lieferadresse_ab);
-		unset($this->lieferanweisung);
-		unset($this->abweichend);
-		unset($this->auflage1);
-		unset($this->auflage2); 
-		unset($this->auflage3);
-		unset($this->auflage4);
+		if ($result->execute()) {
+			unset($this->id);
+			unset($this->name);
+			unset($this->kundenauftragsnummer);
+			unset($this->auftraggeber);
+			unset($this->rechnungsadresse);
+			unset($this->ansprechpartner);
+			unset($this->benutzer);
+			unset($this->reg_date);
+			unset($this->mandant_select);
+			unset($this->vorgangsnummer);
+			unset($this->auftragsnummer);
+			unset($this->changeDate);
+			unset($this->pattern);
+			unset($this->patternTo);
+			unset($this->amendmentTime);
+			unset($this->dateTime);
+			unset($this->proofTime);
+			unset($this->printTime);
+			unset($this->showIndPrice);
+			unset($this->status);
+			unset($this->deliveryTime);
+			unset($this->individual_payment);
+			unset($this->individual_skonto);
+			unset($this->lieferschein_text);
+			unset($this->lieferadresse_ab);
+			unset($this->lieferanweisung);
+			unset($this->abweichend);
+			unset($this->auflage1);
+			unset($this->auflage2); 
+			unset($this->auflage3);
+			unset($this->auflage4);
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 	
 	public function deleteDescToPrint($id, $column) {
 		$sql = "UPDATE Projekt SET ".$column." = '' WHERE id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
+		if (!$result->execute()) {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function getAnsprechpartner() {
@@ -220,21 +228,25 @@ class Projekt
 	}
 	
 	public function getDeliverySql($id) {
-		$sql = 'SELECT abweichend, lieferschein_text, lieferadresse_ab, lieferanweisung, auftraggeber, kundenauftragsnummer, name FROM Projekt WHERE id = :id';
+		$sql = 'SELECT abweichend, lieferschein_text, lieferadresse_ab, lieferanweisung, auftraggeber, auftragsnummer, kundenauftragsnummer, name FROM Projekt WHERE id = :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		$array = $result->fetch();
-		$final = array(
-			'ifCustom' => $array['abweichend'], 
-			'deliveryText' => $array['lieferschein_text'], 
-			'customAddress' => $array['lieferadresse_ab'], 
-			'deliveryDesc' => $array['lieferanweisung'], 
-			'customerId' => $array['auftraggeber'],
-			'clientNumber' => $array['kundenauftragsnummer'],
-			'name' => $array['name']
-		);
-		return $final;
+		if ($result->execute()) {
+			$array = $result->fetch();
+			$final = array(
+				'ifCustom' => $array['abweichend'], 
+				'deliveryText' => $array['lieferschein_text'], 
+				'customAddress' => $array['lieferadresse_ab'], 
+				'deliveryDesc' => $array['lieferanweisung'], 
+				'customerId' => $array['auftraggeber'],
+				'orderNr' => $array['auftragsnummer'],
+				'clientNumber' => $array['kundenauftragsnummer'],
+				'name' => $array['name']
+			);
+			return $final;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function getDeliveryTime() {
@@ -293,10 +305,13 @@ class Projekt
 	private function getLastIdValue() {
 		$sql = 'SELECT id FROM Projekt ORDER BY id DESC LIMIT 1';
 		$result=$this->dbHandler->prepare($sql);
-		$result->execute();
-		$id = $result->fetch();
-		$id = $id['id'];
-		return $id;
+		if ($result->execute()) {
+			$id = $result->fetch();
+			$id = $id['id'];
+			return $id;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function getLieferant() {
@@ -366,7 +381,11 @@ class Projekt
 		    $_POST['lieferterminInput'] = $temp[2].'-'.$temp[1].'-'.$temp[0];
 		}
 		if(!isset($_POST['individual_payment'])) {
-			$_POST['individual_payment'] = null;
+			if(!isset($_POST["individual_paymentOpt"])) {
+				$_POST['individual_payment'] = null;
+			} else {
+				$_POST['individual_payment'] = $_POST["individual_paymentOpt"];
+			}
 		}
 		if(!isset($_POST['individual_skonto'])) {
 			$_POST['individual_skonto'] = null;
@@ -434,14 +453,14 @@ class Projekt
 			$bemerkung = $this->creator->createProduct('bemerkung');
 			$result = $bemerkung->createNewList($array);
 			if ($result == false) {
-				$this->error = 'project created but bemerkung list is unavailable';
-				return $this->error; exit();
+				$this->error = 'Project created but bemerkung list is unavailable.';
+				$this->output->displayPhpError($this->error);
 			} else {
 				$calculation = $this->creator->createProduct('calculation');
 				$result = $calculation->createEmptyList($this->id);
 				if ($result == false) {
-					$this->error = 'project created but no calculation list available';
-					return $this->error; exit();
+					$this->error = 'Project created but no calculation list available.';
+					$this->output->displayPhpError($this->error);
 				}
 			}
 			$path = explode('/',$_SERVER["REQUEST_URI"]);
@@ -449,8 +468,8 @@ class Projekt
 			$_SESSION['projectId'] = $this->id;
 			header( 'Location:'.$finalPath );
 		} else {
-			$this->error = 'no project created';
-			return $this->error;
+			$this->error = 'No project created.';
+			$this->output->displayPhpError($this->error);
 		}
 	}
 
@@ -463,11 +482,11 @@ class Projekt
 		$proofTime = $proof[2].'-'.$proof[1].'-'.$proof[0];
 		$print = explode('/', $this->printTime); 
 		$printTime = $print[2].'-'.$print[1].'-'.$print[0];
-		$sql = 'INSERT INTO Projekt (name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, reg_date, lieferant_id, 		lieferant_bemerkung, mandant_select, vorgangsnummer, auftragsnummer, 
-			liefertermin, pattern, pattern_to, amendmentTime, dateTime, proofTime, printTime, showIndPrice, status, deliveryTime, individual_payment, individual_skonto, lieferschein_text, lieferadresse_ab, lieferanweisung, abweichend, auflage1, 
+		$sql = 'INSERT INTO Projekt (name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, reg_date, lieferant_id, lieferant_bemerkung, mandant_select, vorgangsnummer, auftragsnummer, 
+			pattern, pattern_to, amendmentTime, dateTime, proofTime, printTime, showIndPrice, status, deliveryTime, individual_payment, individual_skonto, lieferschein_text, lieferadresse_ab, lieferanweisung, abweichend, auflage1, 
 			auflage2, auflage3, auflage4 ) 
 			VALUES ( :name, :kundenauftragsnummer, :auftraggeber, :rechnungsadresse, :ansprechpartner, NOW(), :lieferant_id, :lieferant_bemerkung, :mandant_select, :vorgangsnummer, :auftragsnummer, 
-			:liefertermin, :pattern, :patternTo, :amendmentTime, :dateTime, :proofTime, :printTime, :showIndPrice, :status, :deliveryTime, :individual_payment, :individual_skonto, :lieferschein_text, :lieferadresse_ab, :lieferanweisung, :abweichend, :auflage1, 
+			:pattern, :patternTo, :amendmentTime, :dateTime, :proofTime, :printTime, :showIndPrice, :status, :deliveryTime, :individual_payment, :individual_skonto, :lieferschein_text, :lieferadresse_ab, :lieferanweisung, :abweichend, :auflage1, 
 			:auflage2, :auflage3, :auflage4 )';
 		$lieferant = $this->lieferant[0]['id'];
 		$result=$this->dbHandler->prepare($sql);
@@ -476,11 +495,9 @@ class Projekt
 		$result->bindValue(':auftraggeber', $client);
 		$result->bindValue(':rechnungsadresse', $address);
 		$result->bindValue(':ansprechpartner', $employee);
-		//$result->bindValue(':benutzer', $benutzerId);  - no TVSatz employee needed to create a project at this time
 		$result->bindValue(':lieferant_id', $lieferant);
 		$result->bindValue(':lieferant_bemerkung', $this->lieferant_bemerkung);
 		$result->bindValue(':mandant_select', $this->mandant_select);
-		$result->bindValue(':liefertermin', $this->liefertermin);
 		$result->bindValue(':vorgangsnummer', $this->vorgangsnummer);
 		$result->bindValue(':auftragsnummer', $this->auftragsnummer);
 		$result->bindValue(':pattern', $this->pattern);
@@ -507,8 +524,8 @@ class Projekt
 			$this->id = $this->getLastIdValue();
 			return success;
 		} else {
-			$this->error = 'no project cloned';
-			return error;
+			$this->error = 'No project cloned.';
+			$this->output->displayPhpError($this->error);
 		}
 	}
 	
@@ -518,7 +535,8 @@ class Projekt
 			foreach ($this->vorstufe as $singleVorstufe) {
 				$success = $vorstufe->insert($singleVorstufe, $this->id);
 				if ($success == false) {
-					$this->error = 'vorstufe not cloned';
+					$this->error = 'Vorstufe table not cloned.';
+					$this->output->displayPhpError($this->error);
 				}
 			}
 		}
@@ -527,7 +545,8 @@ class Projekt
 			foreach ($this->drucksache as $singleDrucksache) {
 				$success = $drucksache->insert($singleDrucksache, $this->id);
 				if ($success == false) {
-					$this->error = 'drucksache not cloned';
+					$this->error = 'Drucksache table not cloned.';
+					$this->output->displayPhpError($this->error);
 				}
 			}
 		}
@@ -536,7 +555,8 @@ class Projekt
 			foreach ($this->fremdsache as $singleFremdsache) {
 				$success = $fremdsache->insert($singleFremdsache, $this->id);
 				if ($success == false) {
-					$this->error = 'fremdarbeiten not cloned';
+					$this->error = 'Fremdarbeiten table not cloned.';
+					$this->output->displayPhpError($this->error);
 				}
 			}
 		}
@@ -544,20 +564,22 @@ class Projekt
 			$bemerkung = $this->creator->createProduct('bemerkung');
 			$success = $bemerkung->insert($this->bemerkung, $this->id);
 			if ($success == false) {
-				$this->error = 'no bemerkung cloned to the project';
+				$this->error = 'No bemerkung cloned to the project.';
+				$this->output->displayPhpError($this->error);
 			}
 		}
 		if ( isset( $this->kalkulation )) {
 			$calculation = $this->creator->createProduct('calculation');
 			$success = $calculation->insert($this->kalkulation, $this->id);
 			if ($success == false) {
-				$this->error = 'no calculation list cloned to the project';
+				$this->error = 'No calculation list cloned to the project.';
+				$this->output->displayPhpError($this->error);
 			}
 		}
 		if (!isset($this->error)) {
 			return true;
 		} else {
-			return false;
+			exit();
 		}
 	}
 
@@ -565,10 +587,10 @@ class Projekt
 		$now = new DateTime();
 		$changeDate = $now->format('Y-m-d');
 
-		$sql = 'INSERT INTO Projekt (name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant, reg_date, 			lieferant_id, lieferant_bemerkung, mandant_select, liefertermin, vorgangsnummer, 
+		$sql = 'INSERT INTO Projekt (name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant, reg_date, 			lieferant_id, lieferant_bemerkung, mandant_select, vorgangsnummer, 
 			auftragsnummer, changeDate, pattern, pattern_to, amendmentTime, dateTime, proofTime, printTime, showIndPrice, status, deliveryTime, individual_payment, individual_skonto, lieferschein_text, lieferadresse_ab, lieferanweisung, abweichend, 
 			auflage1, auflage2, auflage3, auflage4 ) 
-			VALUES ( :name, :kundenauftragsnummer, :auftraggeber, :rechnungsadresse, :ansprechpartner, :benutzer, NOW(), :mandant_select, :liefertermin, :vorgangsnummer, :auftragsnummer, :changeDate, :pattern, :patternTo, :amendmentTime, :dateTime, :proofTime, :printTime, :showIndPrice, :status, :deliveryTime, :individual_payment, individual_skonto, :individual_payment, :individual_skonto, :lieferschein_text, :lieferadresse_ab, :lieferanweisung, :abweichend, :auflage1, :auflage2, :auflage3, auflage4 )';
+			VALUES ( :name, :kundenauftragsnummer, :auftraggeber, :rechnungsadresse, :ansprechpartner, :benutzer, NOW(), :mandant_select, :vorgangsnummer, :auftragsnummer, :changeDate, :pattern, :patternTo, :amendmentTime, :dateTime, :proofTime, :printTime, :showIndPrice, :status, :deliveryTime, :individual_payment, individual_skonto, :individual_payment, :individual_skonto, :lieferschein_text, :lieferadresse_ab, :lieferanweisung, :abweichend, :auflage1, :auflage2, :auflage3, auflage4 )';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':name', $this->name);
 		$result->bindValue(':kundenauftragsnummer', $this->kundenauftragsnummer);
@@ -579,7 +601,6 @@ class Projekt
 		$result->bindValue(':mandant_select', $mandant_select);
 		$result->bindValue(':lieferant_id', $lieferant_id);
 		$result->bindValue(':lieferant_bemerkung', $lieferant_bemerkung);
-		$result->bindValue(':liefertermin', $liefertermin);
 		$result->bindValue(':vorgangsnummer', $vorgangsnummer);
 		$result->bindValue(':auftragsnummer', $auftragsnummer);
 		$result->bindValue(':changeDate', $changeDate);
@@ -602,7 +623,9 @@ class Projekt
 		$result->bindValue(':auflage2', $auflage2);
 		$result->bindValue(':auflage3', $auflage3);
 		$result->bindValue(':auflage4', $auflage4);
-		$result->execute();
+		if (!$result->execute()) {
+			$this->output->displayPhpError();
+		}
 	}
 
 	private function saveTwoBinds($column, $value) {
@@ -610,18 +633,15 @@ class Projekt
 		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':value', $value);
 		$result->bindValue(':projektId', $this->id);
-		$result->execute();
+		if (!$result->execute()) {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function searchByDates($params) {
 		$benutzer = $this->creator->createProduct('benutzer');
 		$benutzer->saveLastSearch($params[0]);
 		$conditions = $benutzer->getLastSearch($params[0]['status']);
-		//if ($conditions["status"] != 0) {
-		//    $helper = $this->creator->createProduct('helpers');
-		//    $status = $helper->getSingleStatus($conditions["status"]);
-		//}
-		//var_dump($status); exit();
 		$begin = explode('/', $params[0]['begin']);
 		if ($begin[0] != '') {
 			$begin = array_reverse($begin);
@@ -689,15 +709,18 @@ class Projekt
 	private function searchByDateSql ($implodeSelect) {
 		$sql = 'SELECT Projekt.id as id, Projekt.deliveryTime as liefdate, Projekt.name as proname, Projekt.auftragsnummer as aufnumb FROM Projekt INNER JOIN Auftraggeber ON Projekt.auftraggeber = Auftraggeber.id'.$implodeSelect;
 		$result=$this->dbHandler->prepare($sql);
-		$result->execute();
-		$this->setBenutzer($_SESSION['user']);
-		$this->benutzer->setIsLogged();
-		$this->benutzer->saveLastSql($sql);
-		$searchResult = array();
-		foreach ($result as $singleResult) {
-			$searchResult[] = array( 'id' => $singleResult['id'], 'liefertermin' => $singleResult['liefdate'], 'name' => $singleResult['proname'], 'number' => $singleResult['aufnumb']);
+		if ($result->execute()) {
+			$this->setBenutzer($_SESSION['user']);
+			$this->benutzer->setIsLogged();
+			$this->benutzer->saveLastSql($sql);
+			$searchResult = array();
+			foreach ($result as $singleResult) {
+				$searchResult[] = array( 'id' => $singleResult['id'], 'liefertermin' => $singleResult['liefdate'], 'name' => $singleResult['proname'], 'number' => $singleResult['aufnumb']);
+			}
+			return $searchResult;
+		} else {
+			$this->output->displayPhpError();
 		}
-		return $searchResult;
 	}
 
 	private function setAnsprechpartner($id) {
@@ -789,62 +812,64 @@ class Projekt
 	}
 
 	public function setDates() {
-		$sql='SELECT name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant, 		reg_date, mandant_select, liefertermin, vorgangsnummer, auftragsnummer, lieferant_id, lieferant_bemerkung, change_date, pattern, pattern_to, amendmentTime, dateTime, proofTime, printTime, showIndPrice, status, deliveryTime, individual_payment, individual_skonto, lieferschein_text, lieferadresse_ab, lieferanweisung, abweichend, auflage1, auflage2, auflage3, auflage4, descToPrint1, descToPrint2, descToPrint3, 
+		$sql='SELECT name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant, 	reg_date, mandant_select, vorgangsnummer, auftragsnummer, lieferant_id, lieferant_bemerkung, change_date, pattern, pattern_to, amendmentTime, dateTime, proofTime, printTime, showIndPrice, status, deliveryTime, individual_payment, individual_skonto, lieferschein_text, lieferadresse_ab, lieferanweisung, abweichend, auflage1, auflage2, auflage3, auflage4, descToPrint1, descToPrint2, descToPrint3, 
 		descToPrint4, descToPrint5 FROM Projekt WHERE id= :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
-		$dates=$result->fetch();
-		$this->name = $dates['name'];
-		$this->kundenauftragsnummer = $dates['kundenauftragsnummer'];
-		$this->setAuftraggeber($dates['auftraggeber']);
-		$this->setRechnungsadresse($dates['rechnungsadresse']);
-		$this->setAnsprechpartner($dates['ansprechpartner']);
-		$this->setBenutzer($dates['mandant']);
-		$this->reg_date = $dates['reg_date'];
-		$this->mandant_select = $dates['mandant_select'];
-		$this->liefertermin = $dates['liefertermin'];
-		$this->vorgangsnummer = $dates['vorgangsnummer'];
-		$this->auftragsnummer = $dates['auftragsnummer'];
-		$carrier = $dates['lieferant_id'];
-		$helper = $this->creator->createProduct('helpers');
-		$this->lieferant = $helper->setLieferant($carrier);
-		$this->lieferant_bemerkung = $dates['lieferant_bemerkung'];
-		$this->changeDate = $dates['change_date'];
-		$this->pattern = $dates['pattern'];
-		$this->patternTo = $dates['pattern_to'];
-		$amendmentTime = explode("-", $dates['amendmentTime']);
-		$this->amendmentTime = $amendmentTime[2].'/'.$amendmentTime[1].'/'.$amendmentTime[0];
-		$dateTime = explode("-", $dates['dateTime']);
-		$this->dateTime = $dateTime[2].'/'.$dateTime[1].'/'.$dateTime[0];
-		$proofTime = explode("-", $dates['proofTime']);
-		$this->proofTime = $proofTime[2].'/'.$proofTime[1].'/'.$proofTime[0];
-		$printTime = explode("-", $dates['printTime']);
-		$this->printTime = $printTime[2].'/'.$printTime[1].'/'.$printTime[0];
-		$this->showIndPrice = $dates['showIndPrice'];
-		$vorstufe = $this->creator->createProduct('Vorstufe');
-		$this->vorstufe = $vorstufe->getByProjectId($this->id);
-		$drucksache = $this->creator->createProduct('Drucksache');
-		$this->drucksache = $drucksache->getByProjectId($this->id);
-		$fremdsache = $this->creator->createProduct('Fremdsache');
-		$this->fremdsache = $fremdsache->getByProjectId($this->id);
-		$this->status = $helper->getSingleStatus($dates['status']);
-		$this->deliveryTime = $dates['deliveryTime'];
-		$this->individual_payment = $dates['individual_payment'];
-		$this->individual_skonto = $dates['individual_skonto'];
-		$this->lieferschein_text = $dates['lieferschein_text'];
-		$this->lieferadresse_ab = $dates['lieferadresse_ab'];
-		$this->lieferanweisung = $dates['lieferanweisung'];
-		$this->abweichend = $dates['abweichend'];
-		$this->auflage1 = $dates['auflage1'];
-		$this->auflage2 = $dates['auflage2'];
-		$this->auflage3 = $dates['auflage3'];
-		$this->auflage4 = $dates['auflage4'];
-		$this->descToPrint1 = $dates['descToPrint1'];
-		$this->descToPrint2 = $dates['descToPrint2'];
-		$this->descToPrint3 = $dates['descToPrint3'];
-		$this->descToPrint4 = $dates['descToPrint4'];
-		$this->descToPrint5 = $dates['descToPrint5'];
+		if ($result->execute()) {
+			$dates=$result->fetch();
+			$this->name = $dates['name'];
+			$this->kundenauftragsnummer = $dates['kundenauftragsnummer'];
+			$this->setAuftraggeber($dates['auftraggeber']);
+			$this->setRechnungsadresse($dates['rechnungsadresse']);
+			$this->setAnsprechpartner($dates['ansprechpartner']);
+			$this->setBenutzer($dates['mandant']);
+			$this->reg_date = $dates['reg_date'];
+			$this->mandant_select = $dates['mandant_select'];
+			$this->vorgangsnummer = $dates['vorgangsnummer'];
+			$this->auftragsnummer = $dates['auftragsnummer'];
+			$carrier = $dates['lieferant_id'];
+			$helper = $this->creator->createProduct('helpers');
+			$this->lieferant = $helper->setLieferant($carrier);
+			$this->lieferant_bemerkung = $dates['lieferant_bemerkung'];
+			$this->changeDate = $dates['change_date'];
+			$this->pattern = $dates['pattern'];
+			$this->patternTo = $dates['pattern_to'];
+			$amendmentTime = explode("-", $dates['amendmentTime']);
+			$this->amendmentTime = $amendmentTime[2].'/'.$amendmentTime[1].'/'.$amendmentTime[0];
+			$dateTime = explode("-", $dates['dateTime']);
+			$this->dateTime = $dateTime[2].'/'.$dateTime[1].'/'.$dateTime[0];
+			$proofTime = explode("-", $dates['proofTime']);
+			$this->proofTime = $proofTime[2].'/'.$proofTime[1].'/'.$proofTime[0];
+			$printTime = explode("-", $dates['printTime']);
+			$this->printTime = $printTime[2].'/'.$printTime[1].'/'.$printTime[0];
+			$this->showIndPrice = $dates['showIndPrice'];
+			$vorstufe = $this->creator->createProduct('Vorstufe');
+			$this->vorstufe = $vorstufe->getByProjectId($this->id);
+			$drucksache = $this->creator->createProduct('Drucksache');
+			$this->drucksache = $drucksache->getByProjectId($this->id);
+			$fremdsache = $this->creator->createProduct('Fremdsache');
+			$this->fremdsache = $fremdsache->getByProjectId($this->id);
+			$this->status = $helper->getSingleStatus($dates['status']);
+			$this->deliveryTime = $dates['deliveryTime'];
+			$this->individual_payment = $dates['individual_payment'];
+			$this->individual_skonto = $dates['individual_skonto'];
+			$this->lieferschein_text = $dates['lieferschein_text'];
+			$this->lieferadresse_ab = $dates['lieferadresse_ab'];
+			$this->lieferanweisung = $dates['lieferanweisung'];
+			$this->abweichend = $dates['abweichend'];
+			$this->auflage1 = $dates['auflage1'];
+			$this->auflage2 = $dates['auflage2'];
+			$this->auflage3 = $dates['auflage3'];
+			$this->auflage4 = $dates['auflage4'];
+			$this->descToPrint1 = $dates['descToPrint1'];
+			$this->descToPrint2 = $dates['descToPrint2'];
+			$this->descToPrint3 = $dates['descToPrint3'];
+			$this->descToPrint4 = $dates['descToPrint4'];
+			$this->descToPrint5 = $dates['descToPrint5'];
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function setLieferant($id, $bemerkung = null) {
@@ -864,6 +889,18 @@ class Projekt
 		$rechnungsadresse = $this->creator->createProduct('rechnungsadresse', $id);
 		$rechnungsadresse->setDates();
 		$this->rechnungsadresse = $rechnungsadresse;
+	}
+
+	public function updateAuftragsnummer($projectId, $number) {
+		$sql = "UPDATE Projekt SET auftragsnummer = :projNumber WHERE id = :projectId";
+		$result = $this->dbHandler->prepare($sql);
+	    $result->bindValue(':projNumber', $number);
+	    $result->bindValue(':projectId', $projectId);
+	    if ( $result->execute() ) {
+			return 'success';
+	    } else {
+			return 'failure';
+	    }
 	}
 
 	public function updateDate($id, $column, $value) {
@@ -889,6 +926,8 @@ class Projekt
 		$sql = "UPDATE Projekt SET change_date = NOW() WHERE id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
+		if (!$result->execute()) {
+			$this->output->displayPhpError();
+		}
 	}
 }

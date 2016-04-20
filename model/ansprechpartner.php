@@ -4,18 +4,21 @@ class Ansprechpartner implements TvsatzInterface
 {
 	public $id;
 	private $dbHandler;
+	private $firma_id;
 	private $name;
-	private $vorname;
-	private $telefon;
-	private $telefon2;
 	private $fax;
 	private $mail;
+	private $output;
 	private $reg_date;
-	private $firma_id;
+	private $telefon;
+	private $telefon2;
+	private $vorname;
+
 
 	function __construct($dbHandler, $id = null) {
 
 		$this->dbHandler = $dbHandler;
+		$this->output = new OutputController($dbHandler);
 
 		if ($id != null) {
 			$this->id = $id;
@@ -51,16 +54,19 @@ class Ansprechpartner implements TvsatzInterface
 		$sql = "DELETE FROM Ansprechpartner WHERE id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
-		unset($this->id);
-		unset($this->name);
-		unset($this->vorname);
-		unset($this->telefon);
-		unset($this->telefon2);
-		unset($this->fax);
-		unset($this->mail);
-		unset($this->reg_date);
-		unset($this->firma_id);
+		if ($result->execute()) {
+			unset($this->id);
+			unset($this->name);
+			unset($this->vorname);
+			unset($this->telefon);
+			unset($this->telefon2);
+			unset($this->fax);
+			unset($this->mail);
+			unset($this->reg_date);
+			unset($this->firma_id);
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function deleteSql( $data ) {
@@ -78,20 +84,23 @@ class Ansprechpartner implements TvsatzInterface
 		$sql = "SELECT * FROM Ansprechpartner WHERE firma_id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		$list = array();
-		foreach ($result as $singleResult) {
-		      $list[] = array(
-		      'id' => $singleResult['id'], 
-		      'name' => $singleResult['name'],
-		      'vorname' => $singleResult['vorname'],
-		      'telefon' => $singleResult['telefon'],
-		      'telefon2' => $singleResult['telefon2'],
-		      'fax' => $singleResult['fax'],
-		      'mail' => $singleResult['mail']
-		      );
-		}
+		if ($result->execute()) {
+			$list = array();
+			foreach ($result as $singleResult) {
+			    $list[] = array(
+			      'id' => $singleResult['id'], 
+			      'name' => $singleResult['name'],
+			      'vorname' => $singleResult['vorname'],
+			      'telefon' => $singleResult['telefon'],
+			      'telefon2' => $singleResult['telefon2'],
+			      'fax' => $singleResult['fax'],
+			      'mail' => $singleResult['mail']
+			    );
+			}
 		return $list;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function getDates() {
@@ -106,10 +115,13 @@ class Ansprechpartner implements TvsatzInterface
 		$result->bindValue(':name', $this->name);
 		$result->bindValue(':vorname', $this->vorname);
 		$result->bindValue(':mail', $this->mail);
-		$result->execute();
-		$array = $result->fetch();
-		$this->id = $array['id'];
-		$this->reg_date = $array['reg_date'];
+		if ($result->execute()) {
+			$array = $result->fetch();
+			$this->id = $array['id'];
+			$this->reg_date = $array['reg_date'];
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	private function getLastId($values) {
@@ -119,10 +131,13 @@ class Ansprechpartner implements TvsatzInterface
 		$result->bindValue(':vorname', $values[2]);
 		$result->bindValue(':telefon', $values[3]);
 		$result->bindValue(':firma_id', $values[7]);
-		$result->execute();
-		$array = $result->fetch();
-		$this->id = $array['id'];
-		return $this->id;
+		if ($result->execute()) {
+			$array = $result->fetch();
+			$this->id = $array['id'];
+			return $this->id;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function getName() {
@@ -138,9 +153,12 @@ class Ansprechpartner implements TvsatzInterface
 		$sql = 'SELECT CONCAT_WS(" ", name, vorname) as name FROM Ansprechpartner WHERE id = :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		$data = $result->fetch();
-		return $data['name'];
+		if ($result->execute()) {
+			$data = $result->fetch();
+			return $data['name'];
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function searchByName($value) {
@@ -174,9 +192,12 @@ class Ansprechpartner implements TvsatzInterface
 		WHERE id= :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
-		$data=$result->fetch();
-		return $data;
+		if ($result->execute()) {
+			$data=$result->fetch();
+			return $data;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function setDates() {
@@ -213,7 +234,9 @@ class Ansprechpartner implements TvsatzInterface
 		$result->bindValue(':fax', $this->fax);
 		$result->bindValue(':mail', $this->mail);
 		$result->bindValue(':firma_id', $this->firma_id);
-		$result->execute();
+		if (!$result->execute()) {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function updateRow($column, $rowId, $value) {

@@ -56,6 +56,7 @@ class Document
 		}
 		$clientNumber = $conditions["clientNumber"];
 		$projectName = $conditions["name"];
+		$orderNr = $conditions["orderNr"];
 		date_default_timezone_set('Germany/Berlin');
 		$date = date('d.m.Y', time());
 		$template = '
@@ -94,7 +95,13 @@ class Document
 					<tr>
 						<td style="font-family: Arial;">Auftragsnummer:
 						</td>
-						<td></td>
+						<td style="font-family: Arial;">';
+			if ($orderNr != '') {
+				$template .= $orderNr;	
+			} else {
+				$template .= '<i>noch keine Daten</i>';
+			}
+			$template .= '</td>
 					</tr>
 					<tr>
 					<td></td>
@@ -361,10 +368,18 @@ class Document
 				    <div style="width: 100%; height: 24%; background-color: #C0C0C0;">
 					<div style="padding-bottom: 3%;">
 					    <div style="float: left; font-size: 15px; width: 49%; margin-left: 4.5%; font-family: Arial; padding-top: 3%;">
-						<input type="radio">Angebot
+						<input type="radio"';
+						if ($client['status'] == 1) {
+		$template .= ' checked="checked"';					
+						}
+		$template .='>Angebot
 					    </div>
 					    <div style="float: left; font-size: 15px; width: 49%; margin-left: -3%; font-family: Arial; padding-top: 3%;">
-						<input type="radio">Auftrag
+						<input type="radio"';
+		if ($client['status'] == 2) {
+			$template .= ' checked="checked"';							
+		}
+		$template .='>Auftrag
 					    </div>
 					</div>
 					<div style="font-size: 13px; padding-bottom: 3%; margin-left: 5%; font-family: Arial">Eingang: '.$client['startDate'].'</div>
@@ -450,7 +465,7 @@ class Document
 	    
 	}
 
-	public function mainForm($dates, $vorstufe, $drucksachen, $fremdarbeiten, $path) {
+	public function mainForm($dates, $vorstufe, $drucksachen, $fremdarbeiten) {
 		$template = '
 			<head>
 				<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -461,7 +476,7 @@ class Document
 					<div style="width: 100%; height: 90%;">
 						<div style="width: 100%; height: 30%;">
 							<div style="float: right; width: 29%; height: 30%;">
-								<div style="background-color: #E8E8E8; height: 7%; text-align: center;"><img src="'.$path.'" height="36%"></div>
+								<div style="background-color: #E8E8E8; height: 7%; text-align: center;"></div>
 								<div style="text-align: right; font-family: Arial;">telefon 09102|9392-00</div>
 								<div style="text-align: right; font-family: Arial;">fax 09102|9392-20</div>
 								<div style="text-align: right; font-family: Arial;">isdn 09102|9392-175</div>
@@ -500,10 +515,16 @@ class Document
 							<div style="font-size: 20px; font-family: Arial;"><u>'.$dates['upperTitle'].'</u></div>
 							<div style="float: left; width: 30%; height: 8%;">
 								<div style="font-size: 16px; padding-top: 2%; font-family: Arial;">Kundenauftragsnr.:</div>';
-		if (isset($dates['offerNumber'])) {
-			$template .=	'<div style="font-size: 16px; padding-top: 2%; font-family: Arial;">Auftragsnr. TV:</div>';
+		if (isset($dates['offerNumber'])) { 
+			$template .=	'<div style="font-size: 16px; padding-top: 2%; font-family: Arial;">Angebotsnr:</div>';
 		} elseif(isset($dates['orderNumber'])) {
-			$template .=	'<div style="font-size: 16px; padding-top: 2%; font-family: Arial;">Rechnungsnr:</div>';
+			$template .=	'<div style="font-size: 16px; padding-top: 2%; font-family: Arial;">';
+			if ($dates['title'] == 'Rechnung') {
+				$title = 'Rechnungsnr:';
+			} else {
+				$title = 'Auftragsnr:';
+			}
+			$template .= ' '.$title.'</div>';
 		}
 			$template .=	'	<div style="font-size: 16px; padding-top: 2%; font-family: Arial;">Projektname:</div>
 							</div>

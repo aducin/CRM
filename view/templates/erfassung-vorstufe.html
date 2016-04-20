@@ -97,9 +97,9 @@
                                     <td>
                                         <div class="row form-group">
                                             <select name="hiddenVorstufeType" class="form-control" id="hiddenVorstufeType">
-                                                <option id="none" >Bitte wählen</option>
+                                                <option value="none" id="none" >Bitte wählen</option>
                                                 {% for singleArt in art %}
-                                                <option id="{{ singleArt.id }}">{{ singleArt.name }}</option>
+                                                <option value="{{ singleArt.id }}" id="{{ singleArt.id }}">{{ singleArt.name }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -112,9 +112,9 @@
                                     <td>
                                         <div class="row form-group">
                                             <select name="hiddenVorstufeEmployee" class="form-control" id="hiddenVorstufeEmployee">
-                                                <option id="none" >Bitte wählen</option>
+                                                <option value="none" id="none" >Bitte wählen</option>
                                                 {% for employee in employees %}
-                                                <option id="{{ employee.id }}">{{ employee.name }}</option>
+                                                <option value="{{ employee.id }}" id="{{ employee.id }}">{{ employee.name }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>

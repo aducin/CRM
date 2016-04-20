@@ -1,7 +1,4 @@
 $( document ).ready(function() {
-  
-  var finalResult;
-  var urlPath = "http://ad9bis.vot.pl/CRM/Erfassung";
 
   $('input[name=hiddenTextDate]').datepicker( {
         changeDay: true,
@@ -34,8 +31,8 @@ $( document ).ready(function() {
   $.datepicker.setDefaults($.datepicker.regional['de']);
 
   function changeDate(curDate, fremdsache) {
-    var values = 'Fremdsache-' + fremdsache + '-' + curDate;
-    if (window.location.href == "http://kluby.local/CRM/Erfassung") {
+    var values = 'Fremdsache<>' + fremdsache + '<>' + curDate;
+    if (window.location.href == urlPath) {
       alert('No project at this time');
     } else {
       var path = "../Api/Row/";
@@ -44,7 +41,12 @@ $( document ).ready(function() {
         data: { 'action' : 'ajax', 'concrete' : 'tableUpdate', 'value' : values },
         success: function(result)
         {
-          finalResult = result; 
+          if (result == 'false') {
+            $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
+            return false;
+          }  else {
+            finalResult = result;
+          }
         }
       }); 
     }
@@ -95,7 +97,7 @@ $( document ).ready(function() {
      name = exploded[2] + '/' + exploded[1] + '/' + exploded[0];
     }
     var rowId = variable.parent().attr('id');
-    var date = value + '-' + name;
+    var date = value + '<>' + name;
     variable.children().prop('disabled', true);
     changeDate(date, rowId);
     var timerId = setInterval(function() {
@@ -124,14 +126,14 @@ $( document ).ready(function() {
 		  }
 		  clearInterval(timerId);
 	     } else {
-		console.log(finalResult);
+		$('#ajaxError').fadeIn('slow').delay(5000).hide(1);
 	     }
 	 }, 1500);
   }
 
 
   function getAmount(projectId) {
-    if (window.location.href == "http://kluby.local/CRM/Erfassung") {
+    if (window.location.href == urlPath) {
       console.log('No project at this time');
     } else {
       var path = "../Api/Amount/";
@@ -143,7 +145,7 @@ $( document ).ready(function() {
         if(result != 'false') {
           $( '#totalFremdarbeiten' ).text(result + ' EURO');
         } else {
-          console.log('No description currently available');
+          $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
         }
       }
     });
@@ -168,7 +170,11 @@ $( document ).ready(function() {
     var deliverer = $( '#hiddenCarrier' ).val();
     var description = $( '#hiddenDesc' ).val();
     var purchasePrice = $( '#hiddenFirstAmount' ).val();
+    purchasePrice = purchasePrice.replace(',', '.');
+    purchasePrice = parseFloat(Math.round(purchasePrice * 100) / 100).toFixed(2);
     var sellPrice = $( '#hiddenSecondAmount' ).val();
+    sellPrice = sellPrice.replace(',', '.');
+    sellPrice = parseFloat(Math.round(sellPrice * 100) / 100).toFixed(2);
     var firstCheck = isNumber(purchasePrice);
     var secondCheck = isNumber(sellPrice);
     if (textDate.length == 0) {
@@ -202,7 +208,7 @@ $( document ).ready(function() {
         success: function(result)
         {
           if (result == 'false') {
-            console.log(result);
+            $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
           } else {
             var tableRow = '<tr class="clickable-row rowsFremdarbeiten" name="' + result + '" id="' + result + '">';
             tableRow += '<td id="' + result + '"><div class="fremdarbeitenToChange" id="textDate">';
@@ -251,9 +257,18 @@ $( document ).ready(function() {
             $( '#saveButtonFremdarbeiten' ).hide(); 
             $( "#newButtonFremdarbeiten" ).show();
             var rows = document.getElementById("tableFrendarbeiten").rows.length;
-            var number = rows -2;
-            $( '#hiddenTrFremdarbeiten' ).hide();               
+            $( '#hiddenTrFremdarbeiten' ).hide(); 
+            $( '#hiddenDateFremdarbeiten' ).val('');
+            $( '#hiddenCarrier' ).val('');
+            $( '#hiddenDesc' ).val('');
+            $( '#hiddenFirstAmount' ).val('');
+            $( '#hiddenSecondAmount' ).val('');    
+            if (rows == 2) {
+              $( '#tableFrendarbeiten' ).prepend(tableRow);
+            } else {
+              var number = rows -2;              
             $( '#tableFrendarbeiten > tbody > tr:nth-child(' + number + ')' ).after(tableRow);
+            }
             $('input[name=hiddenTextDate]').datepicker( "destroy" );
             $('input[name=hiddenTextDate]').datepicker({ dateFormat: "dd/mm/yy" });
             $("#tableFrendarbeiten").on("click", "tr", function(){
@@ -305,6 +320,8 @@ $( document ).ready(function() {
                         $('.deleteButtonFremdarbeiten').attr('id', '');
                         var projectId = $( '#hiddenProjectId' ).val();
                         getAmount(projectId);
+                    } else {
+                      $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
                     }
                 }
             }); 

@@ -11,10 +11,17 @@ class OutputController
     private $root;
     private $employees;
     private $mandant;
+    private $error;
 
 	public function __construct($dbHandler = null) {
     
-        $root_dir = $_SERVER['DOCUMENT_ROOT'].'/CRM';
+	$suffix = explode('/', $_SERVER["PHP_SELF"]);
+	if ($suffix[1] != 'index.php') {
+	    $suffix = '/'.$suffix[1];
+	} else {
+	$suffix = '';
+	}
+        $root_dir = $_SERVER['DOCUMENT_ROOT'].$suffix;
         $vendor_dir = $root_dir.'/vendor';
         $cache_dir = $root_dir.'/cache';
         $templates_dir = $root_dir.'/view/templates';
@@ -25,12 +32,13 @@ class OutputController
         $this->twig = new Twig_Environment($loader, array(
             'cache' => $cache_dir,
         ));
-        $this->path = ('http://'.$_SERVER["HTTP_HOST"]).'/CRM/view/';
-        $this->root = ('http://'.$_SERVER["HTTP_HOST"]).'/CRM';
-        $this->dbHandler = $dbHandler;
+        $this->error = 'Es ist leider ein Fehler aufgetreten. Versuchen Sie bitte später.';
+        $this->path = ('http://'.$_SERVER["HTTP_HOST"]).$suffix.'/view/';
+        $this->root = ('http://'.$_SERVER["HTTP_HOST"]).$suffix;
         if (isset($dbHandler)) {
-            $this->creator = new TvsatzCreator($dbHandler);
-            $this->helper = $this->creator->createProduct('helpers');
+            $this->dbHandler = $dbHandler;
+	        $this->creator = new TvsatzCreator($dbHandler);
+	        $this->helper = $this->creator->createProduct('helpers');
             $this->helper->setBenutzerList();
             $this->employees = $this->helper->getBenutzerList();
             $this->mandant = $this->helper->getMandant();
@@ -42,10 +50,22 @@ class OutputController
     public static function displayError($twig, $path, $error = null) {
         if (!isset($error)) {
             $error = $_SESSION['error'];
+            unset($_SESSION['error']);
         }
         $output = $twig->render('/error.html', array(
             'message' => $error,
             'path' => $path
+        ));
+        echo $output;
+        exit();
+    }
+    
+    public function displayPhpError() {
+        $output = $this->twig->render('/error.html', array(
+            'message' => $this->error,
+            'path' => $this->path,
+            'root' => $this->root,
+            'back' => true
         ));
         echo $output;
         exit();
@@ -81,19 +101,27 @@ class OutputController
         $this->helper->setMachine();
         $machine = $this->helper->getMachine();
         if ($project != null) {
-	    $id = $project->getId();
+           $id = $project->getId();
         }
-	if (isset($id) && $id != null) {
-	    $projectName = $project->getName();
-	    if ($projectName == null) {
-		    $address = 'Location: '.$this->root.'/Erfassung/';
-		    unset( $project );
-		    header( $address );
-	    }
+        if (isset($id) && $id != null) {
+           $projectName = $project->getName();
+            if ($projectName == null) {
+                $address = 'Location: '.$this->root.'/Erfassung/';
+                header( $address );
+            }
+        }
+        if ($project) {
+            if($project->getId() == null) {
+                unset( $project );
+            }
         }
         if ($project) {
             $projectId = $project->getId();
             $individual = $project->getIndividuals();
+            $invoiceNumber = $this->helper->getLastInvoiceNumber($projectId);
+            if ($invoiceNumber == 'false') {
+                unset($invoiceNumber);
+            }
             $userList = $this->helper->getProjectUser($projectId);
             foreach ($this->employees as $single) {
                 foreach ($userList as $singleUser) {
@@ -126,6 +154,7 @@ class OutputController
                     $textDate = explode('.', $singleRow["performanceTime"]);
                     $vorstufe[0][$counter]["performanceTime"] = $textDate[0].'/'.$textDate[1].'/'.$textDate[2];
                     $vorstufe[0][$counter]["performanceTime2"] = $textDate[1].'/'.$textDate[0].'/'.$textDate[2];
+                    $vorstufe[0][$counter]["amount"] = number_format($vorstufe[0][$counter]["amount"], 2);
                     $counter++;
     	        }
             }
@@ -134,9 +163,12 @@ class OutputController
             $time = explode("/", $drucksachen[1]);
             $drucksachen[1] = $time[1].'/'.$time[0].'/'.$time[2];
             $amount = 0;
+            $counter = 0;
             if (isset($drucksachen[0])) {
 	            foreach($drucksachen[0] as $singleRow) {
 		            $amount += $singleRow['amount'];
+                    $drucksachen[0][$counter]["amount"] = number_format($drucksachen[0][$counter]["amount"], 2);
+                    $counter++;
 	            }
             }
             $amountDrucksachen = number_format($amount, 2);
@@ -154,6 +186,8 @@ class OutputController
                         $textDate = explode('-', $singleRow['textDate']);
                         $fremdarbeiten[0][$counter]['textDate'] = $textDate[2].'/'.$textDate[1].'/'.$textDate[0];
                         $fremdarbeiten[0][$counter]['textDate2'] = $textDate[1].'/'.$textDate[2].'/'.$textDate[0];
+                        $fremdarbeiten[0][$counter]["purchasePrice"] = number_format($fremdarbeiten[0][$counter]["purchasePrice"], 2);
+                        $fremdarbeiten[0][$counter]["sellPrice"] = number_format($fremdarbeiten[0][$counter]["sellPrice"], 2);
                     }       
                     $counter++;
 	            }
@@ -214,13 +248,16 @@ class OutputController
             foreach ($fourthTable as $table) {
 		$calcCount[4] = $calcCount[4] + $table['amount'];
             }
+            $vorgang = $project->getVorgangsnummer();
+            if ($vorgang == null) {
+                $vorgang = 'false';
+            }
             $dates = array(
                 'name' => $project->getName(),
                 'regDate' => $regDate,
                 'changeDate' => $changeDate,
                 'kundenNummer' => $project->getKundenautragsnummer(),
                 'mandantSelect' => $project->getMandantSelect(),
-                'vorgangsnummer' => $project->getVorgangsnummer(),
                 'projectId' => $projectId,
                 'amountVorstufe' => $amountVorstufe,
                 'amountDrucksachen' => $amountDrucksachen,
@@ -229,7 +266,8 @@ class OutputController
                 'deliveryTime' => $deliveryTime,
                 'bemerkung' => $bemerkung,
                 'delivery' => $project->getDeliveryConditions(),
-                'calcTitle' => $project->getCalculationTitles()
+                'calcTitle' => $project->getCalculationTitles(),
+                'invoice' => $invoiceNumber
             );
             $individuals = array();
             if ($individual['payment'] != null) {
@@ -277,6 +315,7 @@ class OutputController
                 'fourthCalc' => $fourthTable,
                 'calcCount' => $calcCount,
                 'documentList' => $documentList,
+                'vorgangsnummer' => $vorgang,
             ));
         } else {
             $output = $this->twig->render('/zusammenfassung.html', array(
@@ -291,6 +330,7 @@ class OutputController
                 'machine' => $machine,
                 'status' => $status,
                 'calculationFields' => $calculationField,
+                'vorgangsnummer' => 'false',
             ));
         }  
     echo $output;

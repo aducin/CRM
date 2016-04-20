@@ -1,4 +1,8 @@
 $( document ).ready(function() {
+
+    $( '#datumsbereich-von' ).css('visibility', 'visible');
+    $( '#datumsbereich-bis' ).css('visibility', 'visible');
+    
     $('#datumsbereich-von').datepicker( {
         changeDay: true,
         changeMonth: true,
@@ -50,6 +54,10 @@ $( document ).ready(function() {
         },
         success: function(result)
         {
+            if (result == 'false') {
+                $('#ajaxErrorConfig4').fadeIn('slow').delay(5000).hide(1);
+                return false;
+            }
             var jsonData = JSON.parse(result);
             switch(jsonData){
                 case 'error':

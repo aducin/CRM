@@ -26,15 +26,24 @@ class Helpers
 		$sql = 'SELECT value FROM Settings WHERE name = :name';
 		$result = self::$handler->prepare($sql);
 		$result->bindValue(':name', $name);
-		$result->execute();
-		$value = $result->fetch();
-		$singleValue = $value['value'];
-		return $singleValue;
+		if ($result->execute()) {
+			$value = $result->fetch();
+			$singleValue = $value['value'];
+			return $singleValue;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
+		}
 	}
 	
 	public function configDelete($table, $rowId) {
-		$sql = 'DELETE FROM '.$table.' WHERE id = '.$rowId;
-		$result=$this->dbHandler->prepare($sql);
+		if ($table == 'Zahlungsziel') {
+			$sql = 'DELETE FROM '.$table.' WHERE id = '.$rowId;
+			$result=$this->dbHandler->prepare($sql);
+		} else {
+			$sql = 'UPDATE '.$table.' SET active = 0 WHERE id = '.$rowId;
+			$result=$this->dbHandler->prepare($sql);
+		}
 		if ($result->execute()) {
 		    return 'success';
 		} else {
@@ -55,7 +64,7 @@ class Helpers
 		    $password = md5($data);
 		    $mail = $values[2];
 		    $role = $values[3];
-		    $sql = "INSERT INTO Benutzer (name, mail, passwort, rolle_id) VALUES (:name, :mail, :password, :role)";
+		    $sql = "INSERT INTO Benutzer (name, mail, passwort, rolle_id, active) VALUES (:name, :mail, :password, :role, 1)";
 		    $result=$this->dbHandler->prepare($sql);
 		    $result->bindValue(':name', $name);
 		    $result->bindValue(':mail', $mail);
@@ -91,13 +100,17 @@ class Helpers
 	public function getAnsprechpartner() {
 		$sql = 'SELECT id, name, vorname FROM Ansprechpartner';
 		$result=$this->dbHandler->prepare($sql);
-		$result->execute();
-		$list = array();
-		foreach ($result as $singleResult) {
-			$list[] = array('id'=>$singleResult['id'], 'name'=>$singleResult["name"].' '.$singleResult["vorname"]);
+		if ($result->execute()) {
+			$list = array();
+			foreach ($result as $singleResult) {
+				$list[] = array('id'=>$singleResult['id'], 'name'=>$singleResult["name"].' '.$singleResult["vorname"]);
+			}
+			$this->ansprechpartner = $list;
+			return $list;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
 		}
-		$this->ansprechpartner = $list;
-		return $list;
 	}
 	
 	public function getArt() {
@@ -109,13 +122,47 @@ class Helpers
 	}
 	
 	public function getCompleteBenutzerList() {
-		$sql = 'SELECT Benutzer.id as id, Benutzer.name as name, Rolle.name as rolle FROM Benutzer INNER JOIN Rolle ON Benutzer.rolle_id = Rolle.id';
+		$sql = 'SELECT Benutzer.id as id, Benutzer.name as name, Rolle.name as rolle FROM Benutzer INNER JOIN Rolle ON Benutzer.rolle_id = Rolle.id WHERE active = 1';
 		$result=$this->dbHandler->prepare($sql);
-		$result->execute();
-		foreach ($result as $singleResult) {
-			$list[] = array('id' => $singleResult['id'], 'name' => $singleResult["name"], 'rolle' => $singleResult["rolle"]);
+		if ($result->execute()) {
+			foreach ($result as $singleResult) {
+				$list[] = array('id' => $singleResult['id'], 'name' => $singleResult["name"], 'rolle' => $singleResult["rolle"]);
+			}
+			return $list;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
 		}
-		return $list;
+	}
+	
+	public function getDocuments($projectId) {
+	    $sql = 'SELECT Akte.id as id, Akte.name as document, Benutzer.name as userName, Akte.bezeichnung as description, Akte.reg_date, Akte.file 
+	        FROM Akte INNER JOIN Benutzer ON Akte.mitarbeiter = Benutzer.id WHERE projectId = :projectId ORDER BY Akte.name';
+	    $result=$this->dbHandler->prepare($sql);
+	    $result->bindValue(':projectId', $projectId);
+	    if ($result->execute()) {
+			$final = array();
+			foreach ($result as $finalResult) {
+			    if ($finalResult['description'] == null) {
+				$finalResult['description'] = '';
+			    }
+			    $date = explode(' ', $finalResult['reg_date']);
+			    $first = explode('-', $date[0]);
+			    $second = explode(':', $date[1]);
+			    $finalResult['reg_date'] = $first[2].'.'.$first[1].'.'.$first[0].' '.$second[0].':'.$second[1];
+			    $final[] = array(
+				'id' => $finalResult['id'],
+				'documentName' => $finalResult['document'], 
+				'userName' => $finalResult['userName'], 
+				'date' => $finalResult['reg_date'],
+				'description' => $finalResult['description'],
+				'file' => $finalResult['file']
+			    );
+			}
+			return $final;
+	    } else {
+			return 'false';
+	    }
 	}
 
 	public function getInvoiceNumber($projectId, $file) {
@@ -139,11 +186,23 @@ class Helpers
 	    $sql = "SELECT id FROM ".$table." ORDER BY id DESC LIMIT 1";
 	    $result=$this->dbHandler->prepare($sql);
 	    if ($result->execute()) {
-		$singleId = $result->fetch();
-		return $singleId['id'];
+			$singleId = $result->fetch();
+			return $singleId['id'];
 	    } else {
-		return 'false';
+			return 'false';
 	    }
+	}
+
+	public function getLastInvoiceNumber($id) {
+		$sql = 'SELECT id FROM Rechnungsnummer WHERE projectId = :id ORDER BY id DESC LIMIT 1';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		if ($result->execute()) {
+			$final = $result->fetch();
+			return $final['id'];
+		} else {
+			return 'false';
+		}
 	}
 	
 	public function getMandant() {
@@ -166,77 +225,120 @@ class Helpers
 			return 'false';
 		}
 	}
+
+	public function getOrderNumber($projectId, $file) {
+		$sql = 'SELECT id FROM Auftragsnummer WHERE projectId = :projectId AND file = :file';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':projectId', $projectId);
+		$result->bindValue(':file', $file);
+		if ($result->execute()) {
+			$final = $result->fetch();
+			return $final['id'];
+		} else {
+			return 'false';
+		}
+	}
 	
 	public function getProjectUser($projectId) {
 		$sql = 'SELECT benutzerId FROM Benutzer_Projekt WHERE projektId = :projectId ORDER BY benutzerId';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':projectId', $projectId);
-		$result->execute();
-		$userList = array();
-		foreach ($result as $single) {
-			$userList[] = array( 'userId' => $single['benutzerId']);
+		if ($result->execute()) {
+			$userList = array();
+			foreach ($result as $single) {
+				$userList[] = array( 'userId' => $single['benutzerId']);
+			}
+			return $userList;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
 		}
-		return $userList;
 	}
 
 	public function getProjectUserName($projectId) {
 		$sql = 'SELECT Benutzer.name, Benutzer.id FROM Benutzer INNER JOIN Benutzer_Projekt ON Benutzer.id = Benutzer_Projekt.benutzerId WHERE Benutzer_Projekt.projektId = :projectId ORDER BY Benutzer_Projekt.benutzerId';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':projectId', $projectId);
-		$result->execute();
-		$userList = array();
-		foreach ($result as $single) {
-			$userList[] = array( 'name' => $single['name'], 'id' => $single['id']);
+		if ($result->execute()) {
+			$userList = array();
+			foreach ($result as $single) {
+				$userList[] = array( 'name' => $single['name'], 'id' => $single['id']);
+			}
+			return $userList;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
 		}
-		return $userList;
+		
 	}
 	
 	public function getSingleArt($id) {
 		$sql='SELECT name FROM Art WHERE id = :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		$name = $result->fetch();
-		$singleName = $name['name'];
-		return $singleName;
+		if ($result->execute()) {
+			$name = $result->fetch();
+			$singleName = $name['name'];
+			return $singleName;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
+		}
 	}
 	
 	public function getSingleBenutzer($id) {
 		$sql='SELECT Benutzer.name as name, Rolle.id as rolleId, Rolle.name as rolleName FROM Benutzer INNER JOIN Rolle ON Benutzer.rolle_id = Rolle.id WHERE Benutzer.id = :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		$date = $result->fetch();
-		$dateArray = array ('name' => $date['name'], 'rolle_id' => $date['rolleId'], 'rolle_name' => $date['rolleName']);
-		return $dateArray;
+		if ($result->execute()) {
+			$date = $result->fetch();
+			$dateArray = array ('name' => $date['name'], 'rolle_id' => $date['rolleId'], 'rolle_name' => $date['rolleName']);
+			return $dateArray;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
+		}
+		
 	}
 
 	public function getSingleStatus($id) {
 		$sql = "SELECT id, name FROM Status WHERE id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		$date = $result->fetch();
-		$result = array('id' => $date['id'], 'name' => $date['name']);
-		return $result;
+		if ($result->execute()) {
+			$date = $result->fetch();
+			$result = array('id' => $date['id'], 'name' => $date['name']);
+			return $result;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
+		}
 	}
 	
 	public function getSingleZahlungsziel($id) {
 		$sql = "SELECT name FROM Zahlungsziel WHERE id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		$date = $result->fetch();
-		return $date['name'];
+		if ($result->execute()) {
+			$date = $result->fetch();
+			return $date['name'];
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function getSingleZahlungszielDesc($id) {
 		$sql = "SELECT beschreibung FROM Zahlungsziel WHERE id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		$date = $result->fetch();
-		return $date['beschreibung'];
+		if ($result->execute()) {
+			$date = $result->fetch();
+			return $date['beschreibung'];
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
+		}
 	}
 	
 	public function getRolle() {
@@ -261,26 +363,34 @@ class Helpers
 	public function getStatusList() {
 		$sql = "SELECT id, name FROM Status";
 		$result=$this->dbHandler->prepare($sql);
-		$result->execute();
-		$list = array();
-		foreach ($result as $singleResult) {
-			$list[] = array('id'=>$singleResult['id'], 'name'=>$singleResult["name"]);
+		if ($result->execute()) {
+			$list = array();
+			foreach ($result as $singleResult) {
+				$list[] = array('id'=>$singleResult['id'], 'name'=>$singleResult["name"]);
+			}
+			$this->status = $list;
+			return $list;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
 		}
-		$this->status = $list;
-		return $list;
 	}
 	
 	public function getZahlungsziel() {
 		
 		$sql='SELECT id, name, beschreibung FROM Zahlungsziel';
 		$result=$this->dbHandler->prepare($sql);
-		$result->execute();
-		$ziel = array();
-		foreach ($result as $singleResult) {
-			$ziel[] = array("id" => $singleResult['id'], "name" => $singleResult['name'], "beschreibung" => $singleResult["beschreibung"]);
+		if ($result->execute()) {
+			$ziel = array();
+			foreach ($result as $singleResult) {
+				$ziel[] = array("id" => $singleResult['id'], "name" => $singleResult['name'], "beschreibung" => $singleResult["beschreibung"]);
+			}
+			$this->zahlungsziel = $ziel;
+			return $ziel;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
 		}
-		$this->zahlungsziel = $ziel;
-		return $ziel;
 	}
 	
 	public function ifUserActive($projectId, $userId) {
@@ -288,9 +398,13 @@ class Helpers
 		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':projectId', $projectId);
 		$result->bindValue(':userId', $userId);
-		$result->execute();
-		$final = $result->fetch();
-		return $final;
+		if ($result->execute()) {
+			$final = $result->fetch();
+			return $final;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
+		}
 	}
 	
 	public function manageProjectUser($date, $projectId, $userId) {
@@ -331,12 +445,16 @@ class Helpers
 	public function setArt() {
 		$sql='SELECT id, name FROM Art';
 		$result=$this->dbHandler->prepare($sql);
-		$result->execute();
-		$ziel = array();
-		foreach ($result as $singleResult) {
-			$artList[] = array("id" => $singleResult['id'], "name" => $singleResult['name']);
+		if ($result->execute()) {
+			$ziel = array();
+			foreach ($result as $singleResult) {
+				$artList[] = array("id" => $singleResult['id'], "name" => $singleResult['name']);
+			}
+			$this->art = $artList;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
 		}
-		$this->art = $artList;
 	}
 
 	public function setInvoiceNumber($projectId, $file) {
@@ -362,30 +480,50 @@ class Helpers
 			return 'false';
 		}
 	}
+
+	public function setOrderNumber($projectId, $file) {
+		$sql = 'INSERT INTO Auftragsnummer (projectId, reg_date, file) VALUES (:id, NOW(), :file)';
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $projectId);
+		$result->bindValue(':file', $file);
+		if ($result->execute()) {
+			return 'success';
+		} else {
+			return 'false';
+		}
+	}
 	
 	public function setBenutzerList() {
-		$sql='SELECT id, name FROM Benutzer';
+		$sql='SELECT id, name FROM Benutzer WHERE active = 1';
 		$result=$this->dbHandler->prepare($sql);
-		$result->execute();
-		$list = array();
-		$counter = 0;
-		foreach ($result as $singleResult) {
-			$list[] = array('id'=>$singleResult['id'], 'name'=>$singleResult["name"], 'counter' => $counter );
-			$counter++;
+		if ($result->execute()) {
+			$list = array();
+			$counter = 0;
+			foreach ($result as $singleResult) {
+				$list[] = array('id'=>$singleResult['id'], 'name'=>$singleResult["name"], 'counter' => $counter );
+				$counter++;
+			}
+			$this->benutzerList = $list;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
 		}
-		$this->benutzerList = $list;
 	}
 	
 	public function setKalkulationsfelder() {
 		$sql='SELECT id, name FROM Kalkulationsfelder';
 		$result=$this->dbHandler->prepare($sql);
-		$result->execute();
-		$fields = array();
-		foreach ($result as $singleResult) {
-			$fields[] = array( 'id' => $singleResult["id"], 'name' => $singleResult["name"] );
+		if ($result->execute()) {
+			$fields = array();
+			foreach ($result as $singleResult) {
+				$fields[] = array( 'id' => $singleResult["id"], 'name' => $singleResult["name"] );
+			}
+			$this->kalkulationsfelder = $fields;
+			return $fields;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
 		}
-		$this->kalkulationsfelder = $fields;
-		return $fields;
 	}
 	
 	public function setLieferant( $id = null ) {
@@ -397,37 +535,49 @@ class Helpers
 		if (isset($id)) {
 			$result->bindValue(':id', $id);
 		}
-		$result->execute();
-		$list = array();
-		foreach ($result as $singleResult) {
-			$list[] = array('id'=>$singleResult['id'], 'name'=>$singleResult["name"]);
+		if ($result->execute()) {
+			$list = array();
+			foreach ($result as $singleResult) {
+				$list[] = array('id'=>$singleResult['id'], 'name'=>$singleResult["name"]);
+			}
+			$this->lieferant = $list;
+			return $list;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
 		}
-		$this->lieferant = $list;
-		return $list;
 	}
 	
 	public function setMachine() {
 		$sql='SELECT id, name FROM Maschine';
 		$result=$this->dbHandler->prepare($sql);
-		$result->execute();
-		$list = array();
-		foreach ($result as $singleResult) {
-			$list[] = array('id'=>$singleResult['id'], 'name'=>$singleResult["name"]);
+		if ($result->execute()) {
+			$list = array();
+			foreach ($result as $singleResult) {
+				$list[] = array('id'=>$singleResult['id'], 'name'=>$singleResult["name"]);
+			}
+			$this->machine = $list;
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
 		}
-		$this->machine = $list;
 	}
 	
 	public function setRolle($return = null) {
 		$sql='SELECT id, name FROM Rolle';
 		$result=$this->dbHandler->prepare($sql);
-		$result->execute();
-		$list = array();
-		foreach ($result as $singleResult) {
-			$list[] = array('id' => $singleResult['id'], 'name' => $singleResult["name"]);
-		}
-		$this->rolle = $list;
-		if (isset($return) && $return = 'true') {
-			return $list;
+		if ($result->execute()) {
+			$list = array();
+			foreach ($result as $singleResult) {
+				$list[] = array('id' => $singleResult['id'], 'name' => $singleResult["name"]);
+			}
+			$this->rolle = $list;
+			if (isset($return) && $return = 'true') {
+				return $list;
+			}
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
 		}
 	}
 	

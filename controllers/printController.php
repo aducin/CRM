@@ -4,12 +4,17 @@ class PrintController
 {
 	private $creator;
 	private $dbHandler;
+	private $filepath;
+	private $output;
 	private $projectId;
 	private $project;
 
 	public function __construct($dbHandler, $action) {
 		$this->dbHandler = $dbHandler;
 		$this->creator = new TvsatzCreator($dbHandler);
+		$this->output = new OutputController($dbHandler);
+		$suffix = Helpers::getSettings('suffix');
+		$this->filepath = $_SERVER['DOCUMENT_ROOT'].'/'.$suffix."akte/";
 		$variable = explode('projId=', $_SERVER["REQUEST_URI"]);
 		$this->projectId = $variable[1];
 		$this->project = $this->creator->createProduct('projekt', $this->projectId);
@@ -26,7 +31,8 @@ class PrintController
 		$dates = array();
 		$this->project = $this->creator->createProduct('projekt', $this->projectId);
 		$this->project->setDates();
-		$filepath = $_SERVER['DOCUMENT_ROOT']."/CRM/akte/".$filename;
+		$suffix = Helpers::getSettings('suffix');
+		$filepath = $this->filepath.$filename;
 		$dates['name'] = $this->project->ansprechpartner->getName();
 		$clientId = $this->project->auftraggeber->getCurrentId();
 		$address = $this->project->auftraggeber->getDeliveryAddress($clientId);
@@ -51,10 +57,10 @@ class PrintController
 				if ($success != 'false') {
 					$dates['offerNumber'] = $success;
 				} else {
-					echo 'error = printController  - renderDocument1';
+					$this->output->displayPhpError();
 				}
 			} else {
-				echo 'error = printController  - renderDocument1';
+				$this->output->displayPhpError();
 			}
 		} elseif ($title == "Rechnung") {
 			$success = $helper->setInvoiceNumber($this->projectId, $filename);
@@ -63,10 +69,26 @@ class PrintController
 				if ($success != 'false') {
 					$dates['orderNumber'] = $success;
 				} else {
-					echo 'error = printController  - renderDocument4';
+					$this->output->displayPhpError();
 				}
 			} else {
-				echo 'error = printController  - renderDocument4';
+				$this->output->displayPhpError();
+			}
+		} elseif ($title == 'Auftragsbestätigung') {
+			$success = $helper->setOrderNumber($this->projectId, $filename);
+			if ($success == 'success') {
+				$success = $helper->getOrderNumber($this->projectId, $filename);
+				if ($success != 'false') {
+					$dates['orderNumber'] = $success;
+					$success = $this->project->updateAuftragsnummer($this->projectId, $success);
+					if ($success == 'false') {
+						$this->output->displayPhpError();
+					}
+				} else {
+					$this->output->displayPhpError();
+				}
+			} else {
+				$this->output->displayPhpError();
 			}
 		}
 		$payment = $this->project->getIndividuals();
@@ -83,7 +105,7 @@ class PrintController
 				$dates['description'] = $success["description"];
 			}
 		} else {
-			echo 'error = printController  - renderDocument1';
+			$this->output->displayPhpError();
 		}
 		$vorstufe = $this->project->getVorstufe();
 		if ($vorstufe[0] != null) {
@@ -95,6 +117,7 @@ class PrintController
                     $textDate = explode('.', $singleRow["performanceTime"]);
                     $vorstufe[0][$counter]["performanceTime"] = $textDate[0].'.'.$textDate[1].'.'.$textDate[2];
                     $vorstufe[0][$counter]["performanceTime2"] = $textDate[1].'.'.$textDate[0].'.'.$textDate[2];
+                    $vorstufe[0][$counter]["amount"] = number_format($vorstufe[0][$counter]["amount"], 2);
                     $counter++;
         	    }
             }
@@ -117,9 +140,12 @@ class PrintController
 		$drucksachen = $this->project->getDrucksachen();
 		if (!empty($drucksachen)) {
 			$amount = 0;
+			$counter = 0;
 			if (isset($drucksachen[0])) {
 				foreach($drucksachen[0] as $singleRow) {
 					$amount += $singleRow['amount'];
+					$drucksachen[0][$counter]["amount"] = number_format($drucksachen[0][$counter]["amount"], 2);
+                    $counter++;
 				}
 			}
 			$drucksachen = $drucksachen[0];
@@ -130,7 +156,7 @@ class PrintController
 					$dates['druckDescription'] = $success["description"];
 				}
 			} else {
-				echo 'error = printController  - renderDocument1';
+				$this->output->displayPhpError();
 			}
 		} else {
 			$drucksachen = null;
@@ -146,6 +172,8 @@ class PrintController
 						$textDate = explode('-', $singleRow['textDate']);
                         $fremdarbeiten[0][$counter]['textDate'] = $textDate[2].'.'.$textDate[1].'.'.$textDate[0];
                         $fremdarbeiten[0][$counter]['textDate2'] = $textDate[1].'.'.$textDate[2].'.'.$textDate[0];
+                        $fremdarbeiten[0][$counter]["purchasePrice"] = number_format($fremdarbeiten[0][$counter]["purchasePrice"], 2);
+                        $fremdarbeiten[0][$counter]["sellPrice"] = number_format($fremdarbeiten[0][$counter]["sellPrice"], 2);
                     }       
                     $counter++;
     	        }
@@ -158,19 +186,18 @@ class PrintController
 					$dates['fremdDescription'] = $success["description"];
 				}
 			} else {
-				echo 'error = printController  - renderDocument1';
+				$this->output->displayPhpError();
 			}
 		} else {
 			$fremdarbeiten = null;
 		}	
 		$document = $this->creator->createProduct('document');
-		$path = 'http://ad9bis.vot.pl/CRM/view/assets/images/logo.png';
+		//$path = 'http://ad9bis.vot.pl/CRM/view/assets/images/logo.png';
 		if ($dates["upperTitle"] == 'AUFTRAGSBESTäTIGUNG') {
 			$dates["upperTitle"] = 'AUFTRAGSBESTÄTIGUNG';
 		}
-		$pattern = $document->mainForm($dates, $vorstufe, $drucksachen, $fremdarbeiten, $path);
+		$pattern = $document->mainForm($dates, $vorstufe, $drucksachen, $fremdarbeiten);
 		//$this->renderPdf($pattern, $title, $filename, $filepath);
-		//var_dump($title); exit();
 		if ($title == 'Angebot') {
 			$desc = 'descToPrint1';
 		} elseif ($title == 'Preismitteilung') {
@@ -190,7 +217,7 @@ class PrintController
 		if ($success == 'success') {
 		    $this->renderPdf($pattern, $title, $filename, $filepath);
 		} else {
-		    echo 'error - printController.php line 359';
+		    $this->output->displayPhpError();
 		}
 	}
 
@@ -291,6 +318,12 @@ class PrintController
 		$client['pattern'] = $pattern['pattern'];
 		$client['patternTo'] = $pattern['patternTo'];
 		$helper = $this->creator->createProduct('helpers');
+		$status = $this->project->getStatus();
+		if ($status['id'] == 1) {
+			$client['status'] = 1;
+		} elseif ($status['id'] == 3 OR $status['id'] == 4 OR $status['id'] == 5) {
+			$client['status'] = 2;
+		}
 		$client['carrierList'] = $helper->setLieferant();
 		$userList = $helper->getProjectUserName($this->projectId);
 		$helper->setMachine();
@@ -307,7 +340,7 @@ class PrintController
 		    $counter++;
 		}
 		$filename = 'auftragszettel-'.$this->projectId.'-'.(date("dmY_Hi")).".pdf";
-		$filepath = $_SERVER['DOCUMENT_ROOT']."/CRM/akte/".$filename;
+		$filepath = $this->filepath.$filename;
 		$description = $this->creator->createProduct('bemerkung');
 		$client['internDesc'] = $description->getInternDesc($this->projectId);
 		$pattern = $document->innerForm($client, $userList, $drucksachen);
@@ -323,12 +356,13 @@ class PrintController
 		if ($success == 'success') {
 		    $this->renderPdf($pattern, $title, $filename, $filepath);
 		} else {
-		    echo 'error - printController.php line 101';
+			$_SESSION['error'] = 'Es ist leider ein Fehler aufgetreten. Versuchen Sie bitte später.';
+		    $this->output->displayPhpError();
 		}
 	}
 	private function renderDocument6() {
 		$conditions = $this->project->getDeliverySql($this->projectId);
-		if ($conditions['ifCustom'] == 0) {
+		if ($conditions['ifCustom'] == 0 OR $conditions['ifCustom'] == null) {
 			$client = $this->creator->createProduct('auftraggeber');
 			$addressArray = $client->getDeliveryAddress($conditions['customerId']);
 			if ($addressArray['address2'] == null) {
@@ -367,7 +401,7 @@ class PrintController
 		$pattern = $document->deliveryLetter($address, $conditions, $descArray);
 		$title = 'Lieferschein';
 		$filename = 'lieferschein-'.$this->projectId.'-'.(date("dmY_Hi")).".pdf";
-		$filepath = $_SERVER['DOCUMENT_ROOT']."/CRM/akte/".$filename;
+		$filepath = $this->filepath.$filename;
 		$success = $this->project->getDescToPrint($this->projectId, 'descToPrint6');
 		if ($success != 'false') {
 		    $success = $document->insert('Lieferschein', $_SESSION["user"], $success, $filename, $this->projectId);
@@ -378,7 +412,8 @@ class PrintController
 		if ($success == 'success') {
 		    $this->renderPdf($pattern, $title, $filename, $filepath);
 		} else {
-		    echo 'error - printController.php line 359';
+		    $_SESSION['error'] = 'Es ist leider ein Fehler aufgetreten. Versuchen Sie bitte später.';
+			$this->output->displayPhpError();
 		}
 	}
 
@@ -386,7 +421,7 @@ class PrintController
 		include('vendor/mpdf/mpdf.php');
 
 		if (!isset($filepath)) {
-			$filepath = $_SERVER['DOCUMENT_ROOT']."/CRM/akte/".$filename;
+			$filepath = $this->filepath.$filename;
 		}
 
 		$mpdf = new mPDF('utf-8'); 

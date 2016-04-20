@@ -12,22 +12,32 @@ class Controller
 	private $currentId;
 	
 	public function __construct($dbHandler, $action = null, $variable = null) {
-		$path = 'http://'.$_SERVER["HTTP_HOST"];
+		//$path = 'http://'.$_SERVER["HTTP_HOST"];
 		$this->dbHandler = $dbHandler;
 		$this->creator = new TvsatzCreator($dbHandler);
 		$this->output = new OutputController($dbHandler);
         //if (isset($_SESSION['stayLogged']) && $_SESSION['stayLogged'] == 1) {
         //    $this->$action();
         //} else
-        if (isset($_GET['token'])) {
+		if (isset($_GET['token'])) {
 		    $this->getLoginPage();
 		} elseif (!isset($_SESSION['log']) OR !isset($_COOKIE['crm_logged'])) {
 		    if ($action == 'renderLogin') {
-			$this->getLoginPage();
+			    $this->getLoginPage();
 		    } elseif ($action != 'ajax' && $action != 'login') {
-			header('Location: '.$this->path.'/CRM/Login');
+			    $path = Helpers::getSettings('http_address');
+			    $suffix = Helpers::getSettings('suffix');
+			    if ($suffix != '') {
+				$path = $path.$suffix;
+			    }
+			    header('Location: '.$path.'Login');
 		    } else {
-			  setcookie('crm_logged', '1', time()+3600);
+                if(isset($_COOKIE["replace_again"])) {
+                    setcookie('replace_again', '1', time()+302400);
+                    setcookie('crm_logged', '1', time()+302400);
+                } else {
+                    setcookie('crm_logged', '1', time()+3600);
+                }
 			  $this->$action();
 		    }
 		} elseif (!isset($_SESSION['log']) && !isset($_POST['action']) && !isset($_COOKIE['crm_logged'])) {
@@ -35,8 +45,13 @@ class Controller
 		} else {
 		    if (isset ($_GET['single'])) {
 			$this->currentId = $_GET['single'];
-		    }   
-		    setcookie('crm_logged', '1', time()+3600);
+		    } 
+            if(isset($_COOKIE["replace_again"])) {
+                setcookie('replace_again', '1', time()+302400);
+                setcookie('crm_logged', '1', time()+302400);
+            } else {
+                setcookie('crm_logged', '1', time()+3600);
+            }
 		    $this->$action();
 		}
 	}
@@ -95,7 +110,7 @@ class Controller
     private function newProject() {
 	$this->project = $this->creator->createProduct('projekt');
 	$success = $this->project->insertNewProject();
-	var_dump($success); exit();
+	//var_dump($success); exit();
     }
 
     private function notFound() {
@@ -159,32 +174,38 @@ class Controller
             $helper = $this->creator->createProduct('helpers');
             if (isset($this->params['status'])) {
                 $this->params['status'] = $helper->getSingleStatus($this->params['status']);
+                $this->params['ifPrevious'] = true;
             } else {	
-		$benutzer = $this->creator->createProduct('benutzer');
-		$conditions = $benutzer->getLastSearch();
-		if ($conditions["status"] != 0) {
-		    $helper = $this->creator->createProduct('helpers');
-		    $status = $helper->getSingleStatus($conditions["status"]);
-		    unset($conditions[status]);
-		}
-		    $conditions[status] = array('id' => $status['id'], 'name' => $status['name']);
-		    if ($conditions['begin'] != '') {
-			$temp = explode('-', $conditions['begin']);
-			$conditions['begin'] = $temp[2].'/'.$temp[1].'/'.$temp[0];
-		    }
-		    if ($conditions['endDate'] != '') {
-			$temp = explode('-', $conditions['endDate']);
-			$conditions['endDate'] = $temp[2].'/'.$temp[1].'/'.$temp[0];
-		    }
-		    $this->params = $conditions;
+        		$benutzer = $this->creator->createProduct('benutzer');
+        		$conditions = $benutzer->getLastSearch();
+        		if ($conditions["status"] != 0) {
+        		    $helper = $this->creator->createProduct('helpers');
+        		    $status = $helper->getSingleStatus($conditions["status"]);
+        		    unset($conditions[status]);
+        		}
+                if ($result == 'empty') {
+                    unset($conditions['ifPrevious']);
+                    $result = null;
+                }
+		        $conditions[status] = array('id' => $status['id'], 'name' => $status['name']);
+    		    if ($conditions['begin'] != '') {
+        			$temp = explode('-', $conditions['begin']);
+        			$conditions['begin'] = $temp[2].'/'.$temp[1].'/'.$temp[0];
+    		    }
+    		    if ($conditions['endDate'] != '') {
+        			$temp = explode('-', $conditions['endDate']);
+        			$conditions['endDate'] = $temp[2].'/'.$temp[1].'/'.$temp[0];
+    		    }
+    		    $this->params = $conditions;
             }
+             
             $this->output->renderListe($this->benutzer, $result, $this->params);
             break;
             case 'erfassung':
             if ( isset( $this->currentId ) ) {
                 $this->getContent($this->currentId, 'renderErfassung');
             }
-            $this->output->renderErfassung($this->benutzer, null);
+            $this->output->renderErfassung($this->benutzer);
             break;
         }
     }

@@ -6,6 +6,7 @@ abstract class formBasics
 
 		$this->dbHandler = $dbHandler;
 		$this->selfName = $name;
+		$this->output = new OutputController($dbHandler);
 	}
 
 	protected $dbHandler;
@@ -14,6 +15,7 @@ abstract class formBasics
 	protected $selfName;
 	protected $reg_date;
 	protected $creator;
+	protected $output;
 
 	abstract public function delete();
 
@@ -34,9 +36,12 @@ abstract class formBasics
 		$sql = "SELECT * FROM ".$this->selfName." WHERE id = :id";
 		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
-		$data = $result->fetch();
-		return $data;
+		if ($result->execute()) {
+			$data = $result->fetch();
+			return $data;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	abstract function getByProjectId($id);
@@ -58,6 +63,9 @@ abstract class formBasics
 	    	$amount = '';
 	    	foreach ($result as $singleResult) {
 	    		$amount += $singleResult[$column];
+	    	}
+	    	if ($amount == "") {
+	    		$amount = 0;
 	    	}
 	    	$amount = number_format($amount, 2, '.', '');
 	    } else {
@@ -88,10 +96,13 @@ abstract class formBasics
 	protected function setId() {
 		$sql = 'SELECT id, reg_date FROM '.$this->selfName.' ORDER BY id DESC LIMIT 1';
 		$result = $this->dbHandler->prepare($sql);
-		$result->execute();
-		$data = $result->fetch();
-		$this->id = $data['id'];
-		$this->reg_date = $data['reg_date'];
+		if ($result->execute()) {
+			$data = $result->fetch();
+			$this->id = $data['id'];
+			$this->reg_date = $data['reg_date'];
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function setNew($data) {

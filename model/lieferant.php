@@ -4,11 +4,13 @@ class Lieferant
 {
 	public $id;
 	private $name;
+	private $output;
 
 	function __construct($dbHandler, $id) {
 
 		$this->id = $id;
 		$this->setName($id, $dbHandler);
+		$this->output = new OutputController($dbHandler);
 
 	}
 
@@ -20,8 +22,11 @@ class Lieferant
 		$sql = "SELECT name FROM Lieferant WHERE id = :id";
 		$result = $dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
-		$name = $result->fetch();
-		$this->name = $name['name'];
+		if ($result->execute()) {
+			$name = $result->fetch();
+			$this->name = $name['name'];
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 }

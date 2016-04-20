@@ -12,6 +12,7 @@ class Auftraggeber implements TvsatzInterface
 	private $telefon;
 	private $fax;
 	private $mail;
+	private $output;
 	private $skonto;
 	private $reg_date;
 	private $zahlungsziel = array();
@@ -23,6 +24,7 @@ class Auftraggeber implements TvsatzInterface
 	function __construct($dbHandler, $id = null) {
 
 		$this->dbHandler = $dbHandler;
+		$this->output = new OutputController($dbHandler);
 
 		if ($id != null) {
 			$this->id = $id;
@@ -33,20 +35,50 @@ class Auftraggeber implements TvsatzInterface
 		$sql = "DELETE FROM Auftraggeber WHERE id = :id";
 		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
-		unset($this->id);
-		unset($this->name);
-		unset($this->abteilung);
-		unset($this->anschrift);
-		unset($this->anschrift2);
-		unset($this->plz);
-		unset($this->ort);
-		unset($this->telefon);
-		unset($this->fax);
-		unset($this->mail);
-		unset($this->skonto);
-		unset($this->reg_date);
-		unset($this->zahlungsziel);
+		if ($result->execute()) {
+			unset($this->id);
+			unset($this->name);
+			unset($this->abteilung);
+			unset($this->anschrift);
+			unset($this->anschrift2);
+			unset($this->plz);
+			unset($this->ort);
+			unset($this->telefon);
+			unset($this->fax);
+			unset($this->mail);
+			unset($this->skonto);
+			unset($this->reg_date);
+			unset($this->zahlungsziel);
+		} else {
+			$this->output->displayPhpError();
+		}
+	}
+	
+	public function getAjaxDates($id) {
+	    $sql = 'SELECT Auftraggeber.id as clientId, Auftraggeber.name as name, abteilung, anschrift, anschrift2, ort, plz, fax, telefon, mail, skonto, Zahlungsziel.id as payId, Zahlungsziel.name as payTarget FROM Auftraggeber INNER JOIN Zahlungsziel ON Auftraggeber.zahlungsziel_id = Zahlungsziel.id WHERE Auftraggeber.id = :id';
+	    $result = $this->dbHandler->prepare($sql);
+	    $result->bindValue(':id', $id);
+	    if ($result->execute()) {
+			$dates = $result->fetch();
+			$final = array( 
+			    'id' => $dates['clientId'],
+			    'name' => $dates['name'], 
+			    'department' => $dates['abteilung'],
+			    'address' => $dates['anschrift'],
+			    'address2' => $dates['abteilung'],
+			    'place' => $dates['ort'],
+			    'code' => $dates['plz'],
+			    'fax' => $dates['fax'],
+			    'phone' => $dates['telefon'],
+			    'mail' => $dates['mail'],
+			    'skonto' => $dates['skonto'],
+			    'paymentId' => $dates['payId'],
+			    'payment' => $dates['payTarget'],
+			);
+			echo json_encode($final);
+	     } else {
+			return 'false';
+	     }
 	}
 	
 	public function getClientDetails($id) {
@@ -77,16 +109,19 @@ class Auftraggeber implements TvsatzInterface
 		$sql = 'SELECT name, anschrift, anschrift2, ort, plz FROM Auftraggeber WHERE id = :id';
 		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		$array = $result->fetch();
-		$final = array(
-			'name' => $array['name'],
-			'address' => $array['anschrift'],
-			'address2' => $array['anschrift2'],
-			'place' => $array['ort'],
-			'code' => $array['plz']
-		);
-		return $final;
+		if ($result->execute()) {
+			$array = $result->fetch();
+			$final = array(
+				'name' => $array['name'],
+				'address' => $array['anschrift'],
+				'address2' => $array['anschrift2'],
+				'place' => $array['ort'],
+				'code' => $array['plz']
+			);
+			return $final;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function getId() {
@@ -96,10 +131,13 @@ class Auftraggeber implements TvsatzInterface
 		$result->bindValue(':abteilung', $this->abteilung);
 		$result->bindValue(':anschrift', $this->anschrift);
 		$result->bindValue(':zahlungsziel_id', $this->zahlungsziel);
-		$result->execute();
-		$array = $result->fetch();
-		$this->id = $array['id'];
-		$this->reg_date = $array['reg_date'];
+		if ($result->execute()) {
+			$array = $result->fetch();
+			$this->id = $array['id'];
+			$this->reg_date = $array['reg_date'];
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 	
 	public function getName() {
@@ -129,9 +167,12 @@ class Auftraggeber implements TvsatzInterface
 		$sql = $this->getSql();
 		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
-		$data = $result->fetch();
-		return $data;
+		if ($result->execute()) {
+			$data = $result->fetch();
+			return $data;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function setDates() {
@@ -197,52 +238,57 @@ class Auftraggeber implements TvsatzInterface
 		$name = '%'.$name.'%';
 		$sql = "SELECT id, name FROM Auftraggeber WHERE name LIKE ?";
 		$result = $this->dbHandler->prepare($sql);
-		$result->execute(array($name));
-		$sql2 = "SELECT skonto, Zahlungsziel.name as paymentName FROM Auftraggeber INNER JOIN Zahlungsziel ON Auftraggeber.zahlungsziel_id = Zahlungsziel.id 		WHERE Auftraggeber.id = :id";
-		foreach ($result as $singleResult) {
-			$id = $singleResult['id'];
-			$result = $this->dbHandler->prepare($sql2);
-			$result->bindValue(':id', $id);
-			$result->execute();
-			$paymentName = $result->fetch();
-			$names[] = array('name' => $singleResult['name'], 'id' => $singleResult['id'], 'payment' => $paymentName['paymentName'], 'skonto' => $paymentName['skonto']);
+		if ($result->execute(array($name))) {
+			$sql2 = "SELECT skonto, Zahlungsziel.name as paymentName FROM Auftraggeber INNER JOIN Zahlungsziel ON Auftraggeber.zahlungsziel_id = Zahlungsziel.id 		WHERE Auftraggeber.id = :id";
+			foreach ($result as $singleResult) {
+				$id = $singleResult['id'];
+				$result = $this->dbHandler->prepare($sql2);
+				$result->bindValue(':id', $id);
+				$result->execute();
+				$paymentName = $result->fetch();
+				$names[] = array('name' => $singleResult['name'], 'id' => $singleResult['id'], 'payment' => $paymentName['paymentName'], 'skonto' => $paymentName['skonto']);
+			}
+			if (!isset($names)) {
+				$names = 'error';
+			}
+			return $names;
+		} else {
+			$this->output->displayPhpError();
 		}
-		if (!isset($names)) {
-			$names = 'error';
-		}
-		return $names;
 	}
 
 	public function setAnsprechpartner() {
 		$sql = 'SELECT id FROM Ansprechpartner WHERE firma_id= :id';
 		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
-		$counter = 0;
-
-		foreach ($result as $singleResult) {
-			$singlePartner = new Ansprechpartner($this->dbHandler, $singleResult['id']);
-			$singlePartner->setDates();
-			$this->ansprechpartner[$counter] = $singlePartner;
-			$counter++;
+		if ($result->execute()) {
+			$counter = 0;
+			foreach ($result as $singleResult) {
+				$singlePartner = new Ansprechpartner($this->dbHandler, $singleResult['id']);
+				$singlePartner->setDates();
+				$this->ansprechpartner[$counter] = $singlePartner;
+				$counter++;
+			}
+		} else {
+			$this->output->displayPhpError();
 		}
-
 	}
 
 	public function setRechnungsadresse() {
 		$sql = 'SELECT id FROM Rechnungsadressen WHERE firma_id= :id';
 		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
-		$counter = 0;
-
-		foreach ($result as $singleResult) {
-			$singlePartner = new Rechnungsadresse($this->dbHandler, $singleResult['id']);
-			$singlePartner->setDates();
-			$this->rechnungsadresse[$counter] = $singlePartner;
-			$counter++;
+		if ($result->execute()) {
+			$counter = 0;
+			foreach ($result as $singleResult) {
+				$singlePartner = new Rechnungsadresse($this->dbHandler, $singleResult['id']);
+				$singlePartner->setDates();
+				$this->rechnungsadresse[$counter] = $singlePartner;
+				$counter++;
+			}
+		} else {
+			$this->output->displayPhpError();
 		}
-
 	}
 	
 	public function updateRow($column, $rowId, $value) {

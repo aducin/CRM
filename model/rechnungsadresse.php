@@ -9,6 +9,7 @@ class Rechnungsadresse implements TvsatzInterface
 	private $anschrift2;
 	private $plz;
 	private $ort;
+	private $output;
 	private $reg_date;
 	private $firma_id;
 	private $dbHandler;
@@ -16,6 +17,7 @@ class Rechnungsadresse implements TvsatzInterface
 	function __construct($dbHandler, $id = null) {
 
 		$this->dbHandler = $dbHandler;
+		$this->output = new OutputController($dbHandler);
 
 		if ($id != null) {
 			$this->id = $id;
@@ -51,16 +53,19 @@ class Rechnungsadresse implements TvsatzInterface
 		$sql = "DELETE FROM Rechnungsadressen WHERE id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
-		unset($this->id);
-		unset($this->name);
-		unset($this->abteilung);
-		unset($this->anschrift);
-		unset($this->anschrift2);
-		unset($this->plz);
-		unset($this->ort);
-		unset($this->reg_date);
-		unset($this->firma_id);
+		if ($result->execute()) {
+			unset($this->id);
+			unset($this->name);
+			unset($this->abteilung);
+			unset($this->anschrift);
+			unset($this->anschrift2);
+			unset($this->plz);
+			unset($this->ort);
+			unset($this->reg_date);
+			unset($this->firma_id);
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function deleteSql( $data ) {
@@ -78,20 +83,23 @@ class Rechnungsadresse implements TvsatzInterface
 		$sql = "SELECT * FROM Rechnungsadressen WHERE firma_id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		$list = array();
-		foreach ($result as $singleResult) {
-		      $list[] = array(
-		      'id' => $singleResult['id'], 
-		      'name' => $singleResult['name'],
-		      'abteilung' => $singleResult['abteilung'],
-		      'anschrift' => $singleResult['anschrift'],
-		      'anschrift2' => $singleResult['anschrift2'],
-		      'plz' => $singleResult['plz'],
-		      'ort' => $singleResult['ort']
-		      );
+		if ($result->execute()) {
+			$list = array();
+			foreach ($result as $singleResult) {
+			      $list[] = array(
+			      'id' => $singleResult['id'], 
+			      'name' => $singleResult['name'],
+			      'abteilung' => $singleResult['abteilung'],
+			      'anschrift' => $singleResult['anschrift'],
+			      'anschrift2' => $singleResult['anschrift2'],
+			      'plz' => $singleResult['plz'],
+			      'ort' => $singleResult['ort']
+			      );
+			}
+			return $list;
+		} else {
+			$this->output->displayPhpError();
 		}
-		return $list;
 	}
 
 	public function getDates() {
@@ -107,10 +115,13 @@ class Rechnungsadresse implements TvsatzInterface
 		$result->bindValue(':abteilung', $this->abteilung);
 		$result->bindValue(':anschrift', $this->anschrift);
 		$result->bindValue(':firma_id', $this->firma_id);
-		$result->execute();
-		$array = $result->fetch();
-		$this->id = $array['id'];
-		$this->reg_date = $array['reg_date'];
+		if ($result->execute()) {
+			$array = $result->fetch();
+			$this->id = $array['id'];
+			$this->reg_date = $array['reg_date'];
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	private function getLastId($values) {
@@ -120,10 +131,13 @@ class Rechnungsadresse implements TvsatzInterface
 		$result->bindValue(':abteilung', $values[2]);
 		$result->bindValue(':anschrift', $values[3]);
 		$result->bindValue(':firma_id', $values[7]);
-		$result->execute();
-		$array = $result->fetch();
-		$this->id = $array['id'];
-		return $this->id;
+		if ($result->execute()) {
+			$array = $result->fetch();
+			$this->id = $array['id'];
+			return $this->id;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function getObjectId() {
@@ -138,9 +152,12 @@ class Rechnungsadresse implements TvsatzInterface
 	    $result=$this->dbHandler->prepare($sql);
 	    $result->bindValue(':name', $name);
 	    $result->bindValue(':department', $department);
-	    $result->execute();
-	    $id = $result->fetch();
-	    return $id['id'];
+	    if ($result->execute()) {
+	    	$id = $result->fetch();
+	    	return $id['id'];
+	    } else {
+	    	$this->output->displayPhpError();
+	    }
 	}
 
 	public function searchByName($value) {
@@ -175,9 +192,12 @@ class Rechnungsadresse implements TvsatzInterface
 		WHERE id = :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
-		$data = $result->fetch();
-		return $data;
+		if ($result->execute()) {
+			$data = $result->fetch();
+			return $data;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function setDates() {
@@ -215,7 +235,9 @@ class Rechnungsadresse implements TvsatzInterface
 		$result->bindValue(':plz', $this->plz);
 		$result->bindValue(':ort', $this->ort);
 		$result->bindValue(':firma_id', $this->firma_id);
-		$result->execute();
+		if (!$result->execute()) {
+			$this->output->displayPhpError();
+		}
 	}
 	
 	public function updateRow($column, $rowId, $value) {

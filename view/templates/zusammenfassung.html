@@ -4,7 +4,7 @@
     TVSatz - Zusammenfassung
 {% endblock %}
 
-{% block result %};
+{% block result %}
 <div class="container">
     {% block topList %}
         {% include 'topList.html' %}
@@ -117,111 +117,6 @@
 
 {% block otherScript %}
 <script src="{{ path }}assets/js/vendor/jquery-ui-1.11.4.js"></script>
-<script>
-
-$( document ).ready(function() {
-
-    $( "#zusammenfassungHref" ).click(function($e) {
-    $e.preventDefault();
-        $( '.liTable' ).removeClass( 'active' );
-        $( '#vorstufeTable' ).hide();
-        $( '#drucksachenTable' ).hide();
-        $( '#fremdarbeitenTable' ).hide();
-        $( '#kalkulationTable' ).hide();
-        $( '#lieferscheinTable' ).hide();
-        $( '#akteTable' ).hide();
-        $( '#zusammenfassungTable' ).show();
-        $( '#zusammenfassungId' ).addClass( 'active' );
-    });
-
-    $( "#vorstufeHref" ).click(function($e) {
-    $e.preventDefault();
-        $( '.liTable' ).removeClass( 'active' );
-        $( '#zusammenfassungTable' ).hide();
-        $( '#drucksachenTable' ).hide();
-        $( '#fremdarbeitenTable' ).hide();
-        $( '#kalkulationTable' ).hide();
-        $( '#lieferscheinTable' ).hide();
-        $( '#akteTable' ).hide();
-        $( '#vorstufeTable' ).show();
-        $( '#vorstufeId' ).addClass( 'active' );
-    });
-
-    $( "#drucksachenHref" ).click(function($e) {
-    $e.preventDefault();
-        $( '.liTable' ).removeClass( 'active' );
-        $( '#zusammenfassungTable' ).hide();
-        $( '#vorstufeTable' ).hide();
-        $( '#fremdarbeitenTable' ).hide();
-        $( '#kalkulationTable' ).hide();
-        $( '#lieferscheinTable' ).hide();
-        $( '#akteTable' ).hide();
-        $( '#drucksachenTable' ).show();
-        $( '#drucksachenId' ).addClass( 'active' );
-    });
-
-    $( "#fremdarbeitenHref" ).click(function($e) {
-    $e.preventDefault();
-        $( '.liTable' ).removeClass( 'active' );
-        $( '#zusammenfassungTable' ).hide();
-        $( '#vorstufeTable' ).hide();
-        $( '#drucksachenTable' ).hide();
-        $( '#kalkulationTable' ).hide();
-        $( '#lieferscheinTable' ).hide();
-        $( '#akteTable' ).hide();
-        $( '#fremdarbeitenTable' ).show();
-        $( '#fremdarbeitenId' ).addClass( 'active' );
-    });
-    
-    $( "#kalkulationHref" ).click(function($e) {
-    $e.preventDefault();
-        $( '.liTable' ).removeClass( 'active' );
-        $( '#zusammenfassungTable' ).hide();
-        $( '#vorstufeTable' ).hide();
-        $( '#drucksachenTable' ).hide();
-        $( '#fremdarbeitenTable' ).hide();
-        $( '#lieferscheinTable' ).hide();
-        $( '#akteTable' ).hide();
-        $( '#kalkulationTable' ).show();
-        $( '#kalkulationId' ).addClass( 'active' );
-    });
-    
-    $( "#kalkulationNotAllowed" ).mouseover(function() {
-        $(this).css('cursor', 'not-allowed');
-    });
-    
-    $( "#kalkulationNotAllowed" ).click(function($e) {
-        $e.preventDefault();
-    });
-    
-    $( "#lieferscheinHref" ).click(function($e) {
-    $e.preventDefault();
-        $( '.liTable' ).removeClass( 'active' );
-        $( '#zusammenfassungTable' ).hide();
-        $( '#vorstufeTable' ).hide();
-        $( '#drucksachenTable' ).hide();
-        $( '#fremdarbeitenTable' ).hide();
-        $( '#kalkulationTable' ).hide();
-        $( '#akteTable' ).hide();
-        $( '#lieferscheinTable' ).show();
-        $( '#lieferscheinId' ).addClass( 'active' );
-    });
-    
-    $( "#akteHref" ).click(function($e) {
-    $e.preventDefault();
-        $( '.liTable' ).removeClass( 'active' );
-        $( '#zusammenfassungTable' ).hide();
-        $( '#vorstufeTable' ).hide();
-        $( '#drucksachenTable' ).hide();
-        $( '#fremdarbeitenTable' ).hide();
-        $( '#kalkulationTable' ).hide();
-        $( '#lieferscheinTable' ).hide();
-        $( '#akteTable' ).show();
-        $( '#akteId' ).addClass( 'active' );
-    });
-});
-
-</script>
 {% endblock %}
 
 

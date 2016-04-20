@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>TVSatz Login</title>
+    <title>TVSatz - Fehler</title>
 
     <link href="{{ path }}assets/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
@@ -20,7 +20,14 @@
 <body>
     <div class="row header-nav" style="width: 50%; margin-left: 25%; margin-top: 10%; text-align: center;">
         <ul class="nav nav-pills">
-            <h2>Die Verbindung mit der Datenbank konnte nicht hergestellt werden.<br>Versuchen Sie bitte später.</h2>
+            <h2>{{ message }}</h2>
         </ul>
     </div>
+    {% if back %}
+    <div class="row header-nav" style="width: 20%; margin-left: 40%;">
+        <ul class="nav nav-pills">
+            <li role="presentation" class="active" style="margin-left: 26.5%;"><a href="{{ root }}">Zur Startseite</a></li>
+        </ul>
+    </div>
+    {% endif %}
 </body>

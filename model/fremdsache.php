@@ -66,39 +66,28 @@ class Fremdsache extends formBasics
 		$sql = "SELECT * FROM Fremdsache WHERE projectId = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		foreach ($result as $singleResult) {
-			$pritningData[] = array( 
-				'id' => $singleResult['id'], 
-				'textDate' => $singleResult['textDate'], 
-				'deliverer' => $singleResult['deliverer'], 
-				'description' => $singleResult['description'], 
-				'purchasePrice' => number_format($singleResult['purchasePrice'], 2, '.', ''), 
-				'sellPrice' => number_format($singleResult['sellPrice'], 2, '.', ''), 
-				'reg_date' => $singleResult['reg_date']
-				);
-		}
-		
-		if ( isset( $pritningData)) {
-			return $pritningData;
+		if ($result->execute()) {
+			foreach ($result as $singleResult) {
+				$pritningData[] = array( 
+					'id' => $singleResult['id'], 
+					'textDate' => $singleResult['textDate'], 
+					'deliverer' => $singleResult['deliverer'], 
+					'description' => $singleResult['description'], 
+					'purchasePrice' => number_format($singleResult['purchasePrice'], 2, '.', ''), 
+					'sellPrice' => number_format($singleResult['sellPrice'], 2, '.', ''), 
+					'reg_date' => $singleResult['reg_date']
+					);
+			}
+			
+			if ( isset( $pritningData)) {
+				return $pritningData;
+			} else {
+	            return null;
+			}
 		} else {
-            return null;
+			$this->output->displayPhpError();
 		}
 	}
-	/*
-	protected function save($data) {
-		$sql = 'INSERT INTO Fremdsache (projectId, textDate, deliverer, description, purchasePrice, sellPrice,reg_date) 
-		VALUES (:projectId, :textDate, :deliverer, :description, :purchasePrice, :sellPrice, NOW())';
-		$result=$this->dbHandler->prepare($sql);
-		$result->bindValue(':projectId', $data['projectId']);
-		$result->bindValue(':textDate', $data['textDate']);
-		$result->bindValue(':deliverer', $data['deliverer']);
-		$result->bindValue(':description', $data['description']);
-		$result->bindValue(':purchasePrice', $data['purchasePrice']);
-		$result->bindValue(':sellPrice', $data['sellPrice']);
-		$result->execute();
-	}
-	*/
 
 	public function setConcreteClass($data) {
 		$this->projectId = $data['projectId'];

@@ -86,17 +86,17 @@ class Vorstufe extends formBasics
 	}
 	
 	public function insertSql($value) {
-	      $data = explode('<>', $value);
-	      if ($data[1] == 'none') {
-		  $data[1] = null;
-	      }
-	      if ($data[3] == 'none') {
-		  $data[3] = null;
-	      }
-	      $projectId = $_SESSION['projectId'];
-	      $performanceTime = str_replace('/', '-', $data[2]);
-	      $settlement = intval($data[9]);
-	      $sql = 'INSERT INTO Vorstufe (projectId, type, performanceTime, employee, description, timeProposal, timeReal, timeSettlement, 
+	    $data = explode('<>', $value);
+	    if ($data[1] == 'none') {
+		    $data[1] = null;
+	    }
+	    if ($data[3] == 'none') {
+		    $data[3] = null;
+	    }
+	    $projectId = $_SESSION['projectId'];
+	    $performanceTime = str_replace('/', '-', $data[2]);
+	    $settlement = intval($data[9]);
+	    $sql = 'INSERT INTO Vorstufe (projectId, type, performanceTime, employee, description, timeProposal, timeReal, timeSettlement, 
 			amount, settlement, reg_date) VALUES (:projectId, :type, :performanceTime, :employee, :description, :timeProposal, :timeReal, :timeSettlement, :amount, :settlement, NOW())';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':projectId', $projectId);
@@ -134,7 +134,9 @@ class Vorstufe extends formBasics
 		$result->bindValue(':timeSettlement', $data['timeSettlement']);
 		$result->bindValue(':amount', $data['amount']);
 		$result->bindValue(':settlement', $data['settlement']);
-		$result->execute();
+		if (!$result->execute()) {
+			$this->output->displayPhpError();
+		}
 	}
 
 	protected function setConcreteClass($data) {

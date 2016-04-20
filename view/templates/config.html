@@ -8,10 +8,13 @@
 <div class="container">
     <div class="row header-nav">
         <div class="inner-block">
-            <ul class="nav nav-pills fl-left">
+            <ul class="nav nav-pills fl-left" style="width: 90%;">
                 <li role="presentation"><a href="{{ root }}/Liste">Liste</a></li>
                 <li role="presentation"><a href="{{ root }}/Erfassung">Erfassung</a></li>
                 <li role="presentation"><a href="{{ root }}/Ausloggen" id="logoutButton">Ausloggen</a></li>
+                <div class="has-error" id="ajaxErrorConfig3" style="display: none; float: left; width: 30%; margin-left: 17%;" >
+                    <input type="text" class="form-control" value="Es ist leider ein Fehler aufgetreten." disabled="disabled" style="margin-top: 1.1%; text-align: center;"/>
+                </div>
             </ul>
         </div>
     </div>
@@ -37,14 +40,14 @@
                                     </thead>
                                     <tbody id="tableRow">
                                         {% for singleUser in users %}
-					    <tr class="rowsConfigUser" name="{{ singleUser.id }}" id="{{ singleUser.id }}">
-                                                            <td id="{{ singleUser.id }}" colspan="2">
-							      <div class="configUserToChange" id="user">{{ singleUser.name }}</div>
-							      <div class="configUserToUpdate" id="user" style="display: none;">
-								<input type="text" class="form-control" name="hiddenUserName" id="name" value="{{ singleUser.name }}" />
-							      </div>
-                                                            </td>
-                                                            <td id="{{ singleUser.id }}" colspan="2">
+					                       <tr class="rowsConfigUser" name="{{ singleUser.id }}" id="{{ singleUser.id }}">
+                                                <td id="{{ singleUser.id }}" colspan="2">
+                							      <div class="configUserToChange" id="user">{{ singleUser.name }}</div>
+                							      <div class="configUserToUpdate" id="user" style="display: none;">
+                								        <input type="text" class="form-control" name="hiddenUserName" id="name" value="{{ singleUser.name }}" />
+                							      </div>
+                                                 </td>
+                                                <td id="{{ singleUser.id }}" colspan="2">
 							      <div class="configUserToChange" id="rolle_id">{{ singleUser.rolle }}</div>
 								  <div class="configUserToUpdate" id="rolle_id" style="display: none;">
 									<select class="form-control vorstufeToUpdate" name="rolle_id" value="rolle_id">

@@ -11,12 +11,14 @@ class Benutzer
 	private $isLogged;
 	private $login_datum;
 	private $lastSql;
+	private $output;
 	private $rolle = array();
 
 	function __construct($dbHandler, $id = null) {
 
 		$this->dbHandler = $dbHandler;
 		$this->isLogged = 0;
+		$this->output = new OutputController($dbHandler);
 
 		if ($id != null) {
 			$this->id = $id;
@@ -60,9 +62,9 @@ class Benutzer
 
 	public function checkByToken($token, $password = null) {
 		if (isset ($password)) {
-			$sql = "SELECT * FROM Benutzer WHERE singlePassword = :password AND singleToken = :token";
+			$sql = "SELECT * FROM Benutzer WHERE singlePassword = :password AND singleToken = :token AND active = 1";
 		} else {
-			$sql = 'SELECT * FROM Benutzer WHERE singleToken = :token';
+			$sql = 'SELECT * FROM Benutzer WHERE singleToken = :token AND active = 1';
 		}
 		$result=$this->dbHandler->prepare($sql);
 		if (isset ($password)) {
@@ -143,12 +145,12 @@ class Benutzer
 	}
 	
 	public function getLastSearch() {
-	      $sql = 'SELECT beginDate, end, projectName, clientSearch, eventNumber, clientOrderNumber, mandant, status FROM Benutzer WHERE id = :id';
-	      $result=$this->dbHandler->prepare($sql);
-	      $result->bindValue(':id', $_SESSION['user']);
-	      $result->execute();
-	      $values = $result->fetch();
-	      $conditions = array(
+	    $sql = 'SELECT beginDate, end, projectName, clientSearch, eventNumber, clientOrderNumber, mandant, status FROM Benutzer WHERE id = :id';
+	    $result=$this->dbHandler->prepare($sql);
+	    $result->bindValue(':id', $_SESSION['user']);
+	    if ($result->execute()) {
+	        $values = $result->fetch();
+	        $conditions = array(
 				'begin' => $values['beginDate'], 
 				'endDate' => $values['end'], 
 				'projectName' => $values['projectName'], 
@@ -158,8 +160,11 @@ class Benutzer
 				'mandant' => $values['mandant'],
 				'status' => $values['status'],
 				'ifPrevious' => true
-	      );
-	      return $conditions;
+	        );
+	    return $conditions;
+	    } else {
+	    	$this->output->displayPhpError();
+	    }
 	}
 	
 	public function getLastSql() {
@@ -174,7 +179,7 @@ class Benutzer
 				$searchResult = null;
 			}
 		} else {
-			$searchResult = null;
+			$searchResult = 'empty';
 		}
 		return $searchResult;
 	}
@@ -183,14 +188,18 @@ class Benutzer
 		$sql = "INSERT INTO Benutzer_log (benutzer_id, log_date) VALUES (:id, NOW())";
 		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
+		if (!$result->execute()) {
+			$this->output->displayPhpError();
+		}
 	}
 
 	private function saveLastLogin() {
 		$sql = "UPDATE Benutzer SET last_login = NOW() WHERE id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
+		if (!$result->execute()) {
+			$this->output->displayPhpError();
+		}
 	}
 	
 	public function saveLastSearch($array) {
@@ -219,7 +228,9 @@ class Benutzer
 		$result->bindValue(':mandant', $array['mandant']); 
 		$result->bindValue(':status', $array['status']); 
 		$result->bindValue(':id', $_SESSION['user']); 
-		$result->execute();
+		if (!$result->execute()) {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function saveLastSql($searchSql) {
@@ -227,8 +238,11 @@ class Benutzer
 		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
 		$result->bindValue(':searchSql', $searchSql);
-		$result->execute();
-		$this->setLastSql($searchSql);
+		if ($result->execute()) {
+			$this->setLastSql($searchSql);
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function saveNewPassword($id, $password) {
@@ -236,7 +250,9 @@ class Benutzer
 		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
 		$result->bindValue(':password', $password);
-		$result->execute();
+		if (!$result->execute()) {
+			$this->output->displayPhpError();
+		}
 	}
 
 	private function saveLogin($ip) {
@@ -245,16 +261,21 @@ class Benutzer
 		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':ip', $ip);
 		$result->bindValue(':now', $now);
-		$result->execute();
+		if (!$result->execute()) {
+			$this->output->displayPhpError();
+		}
 	}
 	
 	private function selectData() {
 		$sql = "SELECT name, rolle_id, mail, passwort, last_login, lastSql FROM Benutzer WHERE id = :id";
 		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
-		$array = $result->fetch();
-		return $array;
+		if ($result->execute()) {
+			$array = $result->fetch();
+			return $array;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 	
 	public function setData() {
@@ -287,20 +308,26 @@ class Benutzer
 		$sql="SELECT id, name FROM Rolle WHERE id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		$id=$result->fetch();
-		$return = array("id"=>$id['id'], 'name'=>$id['name']);
-		$this->rolle = $return;
+		if ($result->execute()) {
+			$id=$result->fetch();
+			$return = array("id"=>$id['id'], 'name'=>$id['name']);
+			$this->rolle = $return;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 	
 	private function sqlCheckBenutzer($mail, $password) {
-	  	$sql="SELECT id, name FROM Benutzer WHERE mail = :mail AND passwort = :passwort";
+	  	$sql="SELECT id, name FROM Benutzer WHERE mail = :mail AND passwort = :passwort AND active = 1";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':mail', $mail);
 		$result->bindValue(':passwort', $password);
-		$result->execute();
-		$array=$result->fetch();
-		return $array;
+		if ($result->execute()) {
+			$array=$result->fetch();
+			return $array;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 	
 	public function getRolle() {
@@ -313,6 +340,8 @@ class Benutzer
 		$result->bindValue(':password', $value[1]);
 		$result->bindValue(':token', $token);
 		$result->bindValue(':mail', $value[0]);
-		$result->execute();
+		if (!$result->execute()) {
+			$this->output->displayPhpError();
+		}
 	}
 }

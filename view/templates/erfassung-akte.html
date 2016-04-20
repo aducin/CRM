@@ -15,7 +15,7 @@
 								</tr>
 							</thead>
 						    {% if documentList != null %}
-						      <tbody>
+						      <tbody id="akteTbody">
 							{% for singleDocument in documentList %} 
 								    <tr name="{{ singleDocument.id }}" class="documentList" id="{{ singleDocument.id }}">
 									<td>{{ singleDocument.fileName }}</td>
@@ -43,6 +43,7 @@
 				<div class="form-group">
 					<div class="col-sm-12">
 						<button type="button" class="btn btn-primary documentDelete" id="" disabled="disabled">Löschen</button>  
+						<button type="button" class="btn btn-primary" id="documentRestore" >Auffrischen</button>
 					</div>
 				</div>
 			</form>

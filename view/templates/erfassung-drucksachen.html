@@ -91,11 +91,11 @@
                                             <input type="text" class="form-control" id="hiddenDrucksachenPrint" name="hiddenDrucksachenPrint" /></td>
                                         </div>
                                     <td>
-                                        <div class="row form-group">
-					    <select name="hiddenDrucksachenMachine" class="form-control" id="hiddenDrucksachenMachine">
-                                                <option id="none">Bitte wählen</option>
+                                        <div class="row form-group druckClassDiv" id="drucksacheMachineDiv">
+					                        <select name="hiddenDrucksachenMachine" class="form-control" id="hiddenDrucksachenMachine">
+                                                <option value="none" id="none">Bitte wählen</option>
                                                 {% for singleMachine in machine %}
-                                                <option id="{{ singleMachine.id }}">{{ singleMachine.name }}</option>
+                                                <option value="{{ singleMachine.id }}" id="{{ singleMachine.id }}">{{ singleMachine.name }}</option>
                                                 {% endfor %}
                                             </select>
                                         </div>
@@ -106,9 +106,8 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="row form-group" id="drucksacheFirstAmountDiv">
+                                        <div class="row form-group druckClassDiv" id="drucksacheFirstAmountDiv">
                                             <input type="text" class="form-control" id="hiddenDrucksachenEdition" name="hiddenDrucksachenEdition" />
-                                            <span id="drucksacheFirstAmountSpan" aria-hidden="true"></span>
                                         </div>
                                     </td>
                                     <td>
@@ -142,9 +141,8 @@
                                         </div> 
                                     </td>
                                     <td>
-                                        <div class="row form-group" id="drucksacheSecondAmountDiv">
+                                        <div class="row form-group druckClassDiv" id="drucksacheSecondAmountDiv">
                                             <input type="text" class="form-control" id="hiddenDrucksachenAmount" name="hiddenDrucksachenAmount" placeholder="EURO" style="width: 65px;"/>
-                                            <span id="drucksacheSecondAmountSpan" aria-hidden="true"></span>
                                         </div>
                                     </td>
                                 </tr> 

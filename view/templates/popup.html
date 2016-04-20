@@ -33,8 +33,11 @@
                     </div>
                 </form>
             </div>
+            <div class="col-sm-12 has-error" style="padding-bottom: 2%;">
+                <input type="text" class="form-control" id="ajaxPopupError" value="Es ist leider ein Fehler aufgetreten." disabled="disabled" style="display: none; float: right; width: 40%; text-align: center;"/>
+            </div>
             <div id="hiddenDruckDiv" style="padding-bottom: 2%;">
-		<a id="hiddenHref" href="" class="btn btn-primary disabled" role="button" target="_blank" style="margin-left: 84.5%;">Drucken</a>
+		      <a id="hiddenHref" href="" class="btn btn-primary disabled" role="button" target="_blank" style="margin-left: 84.5%;">Drucken</a>
             </div>
         </div>
     </div>
@@ -52,9 +55,10 @@
         <div class="modal-body">
             <form class="form-horizontal">
                 <div class="form-group">              
-                    <div class="col-sm-12">
-                        <button type="button" class="btn btn-primary fl-right" id="newPopupSave">Speichern</button> 
-                        <button type="button" class="btn btn-primary fl-right" id="popupClean" style="display: none;">Reinigen</button> 
+                    <div class="col-sm-12 has-error">
+                        <input type="text" class="form-control" id="ajaxPopupError" value="Es ist leider ein Fehler aufgetreten." disabled="disabled" style="display: none; float: left; width: 40%; text-align: center;"/>
+                        <button type="button" class="btn btn-primary fl-right" id="popupClean" style="float: right; display: none;">Reinigen</button> 
+                        <button type="button" class="btn btn-primary fl-right" id="newPopupSave" style="float: right;">Speichern</button> 
                     </div>
                 </div>
                 <div class="form-group">                    
@@ -266,12 +270,12 @@
                 					</td>
                 					<td>
                 						<div class="row form-group hiddenNewContactTr" id="newContactTelefonDiv">
-                						    <input type="text" name="hiddenContactTelefon" class="form-control" id="anschrift" placeholder="Anschrift" value="" style="width: 70%; margin-left:15%; margin-top: 10%;">
+                						    <input type="text" name="hiddenContactTelefon" class="form-control" id="anschrift" placeholder="Telefon" value="" style="width: 70%; margin-left:15%; margin-top: 10%;">
                 						</div>
                 					</td>
                 					<td>
                 						<div class="row form-group hiddenNewContactTr" id="newContactTelefon2Div">
-                						    <input type="text" name="hiddenContactTelefon2" class="form-control" id="anschrift2" placeholder="Anschrift - Teil 2" value="" style="width: 70%; margin-left:15%; margin-top: 10%;">
+                						    <input type="text" name="hiddenContactTelefon2" class="form-control" id="anschrift2" placeholder="Telefon - Teil 2" value="" style="width: 70%; margin-left:15%; margin-top: 10%;">
                 						</div>
                 					</td>
                 					<td>
@@ -313,13 +317,16 @@
         </div>
         <div class="modal-body">
             <form class="form-horizontal">
-                <div class="form-group">                    
+                <div class="form-group">  
+                    <div class="col-sm-12 has-error" id="ajaxPopupError2" style="display: none; padding-bottom: 3%;">
+                        <input type="text" class="form-control" value="Es ist leider ein Fehler aufgetreten." disabled="disabled" style="float: left; margin-left: 30%; width: 40%; text-align: center;"/> 
+                    </div>                  
                     <div class="col-md-6 sol-sm-12">
                         <div class="row mrt-10">
                             <div class="sol-sm-12" id="auftraggeber">
                                 <label for="name" class="col-sm-4 control-label">Name</label>
                                 <div class="col-sm-8 bearbeitenDate" id="{{ customer.id }}">
-                                    <input type="text" name="name" id="name" class="form-control" value="{{ customer.name }}">
+                                    <input type="text" name="name" id="name" class="form-control nameInput" value="{{ customer.name }}">
                                 </div>    
                             </div>    
                         </div>
@@ -335,7 +342,7 @@
                             <div class="sol-sm-12" id="auftraggeber">
                                 <label for="anschrift" class="col-sm-4 control-label">Anschrift</label>
                                 <div class="col-sm-8 bearbeitenDate" id="{{ customer.id }}">
-                                    <input type="text" name="anschrift" id="anschrift" class="form-control" value="{{ customer.anschrift }}">
+                                    <input type="text" name="anschrift" id="anschrift" class="form-control firstAddress" value="{{ customer.anschrift }}">
                                 </div>    
                             </div>    
                         </div>   
@@ -343,7 +350,7 @@
                             <div class="sol-sm-12" id="auftraggeber">
                                 <label for="anschrift_2" class="col-sm-4 control-label">Anschrift 2</label>
                                 <div class="col-sm-8 bearbeitenDate" id="{{ customer.id }}">
-                                    <input type="text" name="anschrift2" id="anschrift2" class="form-control" value="{{ customer.anschrift2 }}">
+                                    <input type="text" name="anschrift2" id="anschrift2" class="form-control secondAddress" value="{{ customer.anschrift2 }}">
                                 </div>    
                             </div>    
                         </div>    
@@ -375,7 +382,7 @@
                             <div class="sol-sm-12" id="auftraggeber">
                                 <label for="fax" class="col-sm-4 control-label">Fax</label>
                                 <div class="col-sm-8 bearbeitenDate" id="{{ customer.id }}">
-                                    <input type="text" name="fax" id="fax" class="form-control" value="{{ customer.fax }}">
+                                    <input type="text" name="fax" id="fax" class="form-control faxInput" value="{{ customer.fax }}">
                                 </div>    
                             </div>    
                         </div>     
@@ -383,7 +390,7 @@
                             <div class="sol-sm-12" id="auftraggeber">
                                 <label for="mail" class="col-sm-4 control-label">Mail</label>
                                 <div class="col-sm-8 bearbeitenDate" id="{{ customer.id }}">
-                                    <input type="text" name="mail" id="mail" class="form-control" value="{{ customer.mail }}">
+                                    <input type="text" name="mail" id="mail" class="form-control mailInput" value="{{ customer.mail }}">
                                 </div>    
                             </div>    
                         </div>                         
@@ -401,9 +408,13 @@
                         <div class="row mrt-10">
                             <div class="sol-sm-12" id="auftraggeber">
                                 <label for="zahlungsziel" class="col-sm-4 control-label">Zahlungsziel</label>
-                                <div class="col-sm-8 bearbeitenDate" id="zahlungsziel_id">
-                                    <select name="zahlungszielClient" id="{{ customer.id }}" class="form-control selectpicker">
+                                <div class="col-sm-8 bearbeitenDate toBeClonedInto" id="zahlungsziel_id">
+                                    <select name="zahlungszielClient" id="{{ customer.id }}" class="form-control selectpicker selNewClient">
+                                    {% if customer.zahlungsziel.id %}
                                       <option class="clientTarget" value="{{ customer.zahlungsziel.id }}">{{ customer.zahlungsziel.name }}</option>
+                                    {% else %}
+				      <option class="clientTarget" id="optionToDelete" value="none">Bitte wählen</option>
+                                    {% endif %}
                                       {% for single in paymentOpt %}
                                       {% if single.name != customer.zahlungsziel.name %}
                                       <option class="singleTarget" value="{{ single.id }}">{{ single.name }}</option>
@@ -417,7 +428,7 @@
                             <div class="sol-sm-12">
                                 <label for="skonto_in" class="col-sm-4 control-label">Kundennummer:</label>
                                 <div class="col-sm-8">
-                                    <input type="text" name="bearbeitenKundennummer" class="form-control" id="bearbeitenKundennummer" value="{{ customer.id }}" size="3" disabled="disabled">
+                                    <input type="text" name="bearbeitenKundennummer" class="form-control kundenInput" id="bearbeitenKundennummer" value="{{ customer.id }}" size="3" disabled="disabled">
                                 </div>    
                             </div>    
                         </div>
@@ -439,7 +450,7 @@
                                         <th class="no-sort">Ort</th>                                            
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="newAddressRowToAdd">
                                   {% for singleAddress in addressList %}
                                   <tr class="clickable-row rowsBearbeitenAddress" name="{{ singleAddress.id }}" id="{{ singleAddress.id }}">
                                     <td id="{{ singleAddress.id }}">
@@ -539,7 +550,7 @@
                     <th class="no-sort">Mail</th>                                            
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="newUserRowToAdd">
                 {% for singleList in sellerList %}
                 <tr class="clickable-row rowsBearbeitenPerson" name="{{ singleList.id }}" id="{{ singleList.id }}">
                     <td id="{{ singleList.id }}">
@@ -563,8 +574,8 @@
                       <div class="bearbeitenPersonToUpdate" id="fax" style="display: none;"><input type="text" name="ansprechpartner" class="form-control" value="{{ singleList.fax }}" /></div>
                   </td>
                   <td id="{{ singleList.id }}">
-                      <div class="bearbeitenAddressToChange" id="mail">{% if singleList.mail  %}{{ singleList.mail }}{% else %}<i>keine Daten</i>{% endif %}</div>
-                      <div class="bearbeitenAddressToUpdate" id="mail" style="display: none;"><input type="text" name="ansprechpartner" class="form-control" value="{{ singleList.mail }}" /></div>
+                      <div class="bearbeitenPersonToChange" id="mail">{% if singleList.mail  %}{{ singleList.mail }}{% else %}<i>keine Daten</i>{% endif %}</div>
+                      <div class="bearbeitenPersonToUpdate" id="mail" style="display: none;"><input type="text" name="ansprechpartner" class="form-control" value="{{ singleList.mail }}" /></div>
                   </td>
               </tr>
               {% endfor %} 
@@ -592,8 +603,10 @@
                   </div>
               </td>
               <td>
-                  <div class="row form-group">
+                  <div class="row form-group hiddenBearbeitenPersonTr" id="hiddenPersonTelefon2Div">
+                    <div id="{{ customer.id }}">
                       <input type="text" name="hiddenPersonTelefon2" class="form-control hiddenBearbeitenPerson" id="hiddenPersonTelefon2" placeholder="Telefon2" value="" style="width: 80%; margin-left:10%; margin-top: 10%;">
+                    </div>  
                   </div>
               </td>
               <td>

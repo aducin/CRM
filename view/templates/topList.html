@@ -1,9 +1,12 @@
 <div class="row header-nav">
     <div class="inner-block">
-        <ul class="nav nav-pills fl-left">
+        <ul class="nav nav-pills fl-left" style="width: 90%;">
             <li role="presentation"><a href="{{ root }}/Liste">Liste</a></li>
             <li role="presentation" class="active"><a href="">Erfassung</a></li>
             <li role="presentation"><a href="{{ root }}/Ausloggen" id="logoutButton">Ausloggen</a></li>
+            <div class="has-error" id="ajaxError" style="display: none; float: left; width: 30%; margin-left: 17%;" >
+                <input type="text" class="form-control" value="Es ist leider ein Fehler aufgetreten." disabled="disabled" style="margin-top: 1.1%; text-align: center;"/>
+            </div>
         </ul>
         {% if user == 1 %}
         <form action="{{ root }}/Config" method="post" id="config">

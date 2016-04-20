@@ -37,24 +37,27 @@ class Drucksache extends formBasics
 		FROM Drucksache WHERE Drucksache.id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		foreach ($result as $singleResult) {
-			$pritningData[] = array( 
-				'projectId' => $singleResult['projectId'],
-				'print' => $singleResult['print'], 
-				'machine' => $singleResult['machine'], 
-				'type' => $singleResult['type'], 
-				'edition' => $singleResult['edition'], 
-				'format' => $singleResult['format'],
-				'size' => $singleResult['size'],
-				'color' => $singleResult['color'],
-				'paper' => $singleResult['paper'],
-				'remodelling' => $singleResult['remodelling'],
-				'finished' => $singleResult['finished'],
-				'amount' => $singleResult['amount'],
-				);
+		if ($result->execute()) {
+			foreach ($result as $singleResult) {
+				$pritningData[] = array( 
+					'projectId' => $singleResult['projectId'],
+					'print' => $singleResult['print'], 
+					'machine' => $singleResult['machine'], 
+					'type' => $singleResult['type'], 
+					'edition' => $singleResult['edition'], 
+					'format' => $singleResult['format'],
+					'size' => $singleResult['size'],
+					'color' => $singleResult['color'],
+					'paper' => $singleResult['paper'],
+					'remodelling' => $singleResult['remodelling'],
+					'finished' => $singleResult['finished'],
+					'amount' => $singleResult['amount'],
+					);
+			}
+			return $pritningData;
+		} else {
+			$this->output->displayPhpError();
 		}
-		return $pritningData;
 	}
 
 	public function getByProjectId($id) {
@@ -178,7 +181,9 @@ class Drucksache extends formBasics
 		$result->bindValue(':remodelling', $data['remodelling']);
 		$result->bindValue(':finished', $data['finished']);
 		$result->bindValue(':amount', $data['amount']);
-		$result->execute();
+		if (!$result->execute()) {
+			$this->output->displayPhpError();
+		}
 	}
 	
 	protected function setConcreteClass($data) {

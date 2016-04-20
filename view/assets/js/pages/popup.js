@@ -10,27 +10,7 @@ $( document ).ready(function() {
         {
             var re = /\S+@\S+\.\S+/;
             return re.test(email);
-        }
-  
-    var finalResult;
-    var urlPath = "http://ad9bis.vot.pl/CRM/Erfassung";
-
-    function changeClientOption(dates, value) {
-	if (window.location.href == urlPath) {
-           console.log('No project at this time');
-        } else {
-           var path = "../Api/ClientOption/";
-	   $.ajax({url: path,
-               type: "post",
-	       data: { 'action' : 'ajax', 'concrete' : 'clientOption', 'value' : dates, 'singleAction' :  value},
-               success: function(result)
-                 {   
-        		    console.log(result);
-        		    finalResult = result;
-                 }
-	    }); 
-        }
-    }
+	}
     
     function changeDate(curDate, project) {
         if (window.location.href == urlPath) {
@@ -42,8 +22,14 @@ $( document ).ready(function() {
                 data: { 'action' : 'ajax', 'concrete' : 'dates', 'value' : project, 'singleAction' :  curDate},
                 success: function(result)
                 {   
-                console.log(result);
-                finalResult = result;
+                if (result == 'false') {
+                        $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+                        $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
+                        return false;
+                    }  else {
+                        console.log(result);
+                        finalResult = result;
+                    }
                 }
             }); 
         }
@@ -117,7 +103,8 @@ $( document ).ready(function() {
     		    }
     		clearInterval(timerId);
     		} else {
-    		    console.log(finalResult);
+    		    $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+                $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
     		}
     	}, 1500);
     }
@@ -130,7 +117,8 @@ $( document ).ready(function() {
               if(result != 'false') {
                     console.log(result);
               } else {
-                console.log('No change available at the moment');
+                $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+                $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
               }
             }
           }); 
@@ -255,143 +243,7 @@ $( document ).ready(function() {
     });
 
     $('.hiddenBearbeitenAddress').change(function() {
-        $( '.hiddenBearbeitenTr' ).removeClass('form-group has-error').addClass('form-group');
-        var name = $('input[name=hiddenBearbeitungAddressName]').val();
-        var abteilung = $('input[name=hiddenBearbeitungAddressAbteilung]').val();
-        var anschrift = $('input[name=hiddenBearbeitungAddressAnschrift]').val();
-        var anschrift2 = $('input[name=hiddenBearbeitungAddressAnschrift2]').val();
-        var plz = $('input[name=hiddenBearbeitungAddressPlz]').val();
-        var ort = $('input[name=hiddenBearbeitungAddressOrt]').val();
-        var clientId = $( this ).parent().attr('id');
-        var error;
-        if (name == '') {
-            error = true;
-            $( '#hiddenAddressNameDiv' ).addClass('form-group has-error').addClass('form-group');
-        }
-        if (abteilung == '') {
-            error = true;
-            $( '#hiddenAddressAbteilungDiv' ).addClass('form-group has-error').addClass('form-group');
-        }
-        if (anschrift == '') {
-            error = true;
-            $( '#hiddenAddressAnschriftDiv' ).addClass('form-group has-error').addClass('form-group');
-        }
-        if (plz == '') {
-            error = true;
-            $( '#hiddenAddressPlzDiv' ).addClass('form-group has-error').addClass('form-group');
-        } else {
-            name = plz.replace('-', '');
-            var check = isInteger(name);
-            if (check == false) {
-                error = true;
-                $( '#hiddenAddressPlzDiv' ).addClass('form-group has-error').addClass('form-group');
-            } else if (name.length < 5 || name.length > 5) {
-                error = true;
-                $( '#hiddenAddressPlzDiv' ).addClass('form-group has-error').addClass('form-group');
-            }        
-        }
-        if (ort == '') {
-            error = true;
-            $( '#hiddenAddressOrtDiv' ).addClass('form-group has-error').addClass('form-group');
-        } else if (ort.length < 3) {
-            error = true;
-            $( '#hiddenAddressOrtDiv' ).addClass('form-group has-error').addClass('form-group');
-        }
-        if (error == true) {
-            return false;
-        } else {
-            var singleAction = 'clientInsert';
-            var project = 'Rechnungsadressen<>' + name + '<>' +abteilung + '<>' + anschrift + '<>' + anschrift2 + '<>' + plz + '<>' + ort + '<>' + clientId;
-            if (window.location.href == urlPath) {
-               var path = "Api/Dates/";
-            } else {
-                var path = "../Api/Dates/";
-            }
-            $.ajax({url: path,
-                type: "post",
-                data: { 'action' : 'ajax', 'concrete' : 'dates', 'value' : project, 'singleAction' :  singleAction},
-                success: function(result)
-                {   
-                    if(result !== 'false') {
-                        var rowId = result;
-                        var tableRow = '<tr class="clickable-row rowsBearbeitenAddress"  name="' + rowId + '" id="' + rowId + '">';
-                        tableRow += '<td id="' + rowId + '"><div class="bearbeitenAddressToChange" id="name">';
-                        if (name.length == 0) {
-                            tableRow += '<i>keine Daten</i>';
-                        } else {
-                            tableRow += name; 
-                        }
-                        tableRow += '</div>';
-                        tableRow += '<div class="bearbeitenAddressToUpdate" id="name" style="display: none;"><input type="text" class="form-control" name="rechnungsadresse" value="' + name + '" /></div></td>';
-                        tableRow += '<td id="' + rowId + '"><div class="bearbeitenAddressToChange" id="abteilung">';
-                        if (abteilung.length == 0) {
-                            tableRow += '<i>keine Daten</i>';
-                        } else {
-                            tableRow += abteilung; 
-                        }
-                        tableRow += '</div>';
-                        tableRow += '<div class="bearbeitenAddressToUpdate" id="abteilung" style="display: none;"><input type="text" class="form-control" name="rechnungsadresse" value="' + abteilung + '" /></div></td>';
-                        tableRow += '<td id="' + rowId + '"><div class="bearbeitenAddressToChange" id="anschrift">';
-                        if (anschrift.length == 0) {
-                            tableRow += '<i>keine Daten</i>';
-                        } else {
-                            tableRow += anschrift;
-                        }
-                        tableRow += '</div>';
-                        tableRow += '<div class="bearbeitenAddressToUpdate" id="anschrift" style="display: none;"><input type="text" class="form-control" name="rechnungsadresse" value="' + anschrift + '" /></div></td>';
-                        tableRow += '<td id="' + rowId + '"><div class="bearbeitenAddressToChange" id="anschrift2">';
-                        if (anschrift2.length == 0) {
-                            tableRow += '<i>keine Daten</i>';
-                        } else {
-                            tableRow += anschrift2;
-                        }
-                        tableRow += '</div>';
-                        tableRow += '<div class="bearbeitenAddressToUpdate" id="anschrift2" style="display: none;"><input type="text" class="form-control" name="rechnungsadresse" value="' + anschrift2 + '" /></div></td>';
-                        tableRow += '<td id="' + rowId + '"><div class="bearbeitenAddressToChange" id="plz">';
-                        if (plz.length == 0) {
-                            tableRow += '<i>keine Daten</i>';
-                        } else {
-                            tableRow += plz;
-                        }
-                        tableRow += '</div>';
-                        tableRow += '<div class="bearbeitenAddressToUpdate" id="plz" style="display: none;"><input type="text" class="form-control" name="rechnungsadresse" value="' + plz + '" /></div></td>';
-                        tableRow += '<td id="' + rowId + '"><div class="bearbeitenAddressToChange" id="ort">';
-                        if (ort.length == 0) {
-                            tableRow += '<i>keine Daten</i>';
-                        } else {
-                            tableRow += ort;
-                        }
-                        tableRow += '</div>';
-                        tableRow += '<div class="bearbeitenAddressToUpdate" id="ort" style="display: none;"><input type="text" class="form-control" name="rechnungsadresse" value="' + ort + '" /></div></td>';
-                        tableRow += '</tr>';
-                        $( '#hideBearbeitenButtonAddress' ).hide(); 
-                        $('input[name=hiddenBearbeitungAddressName]').val('');
-                        $('input[name=hiddenBearbeitungAddressName]').val('');
-                        $('input[name=hiddenBearbeitungAddressAbteilung]').val('');
-                        $('input[name=hiddenBearbeitungAddressAnschrift]').val('');
-                        $('input[name=hiddenBearbeitungAddressAnschrift2]').val('');
-                        $('input[name=hiddenBearbeitungAddressPlz]').val('');
-                        $('input[name=hiddenBearbeitungAddressOrt]').val('');
-                        $( '#newBearbeitenButtonAddress' ).prop('disabled', false);
-                        var rows = $('.bearbeitenAddressTable >tbody >tr').length;
-                        var number = rows - 1; 
-                        $( '#hiddenBearbeitenTrAddress' ).hide(); 
-                        $( '.bearbeitenAddressTable > tbody > tr:nth-child(' + number + ')' ).after(tableRow);
-                        $(".bearbeitenAddressTable").on("click", "tr", function(){
-                            rowClick($(this));
-                        });
-                        $( ".bearbeitenAddressToChange" ).dblclick(function() {
-                            changeRow($(this), 'Address');
-                        });
-                        $('.bearbeitenAddressToUpdate').change(function() {
-                           columnChange($(this));
-                        });
-                    } else {
-                        console.log(finalResult);
-                    }
-                }
-            });
-        }
+        popupAddressAdd( $( this ));
     });
     
     $('.hiddenNewAddressTr').change(function() {
@@ -420,12 +272,12 @@ $( document ).ready(function() {
             error = true;
             $( '#newAddressPlzDiv' ).addClass('form-group has-error').addClass('form-group');
         } else {
-            name = plz.replace('-', '');
-            var check = isInteger(name);
+            plzName = plz.replace('-', '');
+            var check = isInteger(plzName);
             if (check == false) {
                 error = true;
                 $( '#newAddressPlzDiv' ).addClass('form-group has-error').addClass('form-group');
-            } else if (name.length < 5 || name.length > 5) {
+            } else if (plzName.length < 5 || plzName.length > 5) {
                 error = true;
                 $( '#newAddressPlzDiv' ).addClass('form-group has-error').addClass('form-group');
             }        
@@ -457,10 +309,10 @@ $( document ).ready(function() {
                         var rowId = result;
                         var tableRow = '<tr class="clickable-row rowsNewAddress2"  name="' + rowId + '" id="' + rowId + '">';
                         tableRow += '<td id="' + rowId + '"><div class="newAddressToChange" id="name">';
-                        if (name.length == 0) {
+                        if (addressName.length == 0) {
                             tableRow += '<i>keine Daten</i>';
                         } else {
-                            tableRow += name; 
+                            tableRow += addressName; 
                         }
                         tableRow += '</div>';
                         tableRow += '<div class="newAddressToUpdate" id="name" style="display: none;"><input type="text" class="form-control" name="rechnungsadresse" value="' + addressName + '" /></div></td>';
@@ -526,7 +378,6 @@ $( document ).ready(function() {
                             rowPersonClick($(this));
                         });
                         $( ".newAddressToChange" ).dblclick(function() {
-			  alert('here');
                            changeRow($(this), 'Person');
                         });
                         $('.newAddressToUpdate').change(function() {
@@ -536,7 +387,8 @@ $( document ).ready(function() {
                             rowNewAddressClick( $(this) );
                         });
                     } else {
-                        console.log(finalResult);
+                        $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+                        $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
                     }
                 }
             });
@@ -571,6 +423,13 @@ $( document ).ready(function() {
             if(phoneNum.length < 8 || phoneNum.length > 11) { 
                 error = true;
                 $( '#newContactTelefonDiv' ).addClass('form-group has-error').addClass('form-group');
+            }
+        }
+        if (telefon2 != '') {
+            var phoneNum = telefon2.replace(/[^\d]/g, '');
+            if(phoneNum.length < 8 || phoneNum.length > 11) { 
+                error = true;
+                $( '#newContactTelefon2Div' ).addClass('form-group has-error').addClass('form-group');
             }
         }
         if (mail == '') {
@@ -677,7 +536,8 @@ $( document ).ready(function() {
                             rowNewClick( $(this) );
                         });
                     } else {
-                        console.log(finalResult);
+                        $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+                        $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
                     }
                 }
             });
@@ -686,137 +546,7 @@ $( document ).ready(function() {
     });
 
     $('.hiddenBearbeitenPerson').change(function() {
-
-        $( '.hiddenBearbeitenPersonTr' ).removeClass('form-group has-error').addClass('form-group');
-        var personName = $('input[name=hiddenPersonName]').val();
-        var vorname = $('input[name=hiddenPersonVorname]').val();
-        var telefon = $('input[name=hiddenPersonTelefon]').val();
-        var telefon2 = $('input[name=hiddenPersonTelefon2]').val();
-        var fax = $('input[name=hiddenPersonFax]').val();
-        var mail = $('input[name=hiddenPersonMail]').val();
-        var clientId = $( this ).parent().attr('id');
-        var error;
-        var emailCheck = validateEmail(mail);
-        if (personName == '') {
-            error = true;
-            $( '#hiddenPersonNameDiv' ).addClass('form-group has-error').addClass('form-group');
-        } 
-        if (vorname == '') {
-            error = true;
-            $( '#hiddenPersonVornameDiv' ).addClass('form-group has-error').addClass('form-group');
-        }  
-        if (telefon == '') {
-            error = true;
-            $( '#hiddenPersonTelefonDiv' ).addClass('form-group has-error').addClass('form-group');
-        } else {
-            var phoneNum = telefon.replace(/[^\d]/g, '');
-            if(phoneNum.length < 8 || phoneNum.length > 11) { 
-                error = true;
-                $( '#hiddenPersonTelefonDiv' ).addClass('form-group has-error').addClass('form-group');
-            }
-        }
-        if (mail == '') {
-            error = true;
-            $( '#hiddenPersonMailDiv' ).addClass('form-group has-error').addClass('form-group');
-        } else if (emailCheck == false) {
-            error = true;
-            $( '#hiddenPersonMailDiv' ).addClass('form-group has-error').addClass('form-group');
-        }
-        if (error == true) {
-            return false;
-        } else {
-            var singleAction = 'clientInsert';
-            var project = 'Ansprechpartner<>' + personName + '<>' + vorname + '<>' + telefon + '<>' + telefon2 + '<>' + fax + '<>' + mail + '<>' + clientId;
-            if (window.location.href == urlPath) {
-               var path = "Api/Dates/";
-            } else {
-                var path = "../Api/Dates/";
-            }
-            $.ajax({url: path,
-                type: "post",
-                data: { 'action' : 'ajax', 'concrete' : 'dates', 'value' : project, 'singleAction' :  singleAction},
-                success: function(result)
-                {   
-                    if(result !== 'false') {
-                        var rowId = result;
-                        var tableRow = '<tr class="clickable-row rowsBearbeitenPerson"  name="' + rowId + '" id="' + rowId + '">';
-                        tableRow += '<td id="' + rowId + '"><div class="bearbeitenPersonToChange" id="name">';
-                        if (personName.length == 0) {
-                            tableRow += '<i>keine Daten</i>';
-                        } else {
-                            tableRow += personName; 
-                        }
-                        tableRow += '</div>';
-                        tableRow += '<div class="bearbeitenPersonToUpdate" id="name" style="display: none;"><input type="text" class="form-control" name="ansprechpartner" value="' + personName + '" /></div></td>';
-                        tableRow += '<td id="' + rowId + '"><div class="bearbeitenPersonToChange" id="vorname">';
-                        if (vorname.length == 0) {
-                            tableRow += '<i>keine Daten</i>';
-                        } else {
-                            tableRow += vorname; 
-                        }
-                        tableRow += '</div>';
-                        tableRow += '<div class="bearbeitenPersonToUpdate" id="vorname" style="display: none;"><input type="text" class="form-control" name="ansprechpartner" value="' + vorname + '" /></div></td>';
-                        tableRow += '<td id="' + rowId + '"><div class="bearbeitenPersonToChange" id="telefon">';
-                        if (telefon.length == 0) {
-                            tableRow += '<i>keine Daten</i>';
-                        } else {
-                            tableRow += telefon;
-                        }
-                        tableRow += '</div>';
-                        tableRow += '<div class="bearbeitenPersonToUpdate" id="telefon" style="display: none;"><input type="text" class="form-control" name="ansprechpartner" value="' + telefon + '" /></div></td>';
-                        tableRow += '<td id="' + rowId + '"><div class="bearbeitenPersonToChange" id="telefon2">';
-                        if (telefon2.length == 0) {
-                            tableRow += '<i>keine Daten</i>';
-                        } else {
-                            tableRow += telefon2;
-                        }
-                        tableRow += '</div>';
-                        tableRow += '<div class="bearbeitenPersonToUpdate" id="telefon2" style="display: none;"><input type="text" class="form-control" name="ansprechpartner" value="' + telefon2 + '" /></div></td>';
-                        tableRow += '<td id="' + rowId + '"><div class="bearbeitenPersonToChange" id="fax">';
-                        if (fax.length == 0) {
-                            tableRow += '<i>keine Daten</i>';
-                        } else {
-                            tableRow += fax;
-                        }
-                        tableRow += '</div>';
-                        tableRow += '<div class="bearbeitenPersonToUpdate" id="fax" style="display: none;"><input type="text" class="form-control" name="ansprechpartner" value="' + fax + '" /></div></td>';
-                        tableRow += '<td id="' + rowId + '"><div class="bearbeitenPersonToChange" id="mail">';
-                        if (mail.length == 0) {
-                            tableRow += '<i>keine Daten</i>';
-                        } else {
-                            tableRow += mail;
-                        }
-                        tableRow += '</div>';
-                        tableRow += '<div class="bearbeitenPersonToUpdate" id="mail" style="display: none;"><input type="text" class="form-control" name="ansprechpartner" value="' + mail + '" /></div></td>';
-                        tableRow += '</tr>';
-                        $( '#hideBearbeitenButtonPerson' ).hide(); 
-                        var name = $('input[name=hiddenPersonName]').val('');
-                        $('input[name=hiddenPersonVorname]').val('');
-                        $('input[name=hiddenPersonTelefon]').val('');
-                        $('input[name=hiddenPersonTelefon2]').val('');
-                        $('input[name=hiddenPersonFax]').val('');
-                        $('input[name=hiddenPersonMail]').val('');
-                        $( '#newBearbeitenButtonPerson' ).prop('disabled', false);
-                        var rows = $('.bearbeitenPersonTable >tbody >tr').length;
-                        var number = rows - 1; 
-                        $( '#hiddenBearbeitenTrPerson' ).hide(); 
-                        $( '.bearbeitenPersonTable > tbody > tr:nth-child(' + number + ')' ).after(tableRow);
-                        $(".bearbeitenPersonTable").on("click", "tr", function(){
-                            rowPersonClick($(this));
-                        });
-                        $( ".bearbeitenPersonToChange" ).dblclick(function() {
-                           changeRow($(this), 'Person');
-                        });
-                        $('.bearbeitenPersonToUpdate').change(function() {
-                            columnChange($(this));
-                        });
-                    } else {
-                        console.log(finalResult);
-                    }
-                }
-            });
-
-        }
+        popupPersonAdd( $( this ));
     });
 
     $( ".deleteButtonAddress" ).click(function() {
@@ -837,6 +567,9 @@ $( document ).ready(function() {
                     toDelete.remove();
                     $('.deleteButtonAddress').prop('disabled', true);
                     $('.deleteButtonAddress').attr('id', '');
+                } else {
+                    $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+                    $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
                 }
             }
         }); 
@@ -861,6 +594,9 @@ $( document ).ready(function() {
                     toDelete.remove();
                     $('.deleteButtonContact').prop('disabled', true);
                     $('.deleteButtonContact').attr('id', '');
+                } else {
+                    $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+                    $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
                 }
             }
         });
@@ -884,6 +620,9 @@ $( document ).ready(function() {
                     toDelete.remove();
                     $('.deleteBearbeitenButtonPerson').prop('disabled', true);
                     $('.deleteBearbeitenButtonPerson').attr('id', '');
+                } else {
+                    $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+                    $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
                 }
             }
         });
@@ -907,6 +646,9 @@ $( document ).ready(function() {
                     toDelete.remove();
                     $('.deleteBearbeitenButtonAddress').prop('disabled', true);
                     $('.deleteBearbeitenButtonAddress').attr('id', '');
+                } else {
+                    $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+                    $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
                 }
             }
         }); 
@@ -996,7 +738,8 @@ $( document ).ready(function() {
 		    }
 		clearInterval(timerId);
 		} else {
-		    console.log(finalResult);
+		    $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+            $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
 		}
 	    }, 1500);
     });
@@ -1064,13 +807,13 @@ $( document ).ready(function() {
 		$( '#newPopupCode' ).css('border-color', '#a94442');
 		$( '#newCodeErrorSpan' ).text('Geben Sie bitte die Postleitzahl ein');
         } else {
-    	    name = code.replace('-', '');
-    	    var check = isInteger(name);
+    	    codeName = code.replace('-', '');
+    	    var check = isInteger(codeName);
             if (check == false) {
         		 error = true;
         		 $( '#newPopupCode' ).css('border-color', '#a94442');
         		 $( '#newCodeErrorSpan' ).text('Postleitzahl nicht gültig');
-            } else if (name.length < 5 || name.length > 5) {
+            } else if (codeName.length < 5 || codeName.length > 5) {
         	        error = true;
         		$( '#newPopupCode' ).css('border-color', '#a94442');
         		$( '#newCodeErrorSpan' ).text('Postleitzahl nicht gültig');
@@ -1279,7 +1022,8 @@ $( document ).ready(function() {
                         }
                         clearInterval(timerId);
                     } else {
-                        console.log(finalResult);
+                        $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+                        $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
                     }
                 }, 1500);
                 }
@@ -1324,7 +1068,8 @@ $( document ).ready(function() {
 			}
             clearInterval(timerId);
           } else {
-              console.log(finalResult);
+                $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+                $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
           }
         }, 500);
 	} else {
@@ -1349,7 +1094,8 @@ $( document ).ready(function() {
 	  }
             clearInterval(timerId);
           } else {
-              console.log(finalResult);
+                $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+                $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
           }
         }, 1000);
     });
@@ -1376,14 +1122,14 @@ $( document ).ready(function() {
                 $( "#formToPrint" ).remove();
                 $( "#descLabel" ).remove();
                 $( '#descToPrint' ).remove();
-                //$( '#printId' ).submit();
                 clearInterval(timerId);
                 window.open( finalhref );
                 //location.reload();
             }
             clearInterval(timerId);
             } else {
-                console.log(finalResult);
+                $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+                $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
             }
         }, 1500);
     return false;

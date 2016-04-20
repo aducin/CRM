@@ -1,8 +1,7 @@
 $( document ).ready(function() {
-  
-    var finalResult;
-    var urlPath = "http://ad9bis.vot.pl/CRM/Erfassung";
-  
+
+    $( '#deliveryTime' ).css('visibility', 'visible');
+
     $('#termin_korrektur').datepicker( {
         changeDay: true,
         changeMonth: true,
@@ -43,23 +42,6 @@ $( document ).ready(function() {
     $('input[name=hiddenPerformanceTime]').datepicker("option", "dateFormat", "dd/mm/yy");
     $('input[name=hiddenTextDate]').datepicker("option", "dateFormat", "dd/mm/yy");
     $('input[name=lieferterminInput]').datepicker("option", "dateFormat", "dd/mm/yy");
-
-    function changeClientOption(dates, value) {
-	if ( window.location.href == urlPath ) {
-           console.log('No project at this time');
-        } else {
-           var path = "../Api/ClientOption/";
-	   $.ajax({url: path,
-               type: "post",
-	       data: { 'action' : 'ajax', 'concrete' : 'clientOption', 'value' : dates, 'singleAction' :  value},
-               success: function(result)
-                 {   
-        		    console.log(result);
-        		    finalResult = result;
-                 }
-	    }); 
-        }
-    }
     
     function changeDate(curDate, project) {
         if ( window.location.href == urlPath ) {
@@ -70,9 +52,14 @@ $( document ).ready(function() {
                 type: "post",
                 data: { 'action' : 'ajax', 'concrete' : 'dates', 'value' : project, 'singleAction' :  curDate},
                 success: function(result)
-                {   
-                console.log(result);
-                finalResult = result;
+                { 
+                    if (result == 'false') {
+                        $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
+                        return false;
+                    }  else {
+                        console.log(result);
+                        finalResult = result;
+                    }
                 }
             }); 
         }
@@ -94,30 +81,64 @@ $( document ).ready(function() {
       next.find('input:first').focus();
       next.find('input:first').select();
     }
-    
+
     function columnChange(variable) {
-	var name = variable.children().val();
-	var value = variable.attr('id');
-	var previous = variable.prev();
-	var table = variable.children().attr("name");
-	var rowId = variable.parent().attr('id');
-	var date = table + '<>' + value + '<>' + rowId;
-	changeClientOption(date, name);
-	var timerId = setInterval(function() {
-		if(finalResult !== null) {
-		    if(finalResult == 'success') {
-		      
-			previous.text( name );
-			variable.hide();
-			previous.show();
-		    }
-		clearInterval(timerId);
-		} else {
-		    console.log(finalResult);
-		}
-	    }, 1500);
-      }
-    
+        var name = variable.children().val();
+        var value = variable.attr('id');
+        if (value == 'plz') {
+            name = name.replace('-', '');
+            var check = isInteger(name);
+            if (check == false) {
+                variable.children().css('border-color', '#a94442');
+                return false;
+            } else if (name.length < 5 || name.length > 5) {
+                variable.children().css('border-color', '#a94442');
+                return false;
+            } else {
+                variable.children().css('border-color', '');
+            }
+        } else if (value == 'telefon' || value == 'telefon2') {
+            var phoneNum = name.replace(/[^\d]/g, '');
+            if(phoneNum.length < 8 || phoneNum.length > 11) { 
+                variable.children().css('border-color', '#a94442');
+                return false;
+            } else {
+                variable.children().css('border-color', '');
+            }
+        } else if (value == 'mail') {
+            var emailCheck = validateEmail(name);
+            if (emailCheck == false) {
+                variable.children().css('border-color', '#a94442');
+                return false;
+            } else {
+                variable.children().css('border-color', '');
+            }
+        }
+        var previous = variable.prev();
+        var table = variable.children().attr("name");
+        var rowId = variable.parent().attr('id');
+        var date = table + '<>' + value + '<>' + rowId;
+        variable.children().prop('disabled', true);
+        changeClientOption(date, name);
+        var timerId = setInterval(function() {
+            if (finalResult !== null) {
+                if (finalResult == 'success') {
+                    if (name == '') {
+                        name = '<i>keine Daten</i>';
+                    }
+                    previous.html( name );
+                    variable.hide();
+                    variable.children().prop('disabled', false);
+                    previous.show();
+                }
+            clearInterval(timerId);
+            } else {
+                $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+                $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
+            }
+        }, 1500);
+    }
+
     function description(path, column, value) {
         $.ajax({url: path + '' + column + '<><>' + value,
             type: "get",
@@ -126,34 +147,112 @@ $( document ).ready(function() {
               if(result != 'false') {
                     console.log(result);
               } else {
-                console.log('No change available at the moment');
+                $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
               }
             }
           }); 
     }
 
-    function rowClick(object) {
-        $("tr.rowsBearbeitenAddress").removeAttr( 'style' );
-        var idVal = object.attr('id');
-        object.css('background-color', "rgb(238, 193, 213)");
-        $('.deleteBearbeitenButtonAddress').attr('id', idVal);
-        $('.deleteBearbeitenButtonAddress').prop('disabled', false);
-    }
+    $( "#zusammenfassungHref" ).click(function($e) {
+    $e.preventDefault();
+        $( '.liTable' ).removeClass( 'active' );
+        $( '#vorstufeTable' ).hide();
+        $( '#drucksachenTable' ).hide();
+        $( '#fremdarbeitenTable' ).hide();
+        $( '#kalkulationTable' ).hide();
+        $( '#lieferscheinTable' ).hide();
+        $( '#akteTable' ).hide();
+        $( '#zusammenfassungTable' ).show();
+        $( '#zusammenfassungId' ).addClass( 'active' );
+    });
 
-    function rowPersonClick(object) {
-        $("tr.rowsBearbeitenPerson").removeAttr( 'style' );
-        var idVal = object.attr('id');
-        object.css('background-color', "rgb(238, 193, 213)");
-        $('.deleteBearbeitenButtonPerson').attr('id', idVal);
-        $('.deleteBearbeitenButtonPerson').prop('disabled', false);
-    }
+    $( "#vorstufeHref" ).click(function($e) {
+    $e.preventDefault();
+        $( '.liTable' ).removeClass( 'active' );
+        $( '#zusammenfassungTable' ).hide();
+        $( '#drucksachenTable' ).hide();
+        $( '#fremdarbeitenTable' ).hide();
+        $( '#kalkulationTable' ).hide();
+        $( '#lieferscheinTable' ).hide();
+        $( '#akteTable' ).hide();
+        $( '#vorstufeTable' ).show();
+        $( '#vorstufeId' ).addClass( 'active' );
+    });
+
+    $( "#drucksachenHref" ).click(function($e) {
+    $e.preventDefault();
+        $( '.liTable' ).removeClass( 'active' );
+        $( '#zusammenfassungTable' ).hide();
+        $( '#vorstufeTable' ).hide();
+        $( '#fremdarbeitenTable' ).hide();
+        $( '#kalkulationTable' ).hide();
+        $( '#lieferscheinTable' ).hide();
+        $( '#akteTable' ).hide();
+        $( '#drucksachenTable' ).show();
+        $( '#drucksachenId' ).addClass( 'active' );
+    });
+
+    $( "#fremdarbeitenHref" ).click(function($e) {
+    $e.preventDefault();
+        $( '.liTable' ).removeClass( 'active' );
+        $( '#zusammenfassungTable' ).hide();
+        $( '#vorstufeTable' ).hide();
+        $( '#drucksachenTable' ).hide();
+        $( '#kalkulationTable' ).hide();
+        $( '#lieferscheinTable' ).hide();
+        $( '#akteTable' ).hide();
+        $( '#fremdarbeitenTable' ).show();
+        $( '#fremdarbeitenId' ).addClass( 'active' );
+    });
+    
+    $( "#kalkulationHref" ).click(function($e) {
+    $e.preventDefault();
+        $( '.liTable' ).removeClass( 'active' );
+        $( '#zusammenfassungTable' ).hide();
+        $( '#vorstufeTable' ).hide();
+        $( '#drucksachenTable' ).hide();
+        $( '#fremdarbeitenTable' ).hide();
+        $( '#lieferscheinTable' ).hide();
+        $( '#akteTable' ).hide();
+        $( '#kalkulationTable' ).show();
+        $( '#kalkulationId' ).addClass( 'active' );
+    });
+    
+    $( "#kalkulationNotAllowed" ).mouseover(function() {
+        $(this).css('cursor', 'not-allowed');
+    });
+    
+    $( "#kalkulationNotAllowed" ).click(function($e) {
+        $e.preventDefault();
+    });
+    
+    $( "#lieferscheinHref" ).click(function($e) {
+    $e.preventDefault();
+        $( '.liTable' ).removeClass( 'active' );
+        $( '#zusammenfassungTable' ).hide();
+        $( '#vorstufeTable' ).hide();
+        $( '#drucksachenTable' ).hide();
+        $( '#fremdarbeitenTable' ).hide();
+        $( '#kalkulationTable' ).hide();
+        $( '#akteTable' ).hide();
+        $( '#lieferscheinTable' ).show();
+        $( '#lieferscheinId' ).addClass( 'active' );
+    });
+    
+    $( "#akteHref" ).click(function($e) {
+    $e.preventDefault();
+        $( '.liTable' ).removeClass( 'active' );
+        $( '#zusammenfassungTable' ).hide();
+        $( '#vorstufeTable' ).hide();
+        $( '#drucksachenTable' ).hide();
+        $( '#fremdarbeitenTable' ).hide();
+        $( '#kalkulationTable' ).hide();
+        $( '#lieferscheinTable' ).hide();
+        $( '#akteTable' ).show();
+        $( '#akteId' ).addClass( 'active' );
+    });
 
 $( '#pattern' ).keyup(function() {
-    function isInteger(value)      
-        {       
-            num = value.trim();         
-            return !(value.match(/\s/g)||num==""||isNaN(num)||(typeof(value)=='number'));        
-        }
     var value = $( this ).val();
     if (value == '') {
         $( '#pattern' ).removeAttr( 'style' );
@@ -171,11 +270,6 @@ $( '#pattern' ).keyup(function() {
 });
 
 $( '#individual_skonto' ).keyup(function() {
-    function isInteger(value)      
-        {       
-            num = value.trim();         
-            return !(value.match(/\s/g)||num==""||isNaN(num)||(typeof(value)=='number'));        
-        }
     var value = $( this ).val();
     if (value == '') {
         $( '#individual_skonto' ).removeAttr( 'style' );
@@ -203,6 +297,8 @@ $( "#saveProjectButton" ).click(function() {
 	var address = $( 'input[name=rechnungsadresseBasic]' ).val();
 	var kundenauftragsnummer = $( 'input[name=kundenauftragsnummer]' ).val();
     var pattern = $( '#pattern' ).val();
+    var paymentOpt = $('select[name=individual_payment] option:selected').val();
+    $( '#individual_paymentOpt' ).val(paymentOpt);
     var error = false;
     if (pattern != '') {
         var patternCheck = isInteger(pattern);
@@ -335,101 +431,7 @@ $( "#saveProjectButton" ).click(function() {
     });
 
     $('input[name=auftraggeber]').keyup(function() {
-        $( '#auftraggeberDiv' ).removeClass('form-group has-error').addClass('form-group');
-        $( '#auftraggeberLabel' ).html('Auftraggeber');
-	    var clientName = $('input[name=auftraggeber]').val();
-	    if (clientName == '') {
-		    return false;
-	    }
-	    if (window.location.href == urlPath) {
-	        path = "Api/Project/";
-	    } else {
-	        path = "../Api/Project/";
-	       var concrete = true;
-	    }
-	    $.ajax({url: path + clientName, 
-               type: "get",
-               success: function(result)
-                    {
-                        var jsonData = JSON.parse(result);
-                        switch(jsonData){
-                            case 'error':
-                            $( '#auftraggeberDiv' ).removeClass('form-group').addClass('form-group has-error');
-                            $( '#auftraggeberLabel' ).html('Nichts gefunden');
-                            break;
-
-                            default:
-                            var arr = jsonData.map(function(object){ return object.name });
-
-                            $('input[name=auftraggeber]').autocomplete({
-                                source: arr,
-                                select: function (event, ui) {
-								    var name = ui.item.value;
-								    var newPath = path + "Name/";
-								    $.ajax({url: newPath + name, 
-									    type: "get",
-						      			success: function(result)
-							    		{
-                            				$( 'input[name=auftraggeber]' ).attr('id', result);
-                            				var currentVal = $('#hiddenCustomerName').val();
-                            				if (currentVal == name) {
-                            					console.log('The same');
-                            					return false;
-                            				} else {
-                            					if (window.location.href == urlPath) {
-                            						var detailPath = 'Api/ClientDetails/';
-                            						$.ajax({url: detailPath + result,  
-										                type: "get",
-										                success: function(data)
-										                {
-										                	var jsonData = JSON.parse(data);
-										                	var paymentOpt = data[1];
-										                	$( '#zahlungszielDisplay' ).text(jsonData.paymentOpt);
-										                	var skonto = data[0];
-										                	$( '#skontoDisplay' ).text(jsonData.skonto);
-                                                            $( '#auftraggeberSpan' ).text('');
-                                                            $('input[name=invidivuell_1]').prop('disabled', false);
-                                                            $('input[name=invidivuell_2]').prop('disabled', false);
-										                	$('input[name=ansprechpartnerBasic]').prop('disabled', false);
-                            								$('input[name=rechnungsadresseBasic]').prop('disabled', false);
-										                }
-										            });
-                            					} else {
-                            						$('#hiddenCustomerName').val(name);
-                            						if (concrete == true) {
-                            							var projectId = 'auftraggeber<>' + $( '#hiddenProjectId' ).val();
-                            							changeDate(result, projectId);
-                            						}
-                            						var current = null;
-                            						$('input[name=ansprechpartnerBasic]').val('');
-                            						$('input[name=rechnungsadresseBasic]').val('');
-                            						if (concrete == true) {
-                            							var projectId = 'ansprechpartner<>' + $( '#hiddenProjectId' ).val();
-                            							changeDate(current, projectId);
-                            						}
-                            						if (concrete == true) {
-                            							var projectId = 'rechnungsadresse<>' + $( '#hiddenProjectId' ).val();
-                            							changeDate(current, projectId);
-                            							var timerId = setInterval(function() {
-                            								if(finalResult !== null) {
-                            									if(finalResult == 'success') {
-                            										location.reload();
-                            									}
-                            									clearInterval(timerId);
-                            								} else {
-                            									console.log(finalResult);
-                            								}
-                            							}, 1500);
-                            						}
-                            					}
-                            				} 
-                            			}
-								    }); 
-                                }
-                            });
-                        }
-                 }
-        }); 
+        updateClient();
     });
 
 	$('input[name=ansprechpartnerBasic]').keyup(function() {
@@ -540,6 +542,7 @@ $( "#saveProjectButton" ).click(function() {
 	    $('input[name=ansprechpartnerBasic]').prop('disabled', 'disabled');
 	    $('input[name=rechnungsadresseBasic]').val('');
 	    $('input[name=rechnungsadresseBasic]').prop('disabled', 'disabled');
+        $( '#bearbeitenButton' ).prop('disabled', 'disabled');
 	    var projectId = 'ansprechpartner<>' + $( '#hiddenProjectId' ).val();
 	    changeDate(null, projectId);
 	    var projectId = 'rechnungsadresse<>' + $( '#hiddenProjectId' ).val();
@@ -799,7 +802,9 @@ $( "#saveProjectButton" ).click(function() {
 		      if (origin == 'preis') {
 			  var oldTotal = $( '#total' + total ).text();
 			  oldTotal = oldTotal.replace(' EURO', '');
-			  oldTotal = parseFloat(oldTotal);
+			  if (oldTotal != '') {
+			      oldTotal = parseFloat(oldTotal);
+			  }
 			  value = parseFloat(value);
 			  newValue = parseFloat(newValue);
 			  var newTotal = oldTotal - value + newValue;
@@ -814,7 +819,7 @@ $( "#saveProjectButton" ).click(function() {
 		    }
 		clearInterval(timerId);
 		} else {
-		    console.log(finalResult);
+		    $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
 		}
 	    }, 1500);
 	});
@@ -850,33 +855,67 @@ $( "#saveProjectButton" ).click(function() {
     });
     
     $('.documentList').click(function() {
-	$("tr.documentList").css('background-color', "#f9f9f9");
-	var id = $( this ).attr('id');
-	$( this ).css('background-color', "#e9e9e9");
-	$( '.documentDelete').attr('id', id);
-	$( '.documentDelete').prop('disabled', false);
-    }); 
-    
-    $('.documentDelete').click(function() {
-	var idValue = $( this ).attr('id');
-	var values = 'delete-document-' + idValue;
-        if (window.location.href == urlPath) {
-            var path = "/Api/Row/";
-        } else {
-            var path = "../Api/Row/";
-            $.ajax({url: path,
-                type: "post",
-                data: { 'action' : 'ajax', 'concrete' : 'row', 'value' : values },
-                success: function(result)
-                {
-                    if (result == 'success') {
-                        var toDelete = $('.documentList[name=' + idValue + ']');
-                        toDelete.remove();
-                        $('.documentDelete').prop('disabled', true);
-			$('.documentDelete').attr('id', '');
+    	$("tr.documentList").css('background-color', "#f9f9f9");
+    	var id = $( this ).attr('id');
+    	$( this ).css('background-color', "#e9e9e9");
+    	$( '.documentDelete').attr('id', id);
+    	$( '.documentDelete').prop('disabled', false);
+        }); 
+        
+        $('.documentDelete').click(function() {
+    	var idValue = $( this ).attr('id');
+    	var values = 'delete-document-' + idValue;
+            if (window.location.href == urlPath) {
+                var path = "/Api/Row/";
+            } else {
+                var path = "../Api/Row/";
+                $.ajax({url: path,
+                    type: "post",
+                    data: { 'action' : 'ajax', 'concrete' : 'row', 'value' : values },
+                    success: function(result)
+                    {
+                        if (result == 'success') {
+                            var toDelete = $('.documentList[name=' + idValue + ']');
+                            toDelete.remove();
+                            $('.documentDelete').prop('disabled', true);
+                            $('.documentDelete').attr('id', '');
+                        }
                     }
-                }
             }); 
         }
     }); 
+    
+    $( '#documentRestore' ).click(function() {
+		var path = "../Api/Document/";
+		$.ajax({url: path + projectId, 
+			type: "get",
+			success: function(result)
+			{
+				$( '.documentList' ).remove();
+				var jsonResult = JSON.parse(result);
+				var jsonArray = jsonResult.map(function(object)
+				      { return [object.id, object.documentName, object.userName, object.date, object.description, object.file] });
+				var counter = 0;
+				var documentTableRow = '';
+				$.each( jsonArray, function() {
+				    documentTableRow += '<tr name="' + jsonArray[counter][0] + '" class="documentList" id="' + jsonArray[counter][0] + '">';
+				    documentTableRow += '<td>' + jsonArray[counter][1] + '</td>';
+				    documentTableRow += '<td>' + jsonArray[counter][3] + '</td>';
+				    documentTableRow += '<td>' + jsonArray[counter][4] + '</td>';
+				    documentTableRow += '<td>' + jsonArray[counter][2] + '</td>';
+				    documentTableRow += '<td><a href="' + documentPath + '/' + jsonArray[counter][5] + '" target="_blank">anzeigen</a></td>'
+				    documentTableRow += '</tr>';
+				    counter++;
+				});
+				$( '#akteTbody' ).append(documentTableRow);
+				$('.documentList').click(function() {
+				      $("tr.documentList").css('background-color', "#f9f9f9");
+				      var id = $( this ).attr('id');
+				      $( this ).css('background-color', "#e9e9e9");
+				      $( '.documentDelete').attr('id', id);
+				      $( '.documentDelete').prop('disabled', false);
+				});
+			}
+		}); 
+    });
 });

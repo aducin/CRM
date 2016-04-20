@@ -5,10 +5,12 @@ class Zahlungsziel
 	private $id;
 	private $name;
 	private $beschreibung;
+	private $output;
 
 	function __construct($dbHandler, $id = null) {
 
 		$this->dbHandler = $dbHandler;
+		$this->output = new OutputController($dbHandler);
 
 		if ($id != null) {
 			$this->id = $id;
@@ -27,10 +29,13 @@ class Zahlungsziel
 		$sql = 'DELETE FROM Zahlungsziel WHERE id = :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
-		unset($this->id);
-		unset($this->name);
-		unset($this->beschreibung);
+		if ($result->execute()) {
+			unset($this->id);
+			unset($this->name);
+			unset($this->beschreibung);
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function getBeschreibung() {
@@ -46,9 +51,12 @@ class Zahlungsziel
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':name', $this->name);
 		$result->bindValue(':beschreibung', $this->beschreibung);
-		$result->execute();
-		$array = $result->fetch();
-		$this->id = $array['id'];
+		if ($result->execute()) {
+			$array = $result->fetch();
+			$this->id = $array['id'];
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	private function saveZahlungsziel() {
@@ -56,16 +64,21 @@ class Zahlungsziel
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':name', $this->name);
 		$result->bindValue(':beschreibung', $this->beschreibung);
-		$result->execute();
+		if (!$result->execute()) {
+			$this->output->displayPhpError();
+		}
 	}
 
 	private function setDates() {
 		$sql = 'SELECT name, beschreibung FROM Zahlungsziel WHERE id = :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
-		$result->execute();
-		$array = $result->fetch();
-		$this->name = $array['name'];
-		$this->beschreibung = $array['beschreibung'];
+		if ($result->execute()) {
+			$array = $result->fetch();
+			$this->name = $array['name'];
+			$this->beschreibung = $array['beschreibung'];
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 }

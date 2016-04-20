@@ -9,10 +9,14 @@ class Ajax
 	private $path;
 
 	public function __construct($dbHandler, $post) {
-
 		$this->dbHandler = $dbHandler;
 		$this->creator = new TvsatzCreator($dbHandler);
-		$this->path = $_SERVER['DOCUMENT_ROOT']."/CRM";
+		$suffix = Helpers::getSettings('suffix');
+		if ($suffix != '' ) {
+		    $this->path = $_SERVER['DOCUMENT_ROOT'].'/'.$suffix;
+		} else {
+		    $this->path = $_SERVER['DOCUMENT_ROOT'].'/';
+		}
 		if( isset($_POST['concrete'] )) {
 			$action = $_POST['concrete'];
 			$value = $_POST['value'];
@@ -71,6 +75,32 @@ class Ajax
     	}
     }
     
+    public function clientAddressData($value) {
+	$client = $this->creator->createProduct('rechnungsadresse');
+	$result = $client->getAllRechnungsadressen($value) ;
+	if (is_array($result)) {
+	    echo json_encode($result);
+	} else {
+	    echo 'false';
+	}
+    }
+    
+    public function clientData($value) {
+	$client = $this->creator->createProduct('auftraggeber');
+	$result = $client->getAjaxDates($value);
+	echo $result;
+    }
+    
+    public function clientUserData($value) {
+	$client = $this->creator->createProduct('ansprechpartner');
+	$result = $client->getAllAnsprechpartner($value);
+	if (is_array($result)) {
+	    echo json_encode($result);
+	} else {
+	    echo 'false';
+	}
+    }
+    
     private function clientOption($value, $dates) {
 	$explode = explode('<>', $dates);
 	$table = $explode[0];
@@ -96,6 +126,7 @@ class Ajax
     }
   
     private function dates($date, $path) {
+// 
         if (is_array($path)) {
             $values = $path;
         } else {
@@ -106,6 +137,10 @@ class Ajax
             } else {
                 $date = $insert[0];
             }
+        }
+        if ($path[0] == 'deliveryTime') {
+	  $insert = explode('/', $date);
+	  $date = $insert[2].'-'.$insert[1].'-'.$insert[0];
         }
         $column = $values[0];
         $projectId = $values[1];
@@ -217,14 +252,23 @@ class Ajax
     private function getDbHandler() {
         return $this->dbHandler;
     }
-    /*
-    private function mandant($value) {
-	$values = explode('-', $value);
-	$projekt = $this->creator->createProduct('projekt');
-	$success = $projekt->setMandantSelect($values[0], $values[1]);
-	echo $success;
+    
+    private function getDocuments($projectId) {
+    	$helpers = $this->creator->createProduct('helpers');
+    	$data = $helpers->getDocuments($projectId);
+    	echo json_encode($data);
     }
-  */
+
+    private function getPaymentOption() {
+        $helpers = $this->creator->createProduct('helpers');
+        $data = $helpers->getZahlungsziel();
+        if (is_array($data)) {
+            echo json_encode($data);
+        } else {
+            echo 'false';
+        }
+    }
+    
     private function newClient($value) {
         $client = $this->creator->createProduct( 'auftraggeber' );
         $success = $client->setCustomDates($value);
@@ -278,17 +322,9 @@ class Ajax
     	$value = $helper->getSingleSelect($value);
     	echo $value;
     }
-    /*
-    private function status($value) {
-	$values = explode('-', $value);
-	$projekt = $this->creator->createProduct('projekt');
-	$success = $projekt->setStatus($values[0], $values[1]);
-	echo $success;
-    }
-    */
 
     public function tableUpdate($value) {
-    	$values = explode('-', $value);
+    	$values = explode('<>', $value);
     	$origin = $values[0];
     	$rowId = $values[1];
     	$column = $values[2];

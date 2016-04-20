@@ -1,8 +1,5 @@
 $( document ).ready(function() {
   
-    var finalResult;
-    var urlPath = "http://ad9bis.vot.pl/CRM/Erfassung";
-  
     function checkCheckbox(variable) {
         var ifChecked = variable.is(":checked");
         var value = variable.attr('id');
@@ -12,26 +9,31 @@ $( document ).ready(function() {
         } else {
             var checkbox = 0;
         }
-        var date = value + '-' + checkbox;
+        var date = value + '<>' + checkbox;
         changeDate(date, rowId); 
     }
 
 	function changeDate(curDate, drucksache) {
-		var values = 'Drucksache-' + drucksache + '-' + curDate;
-		if (window.location.href == urlPath) {
-			console.log('No project at this time');
-		} else {
-			var path = "../Api/Row/";
-			$.ajax({url: path,
-				type: "post",
-				data: { 'action' : 'ajax', 'concrete' : 'tableUpdate', 'value' : values },
-				success: function(result)
-				{
-					finalResult = result; 
-				}
-			}); 
-		}
-	}
+        var values = 'Drucksache<>' + drucksache + '<>' + curDate;
+        if (window.location.href == urlPath) {
+            console.log('No project at this time');
+        } else {
+            var path = "../Api/Row/";
+            $.ajax({url: path,
+                type: "post",
+                data: { 'action' : 'ajax', 'concrete' : 'tableUpdate', 'value' : values },
+                success: function(result)
+                {
+                    if (result == 'false') {
+                        $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
+                        return false;
+                    }  else {
+                        finalResult = result;
+                    }
+                }
+            }); 
+        }
+    }
 
     function changeRow(variable) {
         $('.drucksacheToUpdate').hide();
@@ -59,7 +61,7 @@ $( document ).ready(function() {
                         name = result;
                         previous.text( name );
                     } else {
-                        console.log('No machine name available');
+                        $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
                     }
                 }
             }); 
@@ -94,7 +96,7 @@ $( document ).ready(function() {
         }
       }
       var rowId = variable.parent().attr('id');
-      var date = value + '-' + name;
+      var date = value + '<>' + name;
       variable.children().prop('disabled', true);
       changeDate(date, rowId);
       var timerId = setInterval(function() {
@@ -118,89 +120,89 @@ $( document ).ready(function() {
           }
           clearInterval(timerId);
         } else {
-          console.log(finalResult);
+          $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
         }
       }, 1500);
     }
 
     function getAmount(projectId) {
-    if (window.location.href == "http://kluby.local/CRM/Erfassung") {
-      console.log('No project at this time');
+      if (window.location.href == urlPath) {
+	console.log('No project at this time');
+      } else {
+	var path = "../Api/Amount/";
+      }      
+      $.ajax({url: path + 'Drucksache-' + projectId,
+	type: "get",
+	success: function(result)
+	{
+	  if(result != 'false') {
+	    $( '#totalDrucksache' ).text(result + ' EURO');
+	  } else {
+	    $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
+	  }
+	}
+    });
+  }
+
+  function getRowId(variable) {
+   $("tr.rowsDrucksachen").css('background-color', "#f9f9f9");
+   var idVal = variable.attr('id');
+   variable.css('background-color', "#e9e9e9");
+   $('.deleteButtonDrucksachen').attr('id', idVal);
+   $('.deleteButtonDrucksachen').prop('disabled', false);
+   $('.cloneDruckButton').attr('id', idVal);
+   $('.cloneDruckButton').prop('disabled', false);
+ }
+
+ $( "#newDrucksache" ).click(function() {
+  $( '#hiddenTrDrucksachen' ).fadeIn( 'slow' );
+  $( '#newDrucksache' ).hide();
+  $( '.deleteButtonDrucksachen' ).hide();
+  $( '.deleteButtonDrucksachen' ).prop('disabled', true);
+  $( '.deleteButtonDrucksachen' ).attr('id', '');
+  $( '#saveButtonDrucksache' ).show();
+  $( '#hideButtonDrucksache' ).show();
+  $("tr.rowsDrucksachen").css('background-color', "#f9f9f9");
+  $('.cloneDruckButton').prop('disabled', true);
+  $('.cloneDruckButton').attr('id', '');
+});
+
+  $("tr.rowsDrucksachen").click(function(){
+    getRowId($(this));
+  });
+    
+  $( ".cloneDruckButton" ).click(function() {
+    $("tr.rowsDrucksachen").css('background-color', "#f9f9f9");
+    var idValue = $('.cloneDruckButton').attr('id');
+    var clone = $(".rowsDrucksachen[name=" + idValue + "]").clone(true, true);
+    if (window.location.href == urlPath) {
+      path = "Api/Clone/";
     } else {
-      var path = "../Api/Amount/";
-    }      
-    $.ajax({url: path + 'Drucksache-' + projectId,
+      path = "../Api/Clone/";
+      var concrete = true;
+    }
+    $.ajax({url: path + idValue,
       type: "get",
       success: function(result)
       {
         if(result != 'false') {
-          $( '#totalDrucksache' ).text(result + ' EURO');
-        } else {
-          console.log('No description currently available');
-        }
-      }
-    });
-  }
-
-    function getRowId(variable) {
-       $("tr.rowsDrucksachen").css('background-color', "#f9f9f9");
-       var idVal = variable.attr('id');
-       variable.css('background-color', "#e9e9e9");
-       $('.deleteButtonDrucksachen').attr('id', idVal);
-       $('.deleteButtonDrucksachen').prop('disabled', false);
-       $('.cloneDruckButton').attr('id', idVal);
-       $('.cloneDruckButton').prop('disabled', false);
-    }
-  
-    $( "#newDrucksache" ).click(function() {
-        $( '#hiddenTrDrucksachen' ).fadeIn( 'slow' );
-        $( '#newDrucksache' ).hide();
-        $( '.deleteButtonDrucksachen' ).hide();
-	$( '.deleteButtonDrucksachen' ).prop('disabled', true);
-	$( '.deleteButtonDrucksachen' ).attr('id', '');
-        $( '#saveButtonDrucksache' ).show();
-        $( '#hideButtonDrucksache' ).show();
-	$("tr.rowsDrucksachen").css('background-color', "#f9f9f9");
-	$('.cloneDruckButton').prop('disabled', true);
-	$('.cloneDruckButton').attr('id', '');
-    });
-
-    $("tr.rowsDrucksachen").click(function(){
-            getRowId($(this));
-    });
-    
-    $( ".cloneDruckButton" ).click(function() {
-        $("tr.rowsDrucksachen").css('background-color', "#f9f9f9");
-        var idValue = $('.cloneDruckButton').attr('id');
-        var clone = $(".rowsDrucksachen[name=" + idValue + "]").clone(true, true);
-        if (window.location.href == "http://kluby.local/CRM/Erfassung") {
-            path = "Api/Clone/";
-        } else {
-            path = "../Api/Clone/";
-           var concrete = true;
-        }
-        $.ajax({url: path + idValue,
-            type: "get",
-            success: function(result)
-            {
-                if(result != 'false') {
-                    $( ".cloneDruckButton" ).attr('id','');
-                    $( ".deleteButtonDrucksachen" ).attr('id','');
-                    clone.attr('id', result);
-                    clone.attr("name", result);
-                    clone.children(3).attr('id', result);
+          $( ".cloneDruckButton" ).attr('id','');
+          $( ".deleteButtonDrucksachen" ).attr('id','');
+          clone.attr('id', result);
+          clone.attr("name", result);
+          clone.children(3).attr('id', result);
                     //clone.appendTo("#tableBody");
                     var rows = document.getElementById("drucksacheTable").rows.length;
                     var number = rows -2;
                     $( '#drucksacheTable > tbody > tr:nth-child(' + number + ')' ).after(clone);
-                } else {
-                    console.log('Impossible to create a new row');
-                }
-            }
-        }); 
-    });
+                  } else {
+                    $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
+                  }
+              }
+          }); 
+  });
 
-    $( ".deleteButtonDrucksachen" ).click(function() {
+  $( ".deleteButtonDrucksachen" ).click(function() {
         var idValue = $('.deleteButtonDrucksachen').attr('id');
         var values = 'delete-Drucksache-' + idValue;
         if (window.location.href == urlPath) {
@@ -216,11 +218,13 @@ $( document ).ready(function() {
                         var toDelete = $('.rowsDrucksachen[name=' + idValue + ']');
                         toDelete.remove();
                         $('.deleteButtonDrucksachen').prop('disabled', true);
-			$('.cloneDruckButton').prop('disabled', true);
-			$('.cloneDruckButton').attr('id', '');
+                  			$('.cloneDruckButton').prop('disabled', true);
+                  			$('.cloneDruckButton').attr('id', '');
                         $('.deleteButtonDrucksachen').attr('id', '');
                         var projectId = $( '#hiddenProjectId' ).val();
                         getAmount(projectId);
+                    } else {
+                      $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
                     }
                 }
             }); 
@@ -236,15 +240,10 @@ $( document ).ready(function() {
     });
 
     $( "#saveButtonDrucksache" ).click(function() {
-        function isNumber(n) {
-            return !isNaN(parseFloat(n)) && isFinite(n);
-        }
-        $( '#drucksacheFirstAmountDiv' ).removeClass('form-group has-error').addClass('form-group');
-        $( '#drucksacheSecondAmountDiv' ).removeClass('form-group has-error').addClass('form-group');
-        $( '#drucksacheFirstAmountSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
-        $( '#drucksacheSecondAmountSpan' ).removeClass('glyphicon glyphicon-remove form-control-feedback');
+        $( '.druckClassDiv' ).removeClass('form-group has-error').addClass('form-group');
         var print = $('input[name=hiddenDrucksachenPrint]').val();
         var machine = $('select[name=hiddenDrucksachenMachine]').find('option:selected').attr('id');
+        var machineName = $( "select[name=hiddenDrucksachenMachine] option:selected" ).text();
         var type = $('input[name=hiddenDrucksachenType]').val();
         var edition = $('input[name=hiddenDrucksachenEdition]').val();
         var format = $('input[name=hiddenDrucksachenFormat]').val();
@@ -257,21 +256,24 @@ $( document ).ready(function() {
         } else {
             finished = 0;
         }
+        if (machine == 'none') {
+	    var error = true;
+	    $( '#drucksacheMachineDiv' ).removeClass('form-group').addClass('form-group has-error');
+	}
         var remodelling = $('input[name=hiddenDrucksachenRemodelling]').val();
         var amount = $('input[name=hiddenDrucksachenAmount]').val();
+        amount = amount.replace(',' , '.');
         var firstCheck = isNumber(edition);
         var secondCheck = isNumber(amount);
         if (firstCheck == false) {
             if (edition.length != 0) {
                 var error = true;
-                $( '#drucksacheFirstAmountSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
                 $( '#drucksacheFirstAmountDiv' ).removeClass('form-group').addClass('form-group has-error');
             }
         }
         if (secondCheck == false) {
             if (amount.length != 0) {
                 var error = true;
-                $( '#drucksacheSecondAmountSpan' ).addClass('glyphicon glyphicon-remove form-control-feedback');
                 $( '#drucksacheSecondAmountDiv' ).removeClass('form-group').addClass('form-group has-error');
             }
         }
@@ -292,17 +294,20 @@ $( document ).ready(function() {
                 success: function(result)
                 {
                   if (result == 'false') {
-                    console.log('false');
+                    $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
                 } else {
-		  var clonedTable2 = $( '#hiddenDrucksachenMachine').clone();
-		  clonedTable2.attr("id", "drucksachenClonedTable");
-		  clonedTable2.attr("name", "drucksachenClonedTable");
-                    var tableRow = '<tr class="clickable-row rowsDrucksachen" name="' + result + '" id="' + result + '">';
-                    tableRow += '<td id="' + result + '"><div class="drucksacheToChange" id="print">';
-                    if (print.length == 0) {
-                      tableRow += '<i>keine Daten</i>';
+            		  var clonedTable2 = $( '#hiddenDrucksachenMachine').clone();
+            		  clonedTable2.attr("id", "drucksachenClonedTable");
+            		  clonedTable2.attr("name", "drucksachenClonedTable");
+                  clonedTable2.children('option:first').remove();
+                  clonedTable2.find('option[value="' + machine + '"]').remove();
+                  clonedTable2.prepend('<option value="' + machine + '" id="' + machine + '">' + machineName + '</option>');
+                  var tableRow = '<tr class="clickable-row rowsDrucksachen" name="' + result + '" id="' + result + '">';
+                  tableRow += '<td id="' + result + '"><div class="drucksacheToChange" id="print">';
+                  if (print.length == 0) {
+                    tableRow += '<i>keine Daten</i>';
                   } else {
-                      tableRow +=  print; 
+                    tableRow +=  print; 
                   }
                   tableRow += '</div>';
                   tableRow += '<div class="drucksacheToUpdate" id="print" style="display: none;"><input type="text" class="form-control datepicker" size="9" placeholder="Bitte wählen" name="hiddenPrint" value="' + print + '" /></div></td>';
@@ -316,19 +321,8 @@ $( document ).ready(function() {
                       tableRow += '<i>keine Daten</i>';
                   }
                   tableRow += '</div>';
-		  tableRow += '<div class="drucksacheToUpdate toBeClonedDruck'+ result +'" id="machine" style="display: none;">';
-		  tableRow += '</div></td>';
-                  /*tableRow += '<div class="drucksacheToUpdate" id="machine" style="display: none;">';
-                  tableRow += '<select class="form-control" id="machine" name="hiddenMachine">';
-                  if (machine == 1) {
-                        tableRow += '<option id="1">SpeedMaster</option>';
-                        tableRow += '<option id="2">GTO</option>';
-                  } else {
-                        tableRow += '<option id="2">GTO</option>';
-                        tableRow += '<option id="1">SpeedMaster</option>';
-                  }
-                  tableRow += '</select></div></td>';
-		  */
+            		  tableRow += '<div class="drucksacheToUpdate toBeClonedDruck'+ result +'" id="machine" style="display: none;">';
+            		  tableRow += '</div></td>';
                   tableRow += '<td id="' + result + '"><div class="drucksacheToChange" id="type">';
                   if (type.length == 0) {
                       tableRow += '<i>keine Daten</i>';
@@ -418,11 +412,15 @@ $( document ).ready(function() {
                   $( "#newDrucksache" ).show();
                   $( '.deleteButtonDrucksachen' ).show();
                   var rows = document.getElementById("drucksacheTable").rows.length;
-                  var number = rows -2;
+                  if (rows == 2) {
+                      $( '#drucksacheTable' ).prepend(tableRow);
+                  } else {
+                      var number = rows -2;
+                      $( '#drucksacheTable > tbody > tr:nth-child(' + number + ')' ).after(tableRow);
+                  }
                   $( '#hiddenTrDrucksachen' ).hide(); 
-                  $( '#drucksacheTable > tbody > tr:nth-child(' + number + ')' ).after(tableRow);
-		  var toBeCloned = $( '.toBeClonedDruck' );
-		  $( '.toBeClonedDruck' + result ).append(clonedTable2);
+            		  var toBeCloned = $( '.toBeClonedDruck' );
+            		  $( '.toBeClonedDruck' + result ).append(clonedTable2);
 
                   $("#drucksacheTable").on("click", "tr", function(){
                       getRowId($(this));
@@ -501,7 +499,7 @@ $( document ).ready(function() {
         }
     	}
     	var rowId = $( this ).parent().attr('id');
-    	var date = value + '-' + name;
+    	var date = value + '<>' + name;
 	if( value == 'machine') {
 	    $( this ).prop('disabled', true);
 	} else {
@@ -532,7 +530,7 @@ $( document ).ready(function() {
     					if(result != 'false') {
     						$( '#totalDrucksache' ).text(result + ' EURO');
     					} else {
-    						console.log('No total amount available');
+    						$('#ajaxError').fadeIn('slow').delay(5000).hide(1);
     					}
     				}
     			}); 
@@ -553,7 +551,7 @@ $( document ).ready(function() {
 	    }
 	     clearInterval(timerId);
 	    } else {
-		    console.log(finalResult);
+		    $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
 	    }
 	 }, 1500);
     });
