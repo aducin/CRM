@@ -131,6 +131,32 @@ $( document ).ready(function() {
 	 }, 1500);
     }
     
+    function configEmailToCheck(mail) {
+	    var column = 'benutzer';
+            var path = "Api/Mail/";
+	    $.ajax({url: path + column + '<>' + mail, 
+		  type: "get",
+		  success: function(emailCheck)
+                  { 
+		    alert(emailCheck);
+                        if (emailCheck == 'false') {
+                            $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
+                            return false;
+                        }  else {
+			    if (emailCheck != 'no match') {
+				$( '#userMailDiv' ).removeClass('form-group').addClass('form-group has-error');
+				$( '#hiddenPersonMailDiv' ).children().children().css('color', 'red');
+				return false;
+			     } else {
+			        $( '#userMailDiv' ).removeClass('form-group has-error').addClass('form-group');
+				$( '#hiddenPersonMailDiv' ).children().children().removeAttr( 'style' );
+				return 'free';
+			     }
+			}
+		   }
+	    });
+    }
+    
     function getRowId(object) {
 	$("tr.rowsConfigPaymentOpt").css('background-color', "#f9f9f9");
 	var idVal = object.attr('id');
@@ -213,12 +239,6 @@ $( document ).ready(function() {
 		    return re.test(email);
 		}
 	  var name = $( '#hiddenConfigUserName' ).val();
-	  var mail = $( '#hiddenConfigUserMail' ).val();
-	  var mailCheck = validateEmail(mail) ;
-	  if (mailCheck == false) {
-		var error = true;
-                $( '#userMailDiv' ).removeClass('form-group').addClass('form-group has-error');
-	  }
 	  var password = $( '#hiddenConfigUserPassword' ).val();
 	  if (name == '') {
 	      var error = true;
@@ -228,12 +248,36 @@ $( document ).ready(function() {
 	      var error = true;
               $( '#userPassDiv' ).removeClass('form-group').addClass('form-group has-error');
 	  }
-	  if (error == true) {
-	      return false;
-	  }
-	  var role = $('select[name=hiddenRole]').find('option:selected').attr('id');
-	  var roleName = $( "select[name=hiddenRole] option:selected" ).text();
-	  if (name == '' || mail == '' || password == '' || role == '') {
+	  var mail = $( '#hiddenConfigUserMail' ).val();
+	  var mailCheck = validateEmail(mail) ;
+	  if (mailCheck == false) {
+		var error = true;
+                $( '#userMailDiv' ).removeClass('form-group').addClass('form-group has-error');
+	  } else {
+	    var column = 'benutzer';
+            var path = "Api/Mail/";
+	    $.ajax({url: path + column + '<>' + mail, 
+		  type: "get",
+		  success: function(emailCheck)
+                  { 
+                        if (emailCheck == 'false') {
+                            $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
+                            return false;
+                        }  else {
+			    if (emailCheck != 'no match') {
+				$( '#userMailDiv' ).removeClass('form-group').addClass('form-group has-error');
+				$('#ajaxErrorConfig3').parent().append('<div class="has-error" id="ajaxErrorConfig4" style="display: none; float: left; width: 30%; margin-left: 17%;" ><input type="text" class="form-control" id="emailError" value="E-Mail-Adresse schon gespeichert." disabled="disabled" style="margin-top: 1.1%; text-align: center;"/></div>');
+				$('#ajaxErrorConfig4').fadeIn('slow').delay(5000).hide(1);
+				return false;
+			     } else {
+			        $( '#userMailDiv' ).removeClass('form-group has-error').addClass('form-group');
+				$( '#hiddenConfigUserMail' ).css('color', '');
+				if (error == true) {
+				    return false;
+				}
+				var role = $('select[name=hiddenRole]').find('option:selected').attr('id');
+				var roleName = $( "select[name=hiddenRole] option:selected" ).text();
+				if (name == '' || mail == '' || password == '' || role == '') {
 		console.log('All fields must be filled in');
 		return false;
 	  } else {
@@ -307,6 +351,12 @@ $( document ).ready(function() {
 	     }
 	 }, 1500);
 	  }
+			     }
+			}
+		   }
+	    });
+
+	  } 
     });
     
     $( "#savePaymentOpt" ).click(function() {

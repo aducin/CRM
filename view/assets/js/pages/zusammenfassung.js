@@ -295,6 +295,7 @@ $( "#saveProjectButton" ).click(function() {
 	var client = $( 'input[name=auftraggeber]' ).val();
 	var person = $( 'input[name=ansprechpartnerBasic]' ).val();
 	var address = $( 'input[name=rechnungsadresseBasic]' ).val();
+	var curAddress = $( '#newProjectAddress' ).val();
 	var kundenauftragsnummer = $( 'input[name=kundenauftragsnummer]' ).val();
     var pattern = $( '#pattern' ).val();
     var paymentOpt = $('select[name=individual_payment] option:selected').val();
@@ -310,7 +311,7 @@ $( "#saveProjectButton" ).click(function() {
     }
     var skonto = $( '#individual_skonto' ).val();
     if (skonto != '') {
-        var skontoCheck = isInteger(pattern);
+        var skontoCheck = isInteger(skonto);
         if (skontoCheck == false) {
             $( '#individual_skonto' ).focus();
             $( '#individual_skonto' ).select();
@@ -342,28 +343,31 @@ $( "#saveProjectButton" ).click(function() {
 	} else {
         $( '#ansprechpartnerSpan' ).text('');
     }
-	if (address == '') {
+	if (curAddress == '') {
 	     $( '.addressDiv' ).removeClass('form-group').addClass('form-group has-error');
-         $( '#rechnungsadresseSpan' ).text('Suchen Sie die Rechnungsadresse aus');
+             $( '#rechnungsadresseSpan' ).text('Wählen Sie die Rechnungsadresse aus');
 	     error = true;
 	} else {
         $( '#rechnungsadresseSpan' ).text('');
     }
-	if (kundenauftragsnummer == '') {
-         $( '#numberDiv' ).removeClass('form-group').addClass('form-group has-error');
-         $( '#kundenauftragsnummerSpan' ).text('Geben Sie bitte die Auftragsnummer ein');
-         error = true;
-    } else if (kundenauftragsnummer.length < 4) {
-        $( '.numberDiv' ).removeClass('form-group').addClass('form-group has-error');
-        $( '#kundenauftragsnummerSpan' ).text('Nummer ist zu kurz');
-         error = true;
+	//if (kundenauftragsnummer == '') {
+    //     $( '#numberDiv' ).removeClass('form-group').addClass('form-group has-error');
+    //     $( '#kundenauftragsnummerSpan' ).text('Geben Sie bitte die Auftragsnummer ein');
+    //     error = true;
+    //}
+    if(kundenauftragsnummer != '') {
+        if (kundenauftragsnummer.length < 4) {
+            $( '.numberDiv' ).removeClass('form-group').addClass('form-group has-error');
+            $( '#kundenauftragsnummerSpan' ).text('Nummer ist zu kurz');
+            error = true;
+        }
     } else {
         $( '#kundenauftragsnummerSpan' ).text('');
     }
 	if (error == true) {
         $( 'input[name=projektname]' ).keyup(function() {
             var value = $( this ).val();
-            if (value.length > 3) {
+            if (value.length > 3 ) {
                 $( '.projectDiv' ).removeClass('form-group has-error').addClass('form-group');
                 $( '#projektnameSpan' ).text('');
             } else {
@@ -373,7 +377,7 @@ $( "#saveProjectButton" ).click(function() {
         });
         $( 'input[name=kundenauftragsnummer]' ).keyup(function() {
             var value = $( this ).val();
-            if (value.length > 2) {
+            if (value.length > 2 || value.length == 0) {
                 $( '#numberDiv' ).removeClass('form-group has-error').addClass('form-group');
                 $( '#kundenauftragsnummerSpan' ).text('');
             } else {
@@ -406,7 +410,7 @@ $( "#saveProjectButton" ).click(function() {
 	}
 	$( '#newProjectClient' ).val(clientId);
 	$( '#newProjectPerson' ).val(personId);
-	$( '#newProjectAddress' ).val(addressId);
+	//$( '#newProjectAddress' ).val(addressId);
 	$( "#newProjectForm" ).submit();
     });
 
@@ -533,22 +537,25 @@ $( "#saveProjectButton" ).click(function() {
 		}); 
 	});
 
-    $('input[name=auftraggeber]').blur(function() {
+    $( 'input[name=auftraggeber]' ).blur(function() {
         var currentClient = $(this).val();
         if (currentClient == '') {
-        $('input[name=invidivuell_1]').prop('disabled', 'disabled');
-        $('input[name=invidivuell_2]').prop('disabled', 'disabled');    
-	    $('input[name=ansprechpartnerBasic]').val('');
-	    $('input[name=ansprechpartnerBasic]').prop('disabled', 'disabled');
-	    $('input[name=rechnungsadresseBasic]').val('');
-	    $('input[name=rechnungsadresseBasic]').prop('disabled', 'disabled');
-        $( '#bearbeitenButton' ).prop('disabled', 'disabled');
-	    var projectId = 'ansprechpartner<>' + $( '#hiddenProjectId' ).val();
-	    changeDate(null, projectId);
-	    var projectId = 'rechnungsadresse<>' + $( '#hiddenProjectId' ).val();
-	    changeDate(null, projectId);
-	    var projectId = 'auftraggeber<>' + $( '#hiddenProjectId' ).val();
-	    changeDate(null, projectId);
+            $( 'input[name=invidivuell_1]' ).prop('disabled', 'disabled');
+            $( 'input[name=invidivuell_2]' ).prop('disabled', 'disabled');
+            $( '#lieferung_per' ).val('');
+            $( '#selectToBeDeleted' ).val('');
+            $( '#selectToBeDeleted' ).hide();    
+    	    $( 'input[name=ansprechpartnerBasic]' ).val('');
+    	    $( 'input[name=ansprechpartnerBasic]' ).prop('disabled', 'disabled');
+    	    $( 'input[name=rechnungsadresseBasic]' ).val('');
+    	    $( 'input[name=rechnungsadresseBasic]' ).prop('disabled', 'disabled');
+            $( '#bearbeitenButton' ).prop('disabled', 'disabled');
+    	    var projectId = 'ansprechpartner<>' + $( '#hiddenProjectId' ).val();
+    	    changeDate(null, projectId);
+    	    var projectId = 'rechnungsadresse<>' + $( '#hiddenProjectId' ).val();
+    	    changeDate(null, projectId);
+    	    var projectId = 'auftraggeber<>' + $( '#hiddenProjectId' ).val();
+	       changeDate(null, projectId);
         }
     });
     
@@ -729,7 +736,7 @@ $( "#saveProjectButton" ).click(function() {
     $( '.calculationCheckbox' ).change(function() {
     	var ifChecked = $(this).is(":checked");
         var column = $( this ).attr('id');
-	var projectId = $( '#hiddenProjectId' ).val();
+	    var projectId = $( '#hiddenProjectId' ).val();
         if (ifChecked == true) {
             var checkbox = 1;
         } else {
@@ -740,89 +747,95 @@ $( "#saveProjectButton" ).click(function() {
     });
 
     $( '.calcToChange' ).dblclick(function() {
-	function isInteger(value)      
-        {       
+       function isInteger(value)      
+       {       
             num = value.trim();         
             return !(value.match(/\s/g)||num==""||isNaN(num)||(typeof(value)=='number'));        
         }
         var previous = $( '.newCalc' ).val();
-	var previousId = $( '.newCalc' ).attr('id');
-	if (previousId) {
-	    var split = previousId.split('_');
-	    var parent = $( '.newCalc' ).parent();
-	    $( '.newCalc' ).remove();
-	    if (previous == '') {
-		    parent.text('--');
-	    } else if (split[0] == 'preis') {
-		    parent.text(previous + ' EURO');
-	    } else {
-		    parent.text(previous);
-	    }
-	}
-	var column = $( this ).children().attr('id');
-	var split = column.split('_');
-	var origin = split[0];
-	var total = split[1];
-	var value = $( this ).children().text();
-	var projectId = $( '#hiddenProjectId' ).val();
-	value = value.replace(" EURO", "");
-	$( this ).children().text('');
-	if (value == '--') {
-	    value = '';
-	}
-	$( this ).children().append('<input type="text" name="sth" class="form-control1 newCalc" id="' + column + '" value="' + value +'" />');
-	$( '.newCalc' ).focus();
-	$( '.newCalc' ).select();
-	if (value == '') {
-	    value = 0;
-	}
-	$( '.newCalc' ).change(function() {
-	    $( '.newCalc' ).css("border-color", "");
-	    var newValue = $( this ).val();
-	    newValue = newValue.replace(',' , '.');
-	    var valueCheck = isInteger(newValue);
-	    if (newValue  != '') {
-            if (valueCheck == false) {
-                $( this ).css('border-color', '#a94442');
-                return false;
+        var previousId = $( '.newCalc' ).attr('id');
+        if (previousId) {
+            var split = previousId.split('_');
+            var parent = $( '.newCalc' ).parent();
+            $( '.newCalc' ).remove();
+            if (previous == '') {
+                parent.text('--');
+            } else if (split[0] == 'preis') {
+                parent.text(previous + ' EURO');
+            } else {
+                parent.text(previous);
             }
         }
-        $( this ).css('background-color', '#eee');
-	$( this ).css('cursor', 'not-allowed');
-	$( this).blur();
-	    var array = ['Project_Calculation', projectId, column, newValue];
-	    changeDate('update', array);
-	    var timerId = setInterval(function() {
-		if(finalResult !== null) {
-		    if(finalResult == 'success') {
-		      $( '.newCalc' ).remove();
-		      if (newValue == '') {
-			  newValue = 0;
-		      }
-		      if (origin == 'preis') {
-			  var oldTotal = $( '#total' + total ).text();
-			  oldTotal = oldTotal.replace(' EURO', '');
-			  if (oldTotal != '') {
-			      oldTotal = parseFloat(oldTotal);
-			  }
-			  value = parseFloat(value);
-			  newValue = parseFloat(newValue);
-			  var newTotal = oldTotal - value + newValue;
-			  $( '#total' + total ).text(newTotal + ' EURO');
-			  if (newValue != 0) {
-			      newValue = newValue + ' EURO';
-			  } else {
-			      newValue = '--';
-			  }
-		      }
-		      $( '#' + column ).text(newValue);
-		    }
-		clearInterval(timerId);
-		} else {
-		    $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
-		}
-	    }, 1500);
-	});
+        var column = $( this ).children().attr('id');
+        var split = column.split('_');
+        var origin = split[0];
+        var total = split[1];
+        var value = $( this ).children().text();
+        var projectId = $( '#hiddenProjectId' ).val();
+        value = value.replace(" EURO", "");
+	    $( this ).children().text('');
+	    if (value == '--') {
+	       value = '';
+	    }
+	    $( this ).children().append('<input type="text" name="sth" class="form-control1 newCalc" id="' + column + '" value="' + value +'" />');
+    	$( '.newCalc' ).focus();
+    	$( '.newCalc' ).select();
+    	if (value == '') {
+    	    value = 0;
+    	}
+    	$( '.newCalc' ).change(function() {
+    	    $( '.newCalc' ).css("border-color", "");
+    	    var newValue = $( this ).val();
+    	    newValue = newValue.replace(',' , '.');
+    	    var valueCheck = isInteger(newValue);
+    	    if (newValue  != '') {
+                if (valueCheck == false) {
+                    $( this ).css('border-color', '#a94442');
+                    return false;
+                }
+            }
+            var type = $( this ).attr('id');
+            type = type.substr(0, 5);
+            if (type == 'preis') {
+                newValue = parseFloat(Math.round(newValue * 100) / 100).toFixed(2);
+            }
+            $( this ).css('background-color', '#eee');
+	        $( this ).css('cursor', 'not-allowed');
+	        $( this).blur();
+    	    var array = ['Project_Calculation', projectId, column, newValue];
+    	    changeDate('update', array);
+    	    var timerId = setInterval(function() {
+    		if(finalResult !== null) {
+    		    if(finalResult == 'success') {
+    		      $( '.newCalc' ).remove();
+    		      if (newValue == '') {
+    			  newValue = 0;
+    		      }
+    		      if (origin == 'preis') {
+    			  var oldTotal = $( '#total' + total ).text();
+    			  oldTotal = oldTotal.replace(' EURO', '');
+    			  if (oldTotal != '') {
+    			      oldTotal = parseFloat(oldTotal);
+    			  }
+    			  value = parseFloat(value);
+    			  newSumValue = parseFloat(newValue);
+    			  var newTotal = oldTotal - value + newSumValue;
+                  newTotal = parseFloat(Math.round(newTotal * 100) / 100).toFixed(2);
+    			  $( '#total' + total ).text(newTotal + ' EURO');
+    			  if (newValue != 0) {
+    			      newValue = newValue + ' EURO';
+    			  } else {
+    			      newValue = '--';
+    			  }
+    		      }
+    		      $( '#' + column ).text(newValue);
+    		    }
+    		clearInterval(timerId);
+    		} else {
+    		    $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
+    		}
+    	    }, 1500);
+    	});
     });
     
     $( ".notAvailable" ).mouseover(function() {

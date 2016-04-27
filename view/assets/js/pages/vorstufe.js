@@ -32,6 +32,19 @@ $( document ).ready(function() {
   
   $('input[name=hiddenVorstufeDate]').datepicker("option", "dateFormat", "dd/mm/yy");
   
+  function checkBoxChange(variable) {
+    var ifChecked = variable.is(":checked");
+    var value = variable.attr('id');
+    var rowId = variable.parent().attr('id');
+    if (ifChecked == true) {
+      var checkbox = 1;
+    } else {
+      var checkbox = 0;
+    }
+    var date = value + '<>' + checkbox;
+    changeDate(date, rowId);    
+  }
+
   function checkCheckbox(variable) {
         var ifChecked = variable.is(":checked");
         var value = variable.attr('id');
@@ -375,17 +388,12 @@ $( document ).ready(function() {
             tableRow += '</div>';
             tableRow += '<div class="vorstufeToUpdate" id="amount" style="display: none;"><input type="text" class="form-control" name="amountHidden" value="' + amount + '" /></div>';
             tableRow += '</td>';
-            tableRow += '<td class="v-center" id="' + result + '"><div class="vorstufeToChange" id="settlement">';
-            tableRow += '<input type="checkbox" id="settlement" name="hiddenSettlement"';
+            tableRow += '<td class="v-center"><div class="checkbox" id="' + result + '">';
+            tableRow += '<input name="vorstufeSettlement" id="settlement" type="checkbox"';
             if (settlement == 1) {
               tableRow += 'checked ="checked"';
             }
-            tableRow += '></div>';
-            tableRow += '<div class="checkbox vorstufeToUpdate" id="settlement" style="display: none;"><input type="checkbox" name="hiddenVorstufeSettlement"';
-            if (settlement == 1) {
-              tableRow += 'checked ="checked"';
-            }
-            tableRow += '></div></td>';
+            tableRow += ' ><label></label></div></td>';
             tableRow += '</tr>'; 
             $( '#hideVorstufeButton' ).hide();   
             $( '#saveVorstufeButton' ).hide(); 
@@ -407,6 +415,9 @@ $( document ).ready(function() {
             var toBeCloned2 = $( '.toBeCloned2'+ result );
             toBeCloned2.append(clonedType);
 
+            $('input[name=vorstufeSettlement]').change(function() {
+              checkBoxChange($( this ));  
+            });
             $("#vorstufeTable").on("click", "tr", function(){
               getRowId($(this));
             });
@@ -484,16 +495,7 @@ $( document ).ready(function() {
   });
 
   $('input[name=vorstufeSettlement]').change(function() {
-    var ifChecked = $(this).is(":checked");
-    var value = $( this ).attr('id');
-    var rowId = $( this ).parent().attr('id');
-    if (ifChecked == true) {
-      var checkbox = 1;
-    } else {
-      var checkbox = 0;
-    }
-    var date = value + '<>' + checkbox;
-    changeDate(date, rowId);    
+    checkBoxChange($( this ));  
   });
     
   $('.vorstufeToUpdate').change(function() {

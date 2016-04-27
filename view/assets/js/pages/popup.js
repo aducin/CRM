@@ -96,7 +96,46 @@ $( document ).ready(function() {
     		        if (name == '') {
                         name = '<i>keine Daten</i>';
                     }
+                    var clientEmployee = $('input[name=ansprechpartnerBasic]').attr('id');
+                    if (table == 'ansprechpartner') {
+                        if (clientEmployee == rowId) {
+                            if (value == 'name' || value == 'vorname') {
+                                if (value == 'name') {
+                                    var brother = variable.parent().next().children().text();
+                                    var complete = name + ' ' + brother;
+                                    $('input[name=ansprechpartnerBasic]').val(complete);
+                                } else if (value == 'vorname') {
+                                    var brother = variable.parent().prev().children().text();
+                                    var complete = brother + ' ' + name;
+                                    $('input[name=ansprechpartnerBasic]').val(complete);
+                                }
+                            }
+                        } 
+                    } else {
+                        var searchedName = variable.parent().parent().first().children().children().html();
+                        var searchedDepartment = variable.parent().parent().children('td').eq(1).children().html();
+                        var searchedAddress = variable.parent().parent().children('td').eq(2).children().html();
+                        //var searchedAddress2 = variable.parent().parent().children('td').eq(3).children().html();
+                        var searchedCode = variable.parent().parent().children('td').eq(4).children().html();
+                        var searchedPlace = variable.parent().parent().children('td').eq(5).children().html();
+                        var addressBeforeUpdate = searchedName + ': ' + searchedDepartment + ' - ' + searchedAddress + ', ' + searchedCode + ' ' + searchedPlace;
+                    } 
         			previous.html( name );
+                    if (table == 'rechnungsadresse') {
+                        var curAddress = $( '#selectToBeDeleted' ).children().children().children().first().text();
+                        if (curAddress == addressBeforeUpdate) {
+                            var searchedName = variable.parent().parent().first().children().children().html();
+                            var searchedDepartment = variable.parent().parent().children('td').eq(1).children().html();
+                            var searchedAddress = variable.parent().parent().children('td').eq(2).children().html();
+                            //var searchedAddress2 = variable.parent().parent().children('td').eq(3).children().html();
+                            var searchedCode = variable.parent().parent().children('td').eq(4).children().html();
+                            var searchedPlace = variable.parent().parent().children('td').eq(5).children().html();
+                            var finalAdress = searchedName + ': ' + searchedDepartment + ' - ' + searchedAddress + ', ' + searchedCode + ' ' + searchedPlace;
+                            var curAddress = $( '#selectToBeDeleted' ).children().children().first().prop('title', finalAdress);
+                            var curAddress = $( '#selectToBeDeleted' ).children().children().eq(1).children().children().first().children().children().text(finalAdress);
+                            var curAddress = $( '#selectToBeDeleted' ).children().children().children().first().text(finalAdress);
+                        }
+                    }
         			variable.hide();
                     variable.children().prop('disabled', false);
         			previous.show();
@@ -122,6 +161,35 @@ $( document ).ready(function() {
               }
             }
           }); 
+    }
+
+    function emailToCheck(mail) {
+    var column = 'auftraggeber';
+        if (window.location.href == urlPath) {
+               var path = "Api/Mail/";
+            } else {
+                var path = "../Api/Mail/";
+        }
+        $.ajax({url: path + column + '<>' + mail, 
+          type: "get",
+          success: function(result)
+                  { 
+                        if (result == 'false') {
+                            $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
+                            return true;
+                        }  else {
+                if (result != 'no match') {
+                $( '#newPopupMail' ).css('border-color', '#a94442');
+                $( '#newMailErrorSpan' ).text('Email-Adresse schon gespeichert');
+                return true;
+                 } else {
+                    $( '#newPopupMail' ).css('border-color', '');
+                $( '#newMailErrorSpan' ).text('');
+                return false;
+                 }
+            }
+           }
+        });
     }
 
     function rowClick(object) {
@@ -160,7 +228,7 @@ $( document ).ready(function() {
         $("tr.rowsBearbeitenAddress").removeAttr( 'style' );
         $('.deleteBearbeitenButtonAddress').prop('disabled', true);
     	$( '#hiddenBearbeitenTrAddress' ).fadeIn( 'slow' );
-    	$( '#hideBearbeitenButtonAddress' ).show();
+    	//$( '#hideBearbeitenButtonAddress' ).show();
         $( this ).prop('disabled', true);
     });
     
@@ -168,21 +236,21 @@ $( document ).ready(function() {
         $("tr.rowsBearbeitenPerson").removeAttr( 'style' );
         $('.deleteBearbeitenButtonPerson').prop('disabled', true);
     	$( '#hiddenBearbeitenTrPerson' ).fadeIn( 'slow' );
-    	$( '#hideBearbeitenButtonPerson' ).show();
+    	//$( '#hideBearbeitenButtonPerson' ).show();
         $( this ).prop('disabled', true);
     });
     
     $( "#newButtonAddress" ).click(function() {
         $("tr.rowsBearbeitenAddress").removeAttr( 'style' );
     	$( '#hiddenNewTrAddress' ).fadeIn( 'slow' );
-    	$( '#hideButtonAddress' ).show();
+    	//$( '#hideButtonAddress' ).show();
         $( this ).prop('disabled', true);
     });
 
     $( "#newButtonContact" ).click(function() {
         $("tr.rowsBearbeitenAddress").removeAttr( 'style' );
         $( '#hiddenNewTrContact' ).fadeIn( 'slow' );
-        $( '#hideButtonContact' ).show();
+        //$( '#hideButtonContact' ).show();
         $( this ).prop('disabled', true);
     });
 
@@ -202,29 +270,29 @@ $( document ).ready(function() {
     	$('.deleteNewButtonAddress').prop('disabled', false);
     });
     
-    $( "#hideBearbeitenButtonAddress" ).click(function() {
-    	$( '#hiddenBearbeitenTrAddress' ).fadeOut( 'slow' );
-        $('#newBearbeitenButtonAddress').prop('disabled', false);
-    	$( this ).hide();
-    });
+    //$( "#hideBearbeitenButtonAddress" ).click(function() {
+    //	$( '#hiddenBearbeitenTrAddress' ).fadeOut( 'slow' );
+    //    $('#newBearbeitenButtonAddress').prop('disabled', false);
+    //	$( this ).hide();
+    //});
     
-    $( "#hideBearbeitenButtonPerson" ).click(function() {
-    	$( '#hiddenBearbeitenTrPerson' ).fadeOut( 'slow' );
-        $('#newBearbeitenButtonPerson').prop('disabled', false);
-    	$( this ).hide();
-    });
+    //$( "#hideBearbeitenButtonPerson" ).click(function() {
+    //	$( '#hiddenBearbeitenTrPerson' ).fadeOut( 'slow' );
+    //    $('#newBearbeitenButtonPerson').prop('disabled', false);
+    //	$( this ).hide();
+    //});
     
-    $( "#hideButtonAddress" ).click(function() {
-        $( '#newButtonAddress' ).prop('disabled', false);
-    	$( '#hiddenNewTrAddress' ).fadeOut( 'slow' );
-    	$( this ).hide();
-    });
+    //$( "#hideButtonAddress" ).click(function() {
+    //    $( '#newButtonAddress' ).prop('disabled', false);
+    //	$( '#hiddenNewTrAddress' ).fadeOut( 'slow' );
+    //	$( this ).hide();
+    //});
 
-    $( "#hideButtonContact" ).click(function() {
-        $( '#newButtonContact' ).prop('disabled', false);
-        $( '#hiddenNewTrContact' ).fadeOut( 'slow' );
-        $( this ).hide();
-    });
+    //$( "#hideButtonContact" ).click(function() {
+    //    $( '#newButtonContact' ).prop('disabled', false);
+    //    $( '#hiddenNewTrContact' ).fadeOut( 'slow' );
+    //    $( this ).hide();
+    //});
     
     $( ".bearbeitenAddressToChange" ).dblclick(function() {
 	   changeRow($(this), 'Address');
@@ -357,7 +425,7 @@ $( document ).ready(function() {
                         tableRow += '</div>';
                         tableRow += '<div class="newAddressToUpdate" id="ort" style="display: none;"><input type="text" class="form-control" name="rechnungsadresse" value="' + ort + '" /></div></td>';
                         tableRow += '</tr>';
-                        $( '#hideButtonAddress' ).hide();
+                        //$( '#hideButtonAddress' ).hide();
                         $('input[name=hiddenAddressName]').val('');
                         $('input[name=hiddenAddressAbteilung]').val('');
                         $('input[name=hiddenAddressAnschrift]').val('');
@@ -646,6 +714,58 @@ $( document ).ready(function() {
                     toDelete.remove();
                     $('.deleteBearbeitenButtonAddress').prop('disabled', true);
                     $('.deleteBearbeitenButtonAddress').attr('id', '');
+                    if (window.location.href == urlPath) {
+                        path = "Api/ClientAddressData/";
+                    } else {
+                        path = "../Api/ClientAddressData/";
+                    }
+                    var clientNumber = $( '#bearbeitenKundennummer' ).val();
+                    $.ajax({url: path + '' + clientNumber,
+                        type: "get",
+                        success: function(result)
+                        {
+                            if(result != 'false') {
+                                var jsonResult = JSON.parse(result);
+                                var jsonArray = jsonResult.map(function(object)
+                                { return [object.id, object.name, object.abteilung, object.anschrift, object.anschrift2, object.plz, object.ort] });
+                                    var text = $( "#rechnungsadresse option:selected" ).text();
+                                    var textId = $( "#rechnungsadresse option:selected" ).val();
+                                    $( '#rechnungsadresseDiv' ).children().children().children().eq(1).children().children().remove();
+                                    $( '#rechnungsadresseDiv' ).children().children().children().eq(2).children().remove();
+                                    $( '#rechnungsadresse' ).append('<option selected="true" style="display:none;" value="' + textId + '">' + text + '</option>');
+                                    $( '#rechnungsadresse' ).prev().children().append('<li data-original-index="0" class="selectedToChange"><a tabindex="0" class="singleTarget" style data-tokens="null"><span class="text" id="' + textId + '">' + text + '</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li>');
+                                    var counter = 0;
+                                    var indexCounter = 1;
+                                    var popUpNewRow = '';
+                                    $.each( jsonArray, function() {
+                                        if (jsonArray[counter][0] != textId) {
+                                            $( '#rechnungsadresse' ).prev().children().append('<li data-original-index="' + indexCounter + '" class="selectedToChange"><a tabindex="0" class="singleTarget" style data-tokens="null"><span class="text" id="' + jsonArray[counter][0] + '">' + jsonArray[counter][1] + ': ' + jsonArray[counter][2] + ' - ' + jsonArray[counter][3] + ', ' + jsonArray[counter][6] + ' ' + jsonArray[counter][5] + '</span><span class="glyphicon glyphicon-ok check-mark"></span></a></li>');
+                                            $( '#rechnungsadresse' ).append('<option class="singleTarget" value="' + jsonArray[counter][0] + '">' + jsonArray[counter][1] + ': ' + jsonArray[counter][2] + ' - ' + jsonArray[counter][3] + ', ' + jsonArray[counter][6] + ' ' + jsonArray[counter][5] + '</option>');
+                                        }
+                                        indexCounter++;  
+                                        counter++;
+                                    });
+                                    $( '#selectToBeDeleted' ).show();
+                                    $( "#addressUlToAppend>li>a" ).on('click',function(){
+                                        $( '.addressDiv' ).removeClass('form-group has-error').addClass('form-group');
+                                        $( '#rechnungsadresseSpan' ).text('');
+                                        var val = $(this).children().html(); 
+                                        var numbVal = $(this).children().attr('id');
+                                        $( '.selectedToChange' ).removeClass('selected');
+                                        $(this).parent().addClass('selected');
+                                        $( '#selectToBeDeleted' ).children().children().first().prop('title', val);
+                                        $( '#selectToBeDeleted' ).children().children().children().first().html(val);
+                                        if (window.location.href == urlPath) {
+                                            $( '#newProjectAddress').val(numbVal);
+                                        } else {
+                                            var split = projectId.split("<>");
+                                            $( '#newProjectAddress').val(numbVal);
+                                            changeDate(numbVal, split);
+                                        }
+                                    });
+                            }
+                        }
+                    });
                 } else {
                     $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
                     $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
@@ -723,25 +843,44 @@ $( document ).ready(function() {
 	var date = table + '<>' + column + '<>' + value;
 	changeClientOption(date, name);
 	var timerId = setInterval(function() {
-		if(finalResult !== null) {
-		    if(finalResult == 'success') {
-			if (column == 'skonto') {
-			    $( '#skontoDisplay' ).text(name);
-			} else if (column == 'zahlungsziel_id') {
-			    $( '#zahlungszielDisplay' ).text(selectText);  
-			    var lastOption = $('select[name=individual_payment] option:selected').text();
-			    if (selectText == lastOption) {
-				  $('#invidivuell_1').attr('checked', false);
-				  $('select[name=individual_payment]').attr('disabled', 'disabled');
-			    }
-			}
-		    }
-		clearInterval(timerId);
-		} else {
-		    $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
+        if(finalResult !== null) {
+            if(finalResult == 'success') {
+                if (column == 'skonto') {
+                    $( '#skontoDisplay' ).text(name);
+                } else if (column == 'zahlungsziel_id') {
+                    $( '#zahlungszielDisplay' ).text(selectText);  
+                    var lastOption = $('select[name=individual_payment] option:selected').text();
+                    if (selectText == lastOption) {
+                      $('#invidivuell_1').attr('checked', false);
+                      $('select[name=individual_payment]').attr('disabled', 'disabled');
+                    }
+                }
+                if (input == 'name') {
+                    $('input[name=auftraggeber]').val(name);
+                }
+                if (window.location.href == urlPath) {
+                    path = "Api/DeliveryAddress/";
+                } else {
+                    path = "../Api/DeliveryAddress/";
+                }
+                $.ajax({url: path + value, 
+                    type: "get",
+                    success: function(result)
+                    {
+                        if (result != 'false') {
+                            $( '#lieferung_per' ).val(result);
+                        } else {
+                            $( '#lieferung_per' ).val('');
+                        }
+                    }
+                });
+            }
+            clearInterval(timerId);
+        } else {
+            $('#ajaxPopupError').fadeIn('slow').delay(5000).hide(1);
             $('#ajaxPopupError2').fadeIn('slow').delay(5000).hide(1);
-		}
-	    }, 1500);
+        }
+        }, 1500);
     });
 
 	$('#newPopupSave').click(function() {
@@ -759,6 +898,7 @@ $( document ).ready(function() {
 		var emailCheck = validateEmail(mail);
 		var skonto = $( '#newPopupSkonto' ).val();
 		var paymentOpt = $('select[name=zahlungsziel] option:selected').val();
+        var paymentText = $('select[name=zahlungsziel] option:selected').text();
 		if (name == '') {
             error = true;
             $( '#newPopupName' ).css('border-color', '#a94442');
@@ -803,25 +943,25 @@ $( document ).ready(function() {
 	        }
 	    }
         if (code == '') {
-        	error = true;
-		$( '#newPopupCode' ).css('border-color', '#a94442');
-		$( '#newCodeErrorSpan' ).text('Geben Sie bitte die Postleitzahl ein');
+            error = true;
+            $( '#newPopupCode' ).css('border-color', '#a94442');
+            $( '#newCodeErrorSpan' ).text('Geben Sie bitte die Postleitzahl ein');
         } else {
-    	    codeName = code.replace('-', '');
-    	    var check = isInteger(codeName);
+            codeName = code.replace('-', '');
+            var check = isInteger(codeName);
             if (check == false) {
-        		 error = true;
-        		 $( '#newPopupCode' ).css('border-color', '#a94442');
-        		 $( '#newCodeErrorSpan' ).text('Postleitzahl nicht gültig');
+                 error = true;
+                 $( '#newPopupCode' ).css('border-color', '#a94442');
+                 $( '#newCodeErrorSpan' ).text('Postleitzahl nicht gültig');
             } else if (codeName.length < 5 || codeName.length > 5) {
-        	        error = true;
-        		$( '#newPopupCode' ).css('border-color', '#a94442');
-        		$( '#newCodeErrorSpan' ).text('Postleitzahl nicht gültig');
-        	} else {
-        		$( '#newPopupCode' ).css('border-color', '');
-        		$( '#newCodeErrorSpan' ).text('');
-        	}
-	    }
+                    error = true;
+                $( '#newPopupCode' ).css('border-color', '#a94442');
+                $( '#newCodeErrorSpan' ).text('Postleitzahl nicht gültig');
+            } else {
+                $( '#newPopupCode' ).css('border-color', '');
+                $( '#newCodeErrorSpan' ).text('');
+            }
+        }
         if (phone == '') {
         	error = true;
             $( '#newPopupPhone' ).css('border-color', '#a94442');
@@ -838,17 +978,19 @@ $( document ).ready(function() {
 	        }
 	    }
         if (mail == '') {
-        	error = true;
-		$( '#newPopupMail' ).css('border-color', '#a94442');
-		$( '#newMailErrorSpan' ).text('Geben Sie bitte E-Mail-Adresse ein');
+            error = true;
+            $( '#newPopupMail' ).css('border-color', '#a94442');
+            $( '#newMailErrorSpan' ).text('Geben Sie bitte E-Mail-Adresse ein');
         } else if (emailCheck == false) {
             error = true;
             $( '#newPopupMail' ).css('border-color', '#a94442');
-	    $( '#newMailErrorSpan' ).text('Email-Adresse nicht gültig');
+            $( '#newMailErrorSpan' ).html('Email-Adresse nicht gültig');
         } else {
-    	    $( '#newPopupMail' ).css('border-color', '');
-    	    $( '#newMailErrorSpan' ).text('');
-    	}
+            var check = emailToCheck(mail); 
+            if (check == true) {
+                error = true;
+            }
+        }
         if (skonto != '') {
             skonto = skonto.replace(',', '.');
             var skontoCheck = isInteger(skonto);
@@ -984,19 +1126,25 @@ $( document ).ready(function() {
 	    });
 	    
 	    $( "#newPopupMail" ).keyup(function() {
-	      var mail = $(this).val();
-	      var emailCheck = validateEmail(mail);
-	      if (mail == '') {
-		$( '#newPopupMail' ).css('border-color', '#a94442');
-		$( '#newMailErrorSpan' ).text('Geben sie bitte E-Mail-Adresse ein');
-		} else if (emailCheck == false) {
-		    $( '#newPopupMail' ).css('border-color', '#a94442');
-		    $( '#newMailErrorSpan' ).text('Email-Adresse nicht gültig');
-		} else {
-		    $( '#newPopupMail' ).css('border-color', '');
-		    $( '#newMailErrorSpan' ).text('');
-		}
-	     });
+            var mail = $(this).val();
+            var emailCheck = validateEmail(mail);
+            if (mail == '') {
+                $( '#newPopupMail' ).css('border-color', '#a94442');
+                $( '#newMailErrorSpan' ).text('Geben sie bitte E-Mail-Adresse ein');
+            } else if (emailCheck == false) {
+                $( '#newPopupMail' ).css('border-color', '#a94442');
+                $( '#newMailErrorSpan' ).html('Email-Adresse nicht gültig');
+            } else {
+                var check = emailToCheck(mail);
+                if (check == true) {
+                } else {
+                    $( '#newPopupMail' ).css('border-color', '#a94442');
+                    $( '#newMailErrorSpan' ).text('Email-Adresse schon gespeichert');
+                }
+            $( '#newPopupMail' ).css('border-color', '');
+            $( '#newMailErrorSpan' ).text('');
+            }
+        });
         } else {
             if (window.location.href == urlPath) {
                 var path = "Api/NewClient/";
@@ -1019,6 +1167,19 @@ $( document ).ready(function() {
                             $( '#hiddenClientId' ).val(finalResult);
                             $( '#newButtonAddress' ).attr('disabled', false);
                             $( '#newButtonContact' ).attr('disabled', false);
+                            $( '#newPopupName' ).attr('disabled', true);
+                            $( '#newPopupDepartement' ).attr('disabled', true);
+                            $( '#newPopupAddress' ).attr('disabled', true);
+                            $( '#newPopupAddress2' ).attr('disabled', true);
+                            $( '#newPopupPlace' ).attr('disabled', true);
+                            $( '#newPopupCode' ).attr('disabled', true);
+                            $( '#newPopupPhone' ).attr('disabled', true);
+                            $( '#newPopupFax' ).attr('disabled', true);
+                            $( '#newPopupMail' ).attr('disabled', true);
+                            $( '#newPopupSkonto' ).attr('disabled', true);
+                            $( 'select[name=zahlungsziel]' ).attr('disabled', true);
+                            $( '#zahlungsziel' ).children().hide();
+                            $( '#zahlungsziel' ).append('<div class="btn-group bootstrap-select form-control"><input type="text" class="form-control" id="replacedPayment" value="' + paymentText + '" disabled="disabled" /></div>');
                         }
                         clearInterval(timerId);
                     } else {
@@ -1042,7 +1203,22 @@ $( document ).ready(function() {
         $( '#newPopupFax' ).val('');
         $( '#newPopupMail' ).val('');
         $( '#newPopupSkonto' ).val('');
-	$( '#kundennummer' ).val('');
+        $( '#kundennummer' ).val('');
+        $( '#newPopupName' ).attr('disabled', false);
+        $( '#newPopupDepartement' ).attr('disabled', false);
+        $( '#newPopupAddress' ).attr('disabled', false);
+        $( '#newPopupAddress2' ).attr('disabled', false);
+        $( '#newPopupPlace' ).attr('disabled', false);
+        $( '#newPopupCode' ).attr('disabled', false);
+        $( '#newPopupPhone' ).attr('disabled', false);
+        $( '#newPopupFax' ).attr('disabled', false);
+        $( '#newPopupMail' ).attr('disabled', false);
+        $( '#newPopupSkonto' ).attr('disabled', false);
+        $( 'select[name=zahlungsziel]' ).attr('disabled', false);
+        $( '#replacedPayment' ).remove();
+        $( '#zahlungsziel' ).children().show();
+        $( '#newButtonAddress' ).attr('disabled', true);
+        $( '#newButtonContact' ).attr('disabled', true);
         $( '.rowsNewAddress2' ).remove();
         $( '.rowsNewPerson2' ).remove();
         $( this ).hide();

@@ -195,6 +195,8 @@ $( document ).ready(function() {
                     var rows = document.getElementById("drucksacheTable").rows.length;
                     var number = rows -2;
                     $( '#drucksacheTable > tbody > tr:nth-child(' + number + ')' ).after(clone);
+		    var projectId = $( '#hiddenProjectId' ).val();
+                    getAmount(projectId);
                   } else {
                     $('#ajaxError').fadeIn('slow').delay(5000).hide(1);
                   }
@@ -263,6 +265,7 @@ $( document ).ready(function() {
         var remodelling = $('input[name=hiddenDrucksachenRemodelling]').val();
         var amount = $('input[name=hiddenDrucksachenAmount]').val();
         amount = amount.replace(',' , '.');
+        amount = parseFloat(Math.round(amount * 100) / 100).toFixed(2);
         var firstCheck = isNumber(edition);
         var secondCheck = isNumber(amount);
         if (firstCheck == false) {
@@ -386,22 +389,17 @@ $( document ).ready(function() {
                   tableRow += '</div>';
                   tableRow += '<div class="drucksacheToUpdate" id="remodelling" style="display: none;"><input type="text" class="form-control" name="hiddenRemodelling" value="' + remodelling + '" /></div>';
                   tableRow += '</td>';
-                  tableRow += '<td class="v-center" id="' + result + '"><div class="drucksacheToChange" id="finished">';
-                  tableRow += '<input type="checkbox" id="finished" name="hiddenFinished"';
+                  tableRow += '<td class="v-center" id="' + result + '"><div class="checkbox">';
+                  tableRow += '<input name="drucksachenFinished" id="finished" type="checkbox"';
                   if (finished == 1) {
                     tableRow += 'checked ="checked"';
                   }
-                  tableRow += '></div>';
-                  tableRow += '<div class="checkbox drucksacheToUpdate" id="finished" style="display: none;"><input type="checkbox" name="hiddenFinished"';
-                  if (finished == 1) {
-                    tableRow += 'checked ="checked"';
-                  }
-                  tableRow += '></div></td>';
+                  tableRow += '><label></label></div></td>';
                   tableRow += '<td id="' + result + '"><div class="drucksacheToChange" id="finished">';
                   if (amount.length == 0) {
                       tableRow += '<i>keine Daten</i>';
                   } else {
-                      tableRow +=  amount; 
+                      tableRow +=  amount + ' EURO'; 
                   } 
                   tableRow += '</div>';
                   tableRow += '<div class="drucksacheToUpdate" id="amount" style="display: none;"><input type="text" class="form-control" name="hiddenAmount" value="' + amount + '" /></div>';
@@ -431,7 +429,7 @@ $( document ).ready(function() {
                   $('.drucksacheToUpdate').change(function() {
                       columnChange($(this));
                   });
-                  $('input[name=hiddenFinished]').change(function() {
+                  $('input[name=drucksachenFinished]').change(function() {
                       checkCheckbox($(this));
                   });
                   getAmount(projectId);
