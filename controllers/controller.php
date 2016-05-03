@@ -17,13 +17,9 @@ class Controller
 		$this->dbHandler = $dbHandler;
 		$this->creator = new TvsatzCreator($dbHandler);
 		$this->output = new OutputController($dbHandler);
-        //if (isset($_SESSION['stayLogged']) && $_SESSION['stayLogged'] == 1) {
-        //    $this->$action();
-        //} else
 		if (isset($_GET['token'])) {
 		    $this->getLoginPage();
 		} elseif (!isset($_SESSION['log']) && !isset($_COOKIE['crm_logged'])) {
-        //} elseif (!isset($_SESSION['log']) OR !isset($_COOKIE['crm_logged'])) {
 		    if ($action == 'renderLogin') {
 			    $this->getLoginPage();
 		    } elseif ($action != 'ajax' && $action != 'login') {
@@ -34,48 +30,38 @@ class Controller
 			    }
 			    header('Location: '.$path.'Login');
 		    } else {
-                if ($action != 'login') {
-		    if(isset($_COOKIE["replace_again"])) {
-			setcookie('replace_again', '1', time()+302400);
-			setcookie('crm_logged', '1', time()+302400);
-		    } else {
-			setcookie('crm_logged', '1', time()+3600);
-		    }
-		}
 			  $this->$action();
 		    }
-		//} elseif (!isset($_SESSION['log']) && !isset($_POST['action']) && !isset($_COOKIE['crm_logged'])) {
 		} elseif (!isset($_POST['action']) && !isset($_COOKIE['crm_logged'])) { 
 		    $this->getLoginPage();
 		} else {
-            if (isset($_SESSION['user'])) {
-                $this->user = $_SESSION['user'];
-            } elseif (isset($_COOKIE['user'])) {
-                $this->user = $_COOKIE['user'];
-            } else {
-		    setcookie("crm_logged", "", time()-3600);
-		    setcookie("replace_again", "", time()-3600);
-		    setcookie("user", "", time()-3600);
-		    $this->getLoginPage();
-		    //$this->output->displayPhpError();
-            }
+		    if (isset($_SESSION['user'])) {
+			$this->user = $_SESSION['user'];
+		    } elseif (isset($_COOKIE['user'])) {
+			$this->user = $_COOKIE['user'];
+		    } else {
+			    setcookie("crm_logged", "", time()-3600);
+			    setcookie("replace_again", "", time()-3600);
+			    setcookie("user", "", time()-3600);
+			    $this->getLoginPage();
+		    }
 		    if (isset ($_GET['single'])) {
 			$this->currentId = $_GET['single'];
 		    }
             //if ($action != 'ajax' && $action != 'printDocument' && $action != 'erfassung') {
-            $suffix = Helpers::getSettings('suffix');
-            if ($suffix != '') {
-                $path = $path.'/'.$suffix;
-            }
-            if(isset($_COOKIE["replace_again"])) {
-                setcookie('replace_again', '1', time()+302400, "/", $path);
-                setcookie('crm_logged', '1', time()+302400, "/", $path);
-                setcookie('user', $this->user, time()+302400, "/", $path);
-            } else {
-                setcookie('crm_logged', '1', time()+3600, "/", $path);
-                setcookie('user', $this->user, time()+3600, "/", $path);
-            }
-            //}
+		    $path = "/";
+		    $suffix = Helpers::getSettings('suffix');
+		    $final = trim($suffix, '/');
+		    $path = $path.$final;
+		    if (isset($_COOKIE["replace_again"])) {
+			setcookie('replace_again', '1', time()+302400, $path);
+			setcookie('crm_logged', '1', time()+302400, $path);
+			setcookie('user', $this->user, time()+302400, $path);
+		    } else {
+			setcookie('crm_logged', '1', time()+3600, $path);
+			setcookie('user', $this->user, time()+3600, $path);
+		    }
+           // }
 		    if ($action == 'renderLogin') {
 			    $this->getLoginPage();
 		    } else {
