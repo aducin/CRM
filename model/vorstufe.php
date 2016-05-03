@@ -93,7 +93,14 @@ class Vorstufe extends formBasics
 	    if ($data[3] == 'none') {
 		    $data[3] = null;
 	    }
-	    $projectId = $_SESSION['projectId'];
+	    if (isset($_SESSION['projectId'])) {
+	    	$projectId = $_SESSION['projectId'];
+	    } elseif (isset($_COOKIE['projectId'])) {
+	    	$projectId = $_COOKIE['projectId'];
+	    } else {
+	    	return 'false';
+	    	exit();
+	    }
 	    $performanceTime = str_replace('/', '-', $data[2]);
 	    $settlement = intval($data[9]);
 	    $sql = 'INSERT INTO Vorstufe (projectId, type, performanceTime, employee, description, timeProposal, timeReal, timeSettlement, 

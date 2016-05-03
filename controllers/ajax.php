@@ -126,7 +126,6 @@ class Ajax
     }
   
     private function dates($date, $path) {
-// 
         if (is_array($path)) {
             $values = $path;
         } else {
@@ -252,6 +251,17 @@ class Ajax
     private function getDbHandler() {
         return $this->dbHandler;
     }
+
+    private function getDeliveryAddress($id) {
+        $auftraggeber = $this->creator->createProduct('auftraggeber');
+        $result = $auftraggeber->getDeliveryAddress($id);
+        if (is_array($result)) {
+            $final = $result["name"].': '.$result["department"].' - '.$result["address"].' '.$result["address2"].', '.$result["code"].' '.$result["place"];
+            echo $final;
+        } else {
+            echo 'false';
+        }
+    }
     
     private function getDocuments($projectId) {
     	$helpers = $this->creator->createProduct('helpers');
@@ -261,12 +271,15 @@ class Ajax
 
     private function getPaymentOption() {
         $helpers = $this->creator->createProduct('helpers');
-        $data = $helpers->getZahlungsziel();
-        if (is_array($data)) {
-            echo json_encode($data);
-        } else {
-            echo 'false';
-        }
+        $helpers->getAjaxZahlungsziel();
+    }
+    
+    private function mailCheck($value) {
+	$dates = explode('<>', $value);
+	$model = $dates[0];
+	$pattern = $dates[1];
+	$object = $this->creator->createProduct( $model );
+	$result = $object->emailCheck($pattern);
     }
     
     private function newClient($value) {
@@ -299,20 +312,25 @@ class Ajax
     }
 
     private function searchResult($name, $value, $single = null) {
-    	$object = $this->creator->createProduct($name);
-    	$result = $object->searchByName($value);
-    	if ($result == null) {
-    		$error = 'Nichts gedunden!';
-    		$data = array(
-    			'success' => 'false', 
-    			'name' => $error
-    		);
-			echo json_encode($data);
-    	} elseif ($single == 'single') {
-    		echo $result[0]['id'];
-    	} else {
-	        echo json_encode($result);
-    	}
+        $object = $this->creator->createProduct($name);
+        $result = $object->searchByName($value);
+        if (isset($single)) {
+            $result = $object->searchByUniqueName($value);
+        } else {
+            $result = $object->searchByName($value);
+        }
+        if ($result == null) {
+            $error = 'Nichts gedunden!';
+            $data = array(
+                'success' => 'false', 
+                'name' => $error
+            );
+            echo json_encode($data);
+        } elseif ($single == 'single') {
+            echo $result['id'];
+        } else {
+            echo json_encode($result);
+        }
     }
 
     private function select($value) {

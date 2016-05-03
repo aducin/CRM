@@ -102,11 +102,15 @@ class OutputController
         $machine = $this->helper->getMachine();
         if ($project != null) {
            $id = $project->getId();
+           if ($id == null) {
+                $address = 'Location: '.$this->root.'/Erfassung';
+                header( $address );
+           }
         }
         if (isset($id) && $id != null) {
            $projectName = $project->getName();
             if ($projectName == null) {
-                $address = 'Location: '.$this->root.'/Erfassung/';
+                $address = 'Location: '.$this->root.'/Erfassung';
                 header( $address );
             }
         }
@@ -134,6 +138,7 @@ class OutputController
             $customer = $project->auftraggeber->getDates();
             $sellerList = $project->ansprechpartner->getAllAnsprechpartner($customer['id']);
             $addressList = $project->rechnungsadresse->getAllRechnungsadressen($customer['id']);
+            $singleAddress = $project->rechnungsadresse->selectDates();
             $printDesc = $project->getPrintDesc();
             $seller = $project->ansprechpartner->getDates();
             $address = $project->rechnungsadresse->getDates();
@@ -215,21 +220,37 @@ class OutputController
             $thirdTable = array();
             $fourthTable = array();
             foreach ($calculationField as $singleRow) {
-		  $field = 'checkbox'.$singleRow['id'];
-		  $calculationField[$counter]['checkbox'] = $calcTable[$field];	  
-		  $firstTime = 'zeit_1_'.$singleRow['id'];
-		  $firstAmount = 'preis_1_'.$singleRow['id'];
-		  $secondTime = 'zeit_2_'.$singleRow['id'];
-		  $secondAmount = 'preis_2_'.$singleRow['id'];
-		  $thirdTime = 'zeit_3_'.$singleRow['id'];
-		  $thirdAmount = 'preis_3_'.$singleRow['id'];
-		  $fourthTime = 'zeit_4_'.$singleRow['id'];
-		  $fourthAmount = 'preis_4_'.$singleRow['id'];
-		  $firstTable[] = array('timeId' => $firstTime, 'time' => $calcTable[$firstTime], 'amountId' => $firstAmount, 'amount' => $calcTable[$firstAmount]);
-		  $secondTable[] = array('timeId' => $secondTime, 'time' => $calcTable[$secondTime], 'amountId' => $secondAmount, 'amount' => $calcTable[$secondAmount]);
-		  $thirdTable[] = array('timeId' => $thirdTime, 'time' => $calcTable[$thirdTime], 'amountId' => $thirdAmount, 'amount' => $calcTable[$thirdAmount]);
-		  $fourthTable[] = array('timeId' => $fourthTime, 'time' => $calcTable[$fourthTime], 'amountId' => $fourthAmount, 'amount' => $calcTable[$fourthAmount]);
-		  $counter++;
+    		    $field = 'checkbox'.$singleRow['id'];
+    		    $calculationField[$counter]['checkbox'] = $calcTable[$field];	  
+    		    $firstTime = 'zeit_1_'.$singleRow['id'];
+    		    $firstAmount = 'preis_1_'.$singleRow['id'];
+    		    $secondTime = 'zeit_2_'.$singleRow['id'];
+    		    $secondAmount = 'preis_2_'.$singleRow['id'];
+    		    $thirdTime = 'zeit_3_'.$singleRow['id'];
+    		    $thirdAmount = 'preis_3_'.$singleRow['id'];
+    		    $fourthTime = 'zeit_4_'.$singleRow['id'];
+    		    $fourthAmount = 'preis_4_'.$singleRow['id'];
+                if ($calcTable[$firstAmount] == null) {
+                    $firstTable[] = array('timeId' => $firstTime, 'time' => $calcTable[$firstTime], 'amountId' => $firstAmount, 'amount' => $calcTable[$firstAmount]);
+                } else {
+                    $firstTable[] = array('timeId' => $firstTime, 'time' => $calcTable[$firstTime], 'amountId' => $firstAmount, 'amount' => number_format( $calcTable[$firstAmount], 2 ));
+                }
+                if ($calcTable[$secondAmount] == null) {
+                    $secondTable[] = array('timeId' => $secondTime, 'time' => $calcTable[$secondTime], 'amountId' => $secondAmount, 'amount' => $calcTable[$secondAmount]);
+                } else {
+                    $secondTable[] = array('timeId' => $secondTime, 'time' => $calcTable[$secondTime], 'amountId' => $secondAmount, 'amount' => number_format( $calcTable[$secondAmount], 2 ));
+                }
+                if ($calcTable[$thirdAmount] == null) {
+        		    $thirdTable[] = array('timeId' => $thirdTime, 'time' => $calcTable[$thirdTime], 'amountId' => $thirdAmount, 'amount' => $calcTable[$thirdAmount]);
+                } else {
+                    $thirdTable[] = array('timeId' => $thirdTime, 'time' => $calcTable[$thirdTime], 'amountId' => $thirdAmount, 'amount' => number_format( $calcTable[$thirdAmount], 2 ));
+                }
+                if ($calcTable[$fourthAmount] == null) {
+        		    $fourthTable[] = array('timeId' => $fourthTime, 'time' => $calcTable[$fourthTime], 'amountId' => $fourthAmount, 'amount' => $calcTable[$fourthAmount]);
+                } else {
+                    $fourthTable[] = array('timeId' => $fourthTime, 'time' => $calcTable[$fourthTime], 'amountId' => $fourthAmount, 'amount' => number_format( $calcTable[$fourthAmount], 2 ));
+                }
+    		    $counter++;
             }
             $firstCount = 0;
             $secondCount = 0;
@@ -237,17 +258,21 @@ class OutputController
             $fourthTime = 0;
             $calcCount = array();
             foreach ($firstTable as $table) {
-		$calcCount[1] = $calcCount[1] + $table['amount'];
+		        $calcCount[1] = $calcCount[1] + $table['amount'];
             }
+            $calcCount[1] = number_format( $calcCount[1], 2 );
             foreach ($secondTable as $table) {
-		$calcCount[2] = $calcCount[2] + $table['amount'];
+		        $calcCount[2] = $calcCount[2] + $table['amount'];
             }
+            $calcCount[2] = number_format( $calcCount[2], 2 );
             foreach ($thirdTable as $table) {
-		$calcCount[3] = $calcCount[3] + $table['amount'];
+		        $calcCount[3] = $calcCount[3] + $table['amount'];
             }
+            $calcCount[3] = number_format( $calcCount[3], 2 );
             foreach ($fourthTable as $table) {
-		$calcCount[4] = $calcCount[4] + $table['amount'];
+		        $calcCount[4] = $calcCount[4] + $table['amount'];
             }
+            $calcCount[4] = number_format( $calcCount[4], 2 );
             $vorgang = $project->getVorgangsnummer();
             if ($vorgang == null) {
                 $vorgang = 'false';
@@ -308,6 +333,7 @@ class OutputController
                 'status' => $status,
                 'sellerList' => $sellerList,
                 'addressList' => $addressList,
+                'singleAddress' => $singleAddress,
                 'calculationFields' => $calculationField,
                 'firstCalc' => $firstTable,
                 'secondCalc' => $secondTable,

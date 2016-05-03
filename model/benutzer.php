@@ -45,7 +45,14 @@ class Benutzer
 				$this->isLogged = 1;
 				$_SESSION['log'] = 1;
 				$_SESSION['user'] = $this->id;
-				//setcookie('crm_logged', '1', time()+3600);
+				if(isset($_COOKIE["replace_again"])) {
+					setcookie('replace_again', '1', time()+302400);
+					setcookie('crm_logged', '1', time()+302400);
+					setcookie('user', $this->id, time()+302400);
+				} else {
+					setcookie('user', $this->id, time()+3600);
+					setcookie('crm_logged', '1', time()+3600);
+				}
 			} else {
 				$date = $this->checkLogin($ip);
 				if ($date == 'true') {
@@ -66,7 +73,7 @@ class Benutzer
 		} else {
 			$sql = 'SELECT * FROM Benutzer WHERE singleToken = :token AND active = 1';
 		}
-		$result=$this->dbHandler->prepare($sql);
+		$result = $this->dbHandler->prepare($sql);
 		if (isset ($password)) {
 			$result->bindValue(':password', $password);
 		}
@@ -104,31 +111,67 @@ class Benutzer
 		return $error;
 	}
 
+	public function checkUserId($mail, $password) {
+		$sql = 'SELECT id FROM Benutzer WHERE mail = :mail AND passwort = :password';
+        $result = $this->dbHandler->prepare($sql);
+		$result->bindValue(':mail', $mail);
+		$result->bindValue(':password', $password);
+		if ($result->execute()) {
+			$number = $result->fetch();
+			return $number['id'];
+		} else {
+			return 'false';
+		}
+	}
+
 	public function createBenutzer( $name, $rolle, $mail, $passwort ) {
 		$md5pass = md5($passwort);
-		$sql="INSERT INTO Benutzer (name, rolle_id, mail, passwort, create_date) VALUES (:name, :rolle, :mail, :passwort, NOW())";
+		$sql = "INSERT INTO Benutzer (name, rolle_id, mail, passwort, create_date) VALUES (:name, :rolle, :mail, :passwort, NOW())";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':name', $name);
 		$result->bindValue(':rolle', $rolle);
 		$result->bindValue(':mail', $mail);
 		$result->bindValue(':passwort', $md5pass);
-		$result->execute();
-		$this->checkBenutzer($mail, $passwort, 'true');
+		if ($result->execute()) {
+			$this->checkBenutzer($mail, $passwort, 'true');
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	public function deleteBenutzer( $id ) {
-		$sql="DELETE FROM Benutzer WHERE id = :id";
-		$result=$this->dbHandler->prepare($sql);
+		$sql = "DELETE FROM Benutzer WHERE id = :id";
+		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
-		$result->execute();
-		unset ($this->id);
-		unset ($this->name);
-		unset ($this->rolle);
+		if ($result->execute()) {
+			unset ($this->id);
+			unset ($this->name);
+			unset ($this->rolle);
+		} else {
+			$this->output->displayPhpError();
+		}
+	}
+	
+	public function emailCheck($pattern) {
+		$sql = "SELECT name FROM Benutzer WHERE mail = :mail AND active = 1";
+		$result = $this->dbHandler->prepare($sql);
+		$result->bindValue(':mail', $pattern);
+		if ($result->execute()) {
+			$final = $result->fetch();
+			if ($final == false) {
+			      echo "no match";
+			} else {
+			      $finalResult = $final['name'];
+			      echo $finalResult;
+			}
+		} else {
+			echo 'false';
+		}
 	}
 	
 	public function getBenutzerByMail($value) {
 		$sql = 'SELECT name from Benutzer WHERE mail = :mail';
-		$result=$this->dbHandler->prepare($sql);
+		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':mail', $value[0]);
 		$result->execute();
 		$ifFound = $result->fetch();
@@ -147,7 +190,13 @@ class Benutzer
 	public function getLastSearch() {
 	    $sql = 'SELECT beginDate, end, projectName, clientSearch, eventNumber, clientOrderNumber, mandant, status FROM Benutzer WHERE id = :id';
 	    $result=$this->dbHandler->prepare($sql);
-	    $result->bindValue(':id', $_SESSION['user']);
+	    if (isset($_SESSION['user'])) {
+	    	$result->bindValue(':id', $_SESSION['user']);
+	    } elseif (isset($_COOKIE['user'])) {
+	    	$result->bindValue(':id', $_COOKIE['user']);
+	    } else {
+	    	$this->output->displayPhpError();
+	    }
 	    if ($result->execute()) {
 	        $values = $result->fetch();
 	        $conditions = array(
@@ -226,8 +275,14 @@ class Benutzer
 		$result->bindValue(':eventNumber', $array['eventNumber']); 
 		$result->bindValue(':clientOrderNumber', $array['clientOrderNumber']); 
 		$result->bindValue(':mandant', $array['mandant']); 
-		$result->bindValue(':status', $array['status']); 
-		$result->bindValue(':id', $_SESSION['user']); 
+		$result->bindValue(':status', $array['status']);
+		if (isset($_SESSION['user'])) {
+	    	$result->bindValue(':id', $_SESSION['user']);
+	    } elseif (isset($_COOKIE['user'])) {
+	    	$result->bindValue(':id', $_COOKIE['user']);
+	    } else {
+	    	$this->output->displayPhpError();
+	    } 
 		if (!$result->execute()) {
 			$this->output->displayPhpError();
 		}

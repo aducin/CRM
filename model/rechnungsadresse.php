@@ -32,7 +32,7 @@ class Rechnungsadresse implements TvsatzInterface
 		$code = $values[5];
 		$place = $values[6];
 		$clientId = $values[7];
-		$sql = 'INSERT INTO Rechnungsadressen (name, abteilung, anschrift, anschrift2, plz, ort, firma_id) VALUES (:name, :departement, :address, :address2, :code, :place, :clientId)';
+		$sql = 'INSERT INTO Rechnungsadressen (name, abteilung, anschrift, anschrift2, plz, ort, firma_id, active) VALUES (:name, :departement, :address, :address2, :code, :place, :clientId, 1)';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':name', $name);
 		$result->bindValue(':departement', $departement);
@@ -50,7 +50,7 @@ class Rechnungsadresse implements TvsatzInterface
 	}
 
 	public function deleteCurrentDates() {
-		$sql = "DELETE FROM Rechnungsadressen WHERE id = :id";
+		$sql = "UPDATE Rechnungsadressen SET active = 0 WHERE id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
 		if ($result->execute()) {
@@ -69,8 +69,8 @@ class Rechnungsadresse implements TvsatzInterface
 	}
 
 	public function deleteSql( $data ) {
-		$sql = "DELETE FROM Rechnungsadressen WHERE id = :id";
-		$result=$this->dbHandler->prepare($sql);
+		$sql = "UPDATE Rechnungsadressen SET active = 0 WHERE id = :id";
+		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $data);
 		if ($result->execute()) {
 			return 'success';
@@ -80,7 +80,7 @@ class Rechnungsadresse implements TvsatzInterface
 	}
 	
 	public function getAllRechnungsadressen($id) {
-		$sql = "SELECT * FROM Rechnungsadressen WHERE firma_id = :id";
+		$sql = "SELECT * FROM Rechnungsadressen WHERE firma_id = :id AND active = 1";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
 		if ($result->execute()) {
@@ -188,7 +188,7 @@ class Rechnungsadresse implements TvsatzInterface
 	}
 
 	public function selectDates() {
-		$sql = 'SELECT name, abteilung, anschrift, anschrift2, plz, ort, firma_id, reg_date, firma_id FROM Rechnungsadressen
+		$sql = 'SELECT id, name, abteilung, anschrift, anschrift2, plz, ort, firma_id, reg_date, firma_id FROM Rechnungsadressen
 		WHERE id = :id';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);

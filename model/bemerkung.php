@@ -154,7 +154,14 @@ class Bemerkung
 	}
 
 	public function update($value) {
-		$projectId = $_SESSION['projectId'];
+		if (isset($_SESSION['projectId'])) {
+			$projectId = $_SESSION['projectId'];
+		} elseif (isset($_COOKIE['projectId'])) {
+			$projectId = $_COOKIE['projectId'];
+		} else {
+			return 'false';
+			exit();
+		}
 		$explode = explode('<><>', $value);
 		$column = $explode[0];
 		$data = $explode[1];

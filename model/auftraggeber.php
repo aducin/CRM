@@ -54,6 +54,40 @@ class Auftraggeber implements TvsatzInterface
 		}
 	}
 	
+	public function emailPhpCheck($pattern) {
+		$sql = "SELECT name FROM Auftraggeber WHERE mail = :mail";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':mail', $pattern);
+		if ($result->execute()) {
+			$final = $result->fetch();
+			if ($final == false) {
+			      return 'false';
+			} else {
+			      $finalResult = $final['name'];
+			      return $finalResult;
+			}
+		} else {
+			echo 'false';
+		}
+	}
+	
+	public function emailCheck($pattern) {
+		$sql = "SELECT name FROM Auftraggeber WHERE mail = :mail";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':mail', $pattern);
+		if ($result->execute()) {
+			$final = $result->fetch();
+			if ($final == false) {
+			      echo "no match";
+			} else {
+			      $finalResult = $final['name'];
+			      echo $finalResult;
+			}
+		} else {
+			echo 'false';
+		}
+	}
+	
 	public function getAjaxDates($id) {
 	    $sql = 'SELECT Auftraggeber.id as clientId, Auftraggeber.name as name, abteilung, anschrift, anschrift2, ort, plz, fax, telefon, mail, skonto, Zahlungsziel.id as payId, Zahlungsziel.name as payTarget FROM Auftraggeber INNER JOIN Zahlungsziel ON Auftraggeber.zahlungsziel_id = Zahlungsziel.id WHERE Auftraggeber.id = :id';
 	    $result = $this->dbHandler->prepare($sql);
@@ -65,7 +99,7 @@ class Auftraggeber implements TvsatzInterface
 			    'name' => $dates['name'], 
 			    'department' => $dates['abteilung'],
 			    'address' => $dates['anschrift'],
-			    'address2' => $dates['abteilung'],
+			    'address2' => $dates['anschrift2'],
 			    'place' => $dates['ort'],
 			    'code' => $dates['plz'],
 			    'fax' => $dates['fax'],
@@ -79,6 +113,10 @@ class Auftraggeber implements TvsatzInterface
 	     } else {
 			return 'false';
 	     }
+	}
+
+	public function getAnsprechpartner() {
+		return $this->ansprechpartner;
 	}
 	
 	public function getClientDetails($id) {
@@ -106,7 +144,7 @@ class Auftraggeber implements TvsatzInterface
 	}
 	
 	public function getDeliveryAddress($id) {
-		$sql = 'SELECT name, anschrift, anschrift2, ort, plz FROM Auftraggeber WHERE id = :id';
+		$sql = 'SELECT name, abteilung, anschrift, anschrift2, ort, plz FROM Auftraggeber WHERE id = :id';
 		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
 		if ($result->execute()) {
@@ -116,7 +154,8 @@ class Auftraggeber implements TvsatzInterface
 				'address' => $array['anschrift'],
 				'address2' => $array['anschrift2'],
 				'place' => $array['ort'],
-				'code' => $array['plz']
+				'code' => $array['plz'],
+				'department' => $array['abteilung']
 			);
 			return $final;
 		} else {
@@ -144,23 +183,32 @@ class Auftraggeber implements TvsatzInterface
 		return $this->name;
 	}
 
+	public function getObjectId() {
+		return $this->id;
+	}
+
+	public function getRechnungsadresse() {
+		return $this->rechnungsadresse;
+	}
+
 	private function getSql() {
 		$sql='SELECT Auftraggeber.name as name, abteilung, anschrift, anschrift2, plz, ort, telefon, fax, mail, skonto, zahlungsziel_id, reg_date, Zahlungsziel.name as zahlName FROM Auftraggeber
 		INNER JOIN Zahlungsziel ON Auftraggeber.zahlungsziel_id = Zahlungsziel.id 
 		WHERE Auftraggeber.id= :id';
 		return $sql;
 	}
-	
-	public function getObjectId() {
-		return $this->id;
-	}
 
-	public function getAnsprechpartner() {
-		return $this->ansprechpartner;
-	}
-
-	public function getRechnungsadresse() {
-		return $this->rechnungsadresse;
+	public function getStandardDetails($id) {
+		$sql = 'SELECT Auftraggeber.skonto, Zahlungsziel.name FROM Auftraggeber INNER JOIN Zahlungsziel ON Auftraggeber.zahlungsziel_id = Zahlungsziel.id WHERE Auftraggeber.id = :id';
+		$result = $this->dbHandler->prepare($sql);
+		$result->bindValue(':id', $id);
+		if ($result->execute()) {
+			$names = $result->fetch();
+			$result = array( 'skonto' => $names['skonto'], 'paymentOpt' => $names['name']);
+			return $result;
+		} else {
+			$this->output->displayPhpError();
+		}
 	}
 
 	private function selectDates() {
@@ -196,20 +244,26 @@ class Auftraggeber implements TvsatzInterface
 		$this->abteilung = $array[1];
 		$this->anschrift = $array[2];
 		$this->anschrift2 = $array[3];
-		$this->plz = $array[4];
-		$this->ort = $array[5];
+		$this->ort = $array[4];
+		$this->plz = $array[5];
 		$this->telefon = $array[6];
 		$this->fax = $array[7];
 		$this->mail = $array[8];
 		$this->skonto = $array[9];
 		$this->zahlungsziel = $array[10];
-		$success = $this->saveCustomDates();
-		if ($success == 'success') {
+		$check = $this->emailPhpCheck($this->mail);
+		if ($check == 'false') {
+		    $success = $this->saveCustomDates();
+		    if ($success == 'success') {
 			$this->getId();
 			return $this->getObjectId();
-		} else {
+		    } else {
 			return $success;
+		    }
+		} else {
+		    return 'false';
 		}
+		
 	}
 
 	public function saveCustomDates() {
@@ -254,6 +308,19 @@ class Auftraggeber implements TvsatzInterface
 			return $names;
 		} else {
 			$this->output->displayPhpError();
+		}
+	}
+
+	public function searchByUniqueName($name) {
+		$sql = "SELECT id, name FROM Auftraggeber WHERE name = :name";
+		$result = $this->dbHandler->prepare($sql);
+		$result->bindValue(':name', $name);
+		if ($result->execute()) {
+			$final = $result->fetch();
+			$array = array('id' => $final['id'], 'name' => $final['name']);
+			return $array;
+		} else {
+			return 'error';
 		}
 	}
 

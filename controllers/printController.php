@@ -8,6 +8,7 @@ class PrintController
 	private $output;
 	private $projectId;
 	private $project;
+	private $user;
 
 	public function __construct($dbHandler, $action) {
 		$this->dbHandler = $dbHandler;
@@ -20,6 +21,13 @@ class PrintController
 		$this->project = $this->creator->createProduct('projekt', $this->projectId);
 		$action = str_replace('/', '' , $action);
 		$finalAction = 'renderDocument'.$action;
+		if (isset($_SESSION["user"])) {
+			$this->user = $_SESSION["user"];
+		} elseif (isset($_COOKIE['user'])) {
+			$this->user = $_COOKIE['user'];
+		} else {
+			$this->output->displayPhpError();
+		}
 		$this->$finalAction();
 	}
 
@@ -97,6 +105,15 @@ class PrintController
 		}
 		if ($payment["payment"] != '') {
 			$dates['paymentOpt'] = $helper->getSingleZahlungszielDesc($payment["payment"]);
+		}
+		if (!isset($dates['skonto']) OR (!isset($dates['paymentOpt']))) {
+			$client = $this->creator->createProduct('auftraggeber');
+			$clientId = $this->project->getAuftraggeber();
+			$standardPayment = $client->getStandardDetails($clientId->getObjectId());
+			if ($standardPayment['skonto'] != '') {
+				$dates['skonto'] = $standardPayment['skonto'];
+			}
+			$dates['paymentOpt'] = $standardPayment['paymentOpt'];
 		}
 		$description = $this->creator->createProduct('bemerkung');
 		$success = $description->getDescription($descColumn, $this->projectId);
@@ -209,7 +226,7 @@ class PrintController
 		}
 		$success = $this->project->getDescToPrint($this->projectId, $desc);
 		if ($success != 'false') {
-		    $success = $document->insert($title, $_SESSION["user"], $success, $filename, $this->projectId);
+		    $success = $document->insert($title, $this->user, $success, $filename, $this->projectId);
 		    if ($success != 'false') {
 			$this->project->deleteDescToPrint($this->projectId, $desc);
 		    }
@@ -289,7 +306,7 @@ class PrintController
 		if ($conditions['ifCustom'] == 1) {
 			$client['anotherDelivery'] = $conditions['customAddress'];
 		} else {
-			$addressDates = $this->project->auftraggeber->getDeliveryAddress($this->projectId);
+			$addressDates = $this->project->auftraggeber->getDeliveryAddress($client['clientNumber']);
 			$client['deliveryName'] = $addressDates["name"];
 			$client['deliveryAddress'] = $addressDates["address"];
 			if ( $addressDates["address2"] != null) {
@@ -347,7 +364,7 @@ class PrintController
 		$success = $this->project->getDescToPrint($this->projectId, 'descToPrint5');
 		$title = 'Auftragszettel';
 		if ($success != 'false') {
-		    $success = $document->insert('Auftragszettel', $_SESSION["user"], $success, $filename, 
+		    $success = $document->insert('Auftragszettel', $this->user, $success, $filename, 
 		    $this->projectId);
 		    if ($success != 'false') {
 			$this->project->deleteDescToPrint($this->projectId, 'descToPrint5');
@@ -356,7 +373,7 @@ class PrintController
 		if ($success == 'success') {
 		    $this->renderPdf($pattern, $title, $filename, $filepath);
 		} else {
-			$_SESSION['error'] = 'Es ist leider ein Fehler aufgetreten. Versuchen Sie bitte später.';
+			//$_SESSION['error'] = 'Es ist leider ein Fehler aufgetreten. Versuchen Sie bitte später.';
 		    $this->output->displayPhpError();
 		}
 	}
@@ -404,7 +421,7 @@ class PrintController
 		$filepath = $this->filepath.$filename;
 		$success = $this->project->getDescToPrint($this->projectId, 'descToPrint6');
 		if ($success != 'false') {
-		    $success = $document->insert('Lieferschein', $_SESSION["user"], $success, $filename, $this->projectId);
+		    $success = $document->insert('Lieferschein', $this->user, $success, $filename, $this->projectId);
 		    if ($success != 'false') {
 			$this->project->deleteDescToPrint($this->projectId, 'descToPrint6');
 		    }
@@ -412,7 +429,7 @@ class PrintController
 		if ($success == 'success') {
 		    $this->renderPdf($pattern, $title, $filename, $filepath);
 		} else {
-		    $_SESSION['error'] = 'Es ist leider ein Fehler aufgetreten. Versuchen Sie bitte später.';
+		    //$_SESSION['error'] = 'Es ist leider ein Fehler aufgetreten. Versuchen Sie bitte später.';
 			$this->output->displayPhpError();
 		}
 	}

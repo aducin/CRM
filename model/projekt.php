@@ -368,67 +368,79 @@ class Projekt
 	}
 	
 	public function insertNewProject() {
-		if(!isset($_POST['mandant'])) {
+		if (!isset($_POST['mandant'])) {
 			$_POST['mandant'] = null;
 		}
-		if(isset($_POST['projectStatus']) && $_POST['projectStatus'] == 'none') {
+		if (isset($_POST['projectStatus']) && $_POST['projectStatus'] == 'none') {
 			$_POST['projectStatus'] = 1;
 		}
-		if($_POST['lieferterminInput'] == '') {
+		if ($_POST['lieferterminInput'] == '') {
 			$_POST['lieferterminInput'] = null;
 		} else {
 		    $temp = explode('/', $_POST['lieferterminInput']);
 		    $_POST['lieferterminInput'] = $temp[2].'-'.$temp[1].'-'.$temp[0];
 		}
-		if(!isset($_POST['individual_payment'])) {
+		if (!isset($_POST['individual_payment'])) {
 			if(!isset($_POST["individual_paymentOpt"])) {
 				$_POST['individual_payment'] = null;
 			} else {
 				$_POST['individual_payment'] = $_POST["individual_paymentOpt"];
 			}
+			if ($_POST['individual_payment'] == '') {
+			    $_POST['individual_payment'] = null;
+			}
 		}
-		if(!isset($_POST['individual_skonto'])) {
+		if (!isset($_POST['individual_skonto'])) {
 			$_POST['individual_skonto'] = null;
 		}
-		if(!isset($_POST['pattern'])) {
+		if (!isset($_POST['pattern'])) {
 			$_POST['pattern'] = null;
 		}
-		if(!isset($_POST['pattern_to'])) {
+		if (!isset($_POST['pattern_to'])) {
 			$_POST['pattern_to'] = null;
 		}
-		if(!isset($_POST['lieferant_id'])) {
+		if (!isset($_POST['lieferant_id'])) {
 			$_POST['lieferant_id'] = null;
 		}
-		if(!isset($_POST['desc1_an'])) {
+		if (!isset($_POST['desc1_an'])) {
 			$_POST['desc1_an'] = 0;
 		} elseif ($_POST['desc1_an'] == 'on') {
 			$_POST['desc1_an'] = 1;
 		}
-		if(!isset($_POST['desc1_au'])) {
+		if (!isset($_POST['desc1_au'])) {
 			$_POST['desc1_au'] = 0;
 		} elseif ($_POST['desc1_au'] == 'on') {
 			$_POST['desc1_au'] = 1;
 		}
-		if(!isset($_POST['desc1_pm'])) {
+		if (!isset($_POST['desc1_pm'])) {
 			$_POST['desc1_pm'] = 0;
 		} elseif ($_POST['desc1_pm'] == 'on') {
 			$_POST['desc1_pm'] = 1;
 		}
-		if(!isset($_POST['desc1_re'])) {
+		if (!isset($_POST['desc1_re'])) {
 			$_POST['desc1_re'] = 0;
 		} elseif ($_POST['desc1_re'] == 'on') {
 			$_POST['desc1_re'] = 1;
 		}
-		if(!isset($_POST['desc1_li'])) {
+		if (!isset($_POST['desc1_li'])) {
 			$_POST['desc1_li'] = 0;
 		} elseif ($_POST['desc1_li'] == 'on') {
 			$_POST['desc1_li'] = 1;
 		}
-		if(!isset($_POST['desc1'])) {
+		if (!isset($_POST['desc1'])) {
 			$_POST['desc1'] = null;
 		}
-		if(!isset($_POST['desc1'])) {
+		if (!isset($_POST['desc1'])) {
 			$_POST['desc5'] = null;
+		}
+		if ($_POST['clientId'] == '') {
+			$this->output->displayPhpError();
+		}
+		if ($_POST['personId'] == '') {
+			$this->output->displayPhpError();
+		}
+		if ($_POST['addressId'] == '') {
+			$this->output->displayPhpError();
 		}
 	    $sql = 'INSERT INTO Projekt (name, kundenauftragsnummer, auftraggeber, rechnungsadresse, ansprechpartner, mandant_select, status, deliveryTime, individual_payment, individual_skonto, pattern, pattern_to, lieferant_id) 
 			VALUES
@@ -437,8 +449,8 @@ class Projekt
 	    $result->bindValue(':name', $_POST['projektname']);
 	    $result->bindValue(':kundenauftragsnummer', $_POST['kundenauftragsnummer']);
 	    $result->bindValue(':auftraggeber', $_POST['clientId']);
-	    $result->bindValue(':rechnungsadresse', $_POST['personId']);
-	    $result->bindValue(':ansprechpartner', $_POST['addressId']);
+	    $result->bindValue(':rechnungsadresse', $_POST['addressId']);
+	    $result->bindValue(':ansprechpartner', $_POST['personId']);
 	    $result->bindValue(':mandant', $_POST['mandant']);
 	    $result->bindValue(':projectStatus', $_POST['projectStatus']);
 	    $result->bindValue(':lieferterminInput', $_POST['lieferterminInput']);
@@ -710,7 +722,13 @@ class Projekt
 		$sql = 'SELECT Projekt.id as id, Projekt.deliveryTime as liefdate, Projekt.name as proname, Projekt.auftragsnummer as aufnumb FROM Projekt INNER JOIN Auftraggeber ON Projekt.auftraggeber = Auftraggeber.id'.$implodeSelect;
 		$result=$this->dbHandler->prepare($sql);
 		if ($result->execute()) {
-			$this->setBenutzer($_SESSION['user']);
+			if (isset($_SESSION['user'])) {
+		    	$this->setBenutzer($_SESSION['user']);
+		    } elseif (isset($_COOKIE['user'])) {
+		    	$this->setBenutzer($_COOKIE['user']);
+		    } else {
+		    	$this->output->displayPhpError();
+		    }
 			$this->benutzer->setIsLogged();
 			$this->benutzer->saveLastSql($sql);
 			$searchResult = array();

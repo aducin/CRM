@@ -33,7 +33,7 @@ class Ansprechpartner implements TvsatzInterface
 		$fax = $values[5];
 		$mail = $values[6];
 		$clientId = $values[7];
-		$sql = 'INSERT INTO Ansprechpartner (name, vorname, telefon, telefon2, fax, mail, firma_id) VALUES (:name, :vorname, :telefon, :telefon2, :fax, :mail, :clientId)';
+		$sql = 'INSERT INTO Ansprechpartner (name, vorname, telefon, telefon2, fax, mail, firma_id, active) VALUES (:name, :vorname, :telefon, :telefon2, :fax, :mail, :clientId, 1)';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':name', $name);
 		$result->bindValue(':vorname', $vorname);
@@ -51,7 +51,7 @@ class Ansprechpartner implements TvsatzInterface
 	}
 
 	public function deleteCurrentDates() {
-		$sql = "DELETE FROM Ansprechpartner WHERE id = :id";
+		$sql = "UPDATE Ansprechpartner SET active = 0 WHERE id = :id";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
 		if ($result->execute()) {
@@ -70,8 +70,8 @@ class Ansprechpartner implements TvsatzInterface
 	}
 
 	public function deleteSql( $data ) {
-		$sql = "DELETE FROM Ansprechpartner WHERE id = :id";
-		$result=$this->dbHandler->prepare($sql);
+		$sql = "UPDATE Ansprechpartner SET active = 0 WHERE id = :id";
+		$result = $this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $data);
 		if ($result->execute()) {
 			return 'success';
@@ -80,8 +80,25 @@ class Ansprechpartner implements TvsatzInterface
 		}
 	}
 	
+	public function emailCheck($pattern) {
+		$sql = "SELECT name, vorname FROM Ansprechpartner WHERE mail = :mail";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':mail', $pattern);
+		if ($result->execute()) {
+			$final = $result->fetch();
+			if ($final == false) {
+			      echo "no match";
+			} else {
+			      $finalResult = $final['name'].' '.$final['vorname'];
+			      echo $finalResult;
+			}
+		} else {
+			echo 'false';
+		}
+	}
+	
 	public function getAllAnsprechpartner($id) {
-		$sql = "SELECT * FROM Ansprechpartner WHERE firma_id = :id";
+		$sql = "SELECT * FROM Ansprechpartner WHERE firma_id = :id AND active = 1";
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $id);
 		if ($result->execute()) {
@@ -187,9 +204,22 @@ class Ansprechpartner implements TvsatzInterface
 		return $finalResult;
 	}
 
+	public function searchByUniqueName($name) {
+		$sql = "SELECT id, CONCAT_WS(' ', name, vorname) AS name FROM Ansprechpartner WHERE CONCAT_WS(' ', name, vorname) = :name";
+		$result=$this->dbHandler->prepare($sql);
+		$result->bindValue(':name', $name);
+		if ($result->execute()) {
+			$final = $result->fetch();
+			$array = array('id' => $final['id'], 'name' => $final['name']);
+			return $array;
+		} else {
+			return 'false';
+		}
+	}
+
 	private function selectDates() {
 		$sql='SELECT name, vorname, telefon, telefon2, fax, mail, reg_date, firma_id FROM Ansprechpartner 
-		WHERE id= :id';
+		WHERE id= :id AND active = 1';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':id', $this->id);
 		if ($result->execute()) {
@@ -224,8 +254,8 @@ class Ansprechpartner implements TvsatzInterface
 	}
 
 	public function saveCustomDates() {
-		$sql = 'INSERT INTO Ansprechpartner (name, vorname, telefon, telefon2, fax, mail, reg_date, firma_id) 
-			VALUES ( :name, :vorname, :telefon, :telefon2, :fax, :mail, NOW(), :firma_id )';
+		$sql = 'INSERT INTO Ansprechpartner (name, vorname, telefon, telefon2, fax, mail, reg_date, firma_id, active) 
+			VALUES ( :name, :vorname, :telefon, :telefon2, :fax, :mail, NOW(), :firma_id, 1 )';
 		$result=$this->dbHandler->prepare($sql);
 		$result->bindValue(':name', $this->name);
 		$result->bindValue(':vorname', $this->vorname);

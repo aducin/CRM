@@ -6,7 +6,7 @@ class Helpers
 	private $dbHandler;
 	private $art = array();
 	private $kalkulationsfelder = array();
-	private $mandant = array ('TVS', 'Sonst.');
+	private $mandant = array ('TVS', 'MW-Vogler');
 	private $zahlungsziel = array();
 	private $benutzerList = array();
 	private $rolle = array();
@@ -38,7 +38,7 @@ class Helpers
 	
 	public function configDelete($table, $rowId) {
 		if ($table == 'Zahlungsziel') {
-			$sql = 'DELETE FROM '.$table.' WHERE id = '.$rowId;
+			$sql = 'UPDATE '.$table.' SET active = 0 WHERE id = '.$rowId;
 			$result=$this->dbHandler->prepare($sql);
 		} else {
 			$sql = 'UPDATE '.$table.' SET active = 0 WHERE id = '.$rowId;
@@ -56,7 +56,7 @@ class Helpers
 		$table = $values[0];
 		$name = $values[1];
 		if ($table == 'Zahlungsziel') {
-		    $sql = "INSERT INTO Zahlungsziel (name, beschreibung) VALUES (:name, :description)";
+		    $sql = "INSERT INTO Zahlungsziel (name, beschreibung, active) VALUES (:name, :description, 1)";
 		    $result=$this->dbHandler->prepare($sql);
 		    $result->bindValue(':name', $name);
 		    $result->bindValue(':description', $data);
@@ -375,11 +375,25 @@ class Helpers
 			$this->output->displayPhpError();
 		}
 	}
+
+	public function getAjaxZahlungsziel() {
+		$sql = 'SELECT id, name, beschreibung FROM Zahlungsziel WHERE active = 1';
+		$result = $this->dbHandler->prepare($sql);
+		if ($result->execute()) {
+			$list = array();
+			foreach ($result as $singleResult) {
+				$list[] = array('id'=>$singleResult['id'], 'name'=>$singleResult["name"], 'beschreibung' => $singleResult["beschreibung"]);
+			}
+			echo json_encode($list);
+		} else {
+			$output = new OutputController($dbHandler);
+			$this->output->displayPhpError();
+		}
+	}
 	
 	public function getZahlungsziel() {
-		
-		$sql='SELECT id, name, beschreibung FROM Zahlungsziel';
-		$result=$this->dbHandler->prepare($sql);
+		$sql = 'SELECT id, name, beschreibung FROM Zahlungsziel WHERE active = 1';
+		$result = $this->dbHandler->prepare($sql);
 		if ($result->execute()) {
 			$ziel = array();
 			foreach ($result as $singleResult) {
