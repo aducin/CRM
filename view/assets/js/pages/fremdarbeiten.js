@@ -106,10 +106,12 @@ $( document ).ready(function() {
       if (name == '') {
         name = '<i>keine Daten</i>';
       }
-		  if (value == 'purchasePrice' || value == 'sellPrice') {
+      if (value == 'purchasePrice' || value == 'sellPrice') {
         if (name == '.00') {
           name = '<i>keine Daten</>';
-        }
+        } else {
+	  name = name + ' EURO';
+	}
 		    previous.html( name );
 		    var projectId = $( '#hiddenProjectId').val();
 		    getAmount(projectId);
@@ -240,7 +242,7 @@ $( document ).ready(function() {
             if (purchasePrice.length == 0) {
               tableRow += '0';
             } else {
-              tableRow +=  purchasePrice; 
+              tableRow +=  purchasePrice + ' EURO'; 
             }
             tableRow += '</div>';
             tableRow += '<div class="fremdarbeitenToUpdate" id="purchasePrice" style="display: none;"><input type="text" class="form-control" name="hiddenPurchasePrice" value="' + purchasePrice + '" /></div>';
@@ -248,7 +250,7 @@ $( document ).ready(function() {
             if (sellPrice.length == 0) {
               tableRow += '0';
             } else {
-              tableRow +=  sellPrice; 
+              tableRow +=  sellPrice + ' EURO'; 
             }
             tableRow += '</div>';
             tableRow += '<div class="fremdarbeitenToUpdate" id="sellPrice" style="display: none;"><input type="text" class="form-control" name="hiddenSellPrice" value="' + sellPrice + '" /></div>';

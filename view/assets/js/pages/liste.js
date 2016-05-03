@@ -1,7 +1,7 @@
 $( document ).ready(function() {
 
-    $( '#datumsbereich-von' ).css('visibility', 'visible');
-    $( '#datumsbereich-bis' ).css('visibility', 'visible');
+    //$( '#datumsbereich-von' ).css('visibility', 'visible');
+    //$( '#datumsbereich-bis' ).css('visibility', 'visible');
     
     $('#datumsbereich-von').datepicker( {
         changeDay: true,
@@ -33,6 +33,10 @@ $( document ).ready(function() {
 
     $.datepicker.setDefaults($.datepicker.regional['de']);
 
+    var begin = $( '#vonToChange' ).val();
+    var finish = $( '#bisToChange' ).val();
+    $('#datumsbereich-von').val(begin);
+    $('#datumsbereich-bis').val(finish);
     $('#datumsbereich-von').datepicker("option", "dateFormat", "dd/mm/yy");
     $('#datumsbereich-bis').datepicker("option", "dateFormat", "dd/mm/yy");
 

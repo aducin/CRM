@@ -1,5 +1,31 @@
 $( document ).ready(function() {
 
+  var tempFirst = $( '#hiddenAmendmentTime' ).val();
+  var firstToChange = tempFirst.split('/');
+  tempFirst = firstToChange[1] + '/' + firstToChange[0] + '/' + firstToChange[2];
+  if (tempFirst == '//') {
+    tempFirst = '';
+  }
+  $( '#amendmentTime' ).val(tempFirst);
+  $( '#termin_fremdarbeiten' ).val(tempFirst);
+
+  var tempSecond = $( '#hiddenDateTime' ).val();
+  var secondToChange = tempSecond.split('/');
+  tempSecond = secondToChange[1] + '/' + secondToChange[0] + '/' + secondToChange[2];
+  if (tempSecond == '//') {
+    tempSecond = '';
+  }
+  $( '#dateTime' ).val(tempSecond);
+  $( '#termin_fremdarbeitenDaten' ).val(tempSecond);
+
+  var tempThird = $( '#hiddenProofTime' ).val();
+  var thirdToChange = tempThird.split('/');
+  tempThird = thirdToChange[1] + '/' + thirdToChange[0] + '/' + thirdToChange[2];
+  if (tempThird == '//') {
+    tempThird = '';
+  }
+  $( '#proofTime' ).val(tempThird);
+
   $('input[name=hiddenVorstufeDate]').datepicker( {
         changeDay: true,
         changeMonth: true,

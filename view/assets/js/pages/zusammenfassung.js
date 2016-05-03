@@ -474,7 +474,7 @@ $( "#saveProjectButton" ).click(function() {
 								success: function(result)
 								{
                                     $( '#ansprechpartnerSpan' ).text('');
-									$('input[name=ansprechpartnerBasic]').attr('id', result);
+									$('input[name=ansprechpartnerBasic]').attr('id', result + '<>' + name);
 									if (concrete == true) {
 										var projectId = 'ansprechpartner<>' + $( '#hiddenProjectId' ).val();
 										changeDate(result, projectId);

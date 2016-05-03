@@ -1,5 +1,13 @@
 $( document ).ready(function() {
   
+  var druckTemp = $( '#hiddenprintTime' ).val();
+  var firstToChange = druckTemp.split('/');
+  druckTemp = firstToChange[1] + '/' + firstToChange[0] + '/' + firstToChange[2];
+  if (druckTemp == '//') {
+    druckTemp = '';
+  }
+  $( '#printTime' ).val(druckTemp);
+
     function checkCheckbox(variable) {
         var ifChecked = variable.is(":checked");
         var value = variable.attr('id');
